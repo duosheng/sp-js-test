@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+
+
+<?xml version="1.0"?>
+<object>
+    <string name="order">date</string>
+    <boolean name="desc">true</boolean>
+    <string name="operator">or</string>
+    <array name="condictions">
+        <object>
+            <string name="field">from</string>
+            <string name="operator">contains</string>
+            <string name="operand">招商</string>
+            <boolean name="ignoreCase">true</boolean>
+        </object>
+        <object>
+            <string name="field">to</string>
+            <string name="operator">contains</string>
+            <string name="operand">招商</string>
+            <boolean name="ignoreCase">true</boolean>
+        </object>
+        <object>
+            <string name="field">subject</string>
+            <string name="operator">contains</string>
+            <string name="operand">招商</string>
+            <boolean name="ignoreCase">true</boolean>
+        </object>
+    </array>
+    <int name="windowSize">20</int>
+</object>
+
+<object>
+<string name="order">date</string>
+<boolean name="desc">true</boolean>
+<string name="operator">or</string>
+<array name="condictions">
+    <object>
+        <string name="field">from</string>
+        <string name="operator">contains</string>
+        <string name="operand">招商</string>
+        <boolean name="ignoreCase">true</boolean>
+    </object>
+    <object>
+        <string name="field">subject</string>
+        <string name="operator">contains</string>
+        <string name="operand">undefined</string>
+        <boolean name="ignoreCase">true</boolean>
+    </object>
+</array>
+<int name="windowSize">50</int>
+</object>
+
+        <?xml version="1.0"?>
+<object>
+<string name="id">464:xtbB0AOHyFUL8VrWXgAAsh</string>
+<string name="mode">both</string>
+<boolean name="autoName">true</boolean>
+<boolean name="supportTNEF">true</boolean>
+<boolean name="filterStylesheets">true</boolean>
+<boolean name="returnImageInfo">true</boolean>
+</object>

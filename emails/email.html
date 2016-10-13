@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head lang="zh-cmn-Hans">
+    <meta charset="UTF-8">
+    <title>邮件爬取</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=0.5,user-scalable=no"/>
+    <meta name="keywords" content="小赢卡贷">
+    <meta name="description" content="小赢卡贷-邮箱登录">
+</head>
+<style>
+    html {
+        font-size: 20px;
+        -webkit-user-select: none;
+    }
+
+    a, a:visited {
+        color: #5d7895;
+        text-decoration: none;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+        color: #555;
+        font: 1.6rem 'microsoft yahei', arial, simsun;
+    }
+
+    .cf:before,
+    .cf:after {
+        content: "";
+        display: table;
+    }
+
+    .cf:after {
+        clear: both;
+    }
+
+    .page {
+        min-width: 320px;
+        max-width: 900px;
+        border: #eee 1px solid;
+        margin: 0 auto;
+        box-sizing: border-box;
+    }
+
+    button,
+    input,
+    optgroup,
+    select,
+    textarea {
+        color: inherit; /* 1 */
+        font: inherit; /* 2 */
+        margin: 0; /* 3 */
+
+    }
+
+    input, button {
+        display: block;
+        width: 90%;
+        padding: 1rem;
+        outline: none;
+        font-size: 1.5rem;
+    }
+
+    input {
+        border: .1rem #64C0F0 solid;
+        color: #777;
+        margin: 3rem auto;
+    }
+
+    button {
+        border: none;
+        background: #64C0F0;
+        box-shadow: #777 3px 3px 5px;
+        color: white;
+        padding: 1.2rem;
+        margin: 0 auto;
+        border-radius: 3px;
+    }
+
+    button:active {
+        background: #2189bf;
+        box-shadow: #555 3px 3px 10px;
+
+    }
+
+    button:disabled {
+        background: #bbb;
+        color: #eee;
+    }
+
+</style>
+<body>
+
+<input id="wd" type="text" style="margin-top: 30% " placeholder="请输入关键字"/>
+<input id="email" type="email" placeholder="请输入邮箱"/>
+<button disabled>下一步</button>
+<script>
+    function init(callback) {
+        var t = setInterval(function () {
+            if (!window.xyApiLoaded) {
+               return
+            }
+            clearInterval(t);
+            callback(dQuery);
+        }, 20);
+    }
+
+    init(function ($) {
+        var url = {
+            "sina.com": "http://mail.sina.cn/?vt=4",
+            "sina.cn": "http://mail.sina.cn/?vt=4",
+            "qq.com": "https://w.mail.qq.com/cgi-bin/loginpage?f=xhtml",
+            "163.com": "http://smart.mail.163.com/?dv=smart",
+            "126.com": "http://smart.mail.126.com/?dv=smart"
+        }
+        var btn = $("button");
+        var wd = $("#wd")
+        var email = $("#email")
+        $("input").on("input", function (e) {
+            var text = email.val()
+            var check = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/
+            if (!wd.val().empty() && check.test(text)) {
+                btn.removeAttr("disabled")
+            } else {
+                btn.attr("disabled", "disabled")
+            }
+        })
+        log("get u start")
+        local.get("u", function (d) {
+            email.val(d).trigger("input")
+            log("get end")
+        })
+
+        local.get("wd", function (d) {
+            wd.val(d).trigger("input")
+        })
+        btn.click(function () {
+            var em = email.val().trim();
+            var suffix = em.split("@")[1]
+            if (url[suffix]) {
+                log("set u start")
+                local.set("u", em)
+                log("set wd start")
+                local.set("wd", wd.val())
+                btn.text("加载中...").attr("disabled", "disabled");
+                if (suffix == "126.com" && window._xy/*&&_xy.getExtraData().webcore=="sys"*/) {
+                    _xy.openWithSpecifiedCore(url[suffix], "cs");
+                }
+                if (suffix == "qq.com" && window._xy/*&&_xy.getExtraData().webcore=="sys"*/) {
+                    _xy.openWithSpecifiedCore(url[suffix], "sys");
+                }
+                location.href=url[suffix];
+            } else {
+                alert("暂不支持后缀为%s的邮箱".format(url[suffix]));
+            }
+        })
+    });
+</script>
+</body>
+</html>
