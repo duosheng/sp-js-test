@@ -1,4 +1,4 @@
-window.local = {
+var dSpiderLocal = {
     set: function (k, v) {
         return _xy.save(k, v)
     },
@@ -28,7 +28,9 @@ DataSession.prototype = {
         f && f(JSON.parse(t || "{}"))
     },
     "get": function (key, f) {
-        f && f(this.data()[key]);
+        this.data(function (d) {
+            f && f(d[key])
+        })
     },
     "set": function (key, value) {
         var t = _xy.get(this.key);
@@ -57,12 +59,14 @@ DataSession.prototype = {
         _xy.hideLoading()
     },
     "finish": function (errmsg, content, code) {
+        this.hideLoading();
+        this.showProgress(false);
         this.finished=true;
         if (errmsg) {
             var ob = {
                 url: location.href,
                 msg: errmsg,
-                content: content == undefined ? document.documentElement.outerHTML : content,
+                content: content||document.documentElement.outerHTML ,
                 extra: _xy.getExtraData()
             }
             return _xy.finish(this.key || "", code || 2, JSON.stringify(ob));
@@ -75,14 +79,17 @@ DataSession.prototype = {
         }
         return _xy.push(this.key, value)
     },
-
+    "openWithSpecifiedCore":function(url, core){
+        _xy.openWithSpecifiedCore(url, core)
+    },
     "string": function (f) {
-        f=safeCallback(f);
-        var d = JSON.stringify(_xy.get(this.key));
-        f && f(d);
-        f || log(d);
+        this.data(function (d) {
+            f || log(d)
+            f && f(d)
+        })
     }
 };
+
 apiInit();
 
 

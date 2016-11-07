@@ -114,6 +114,7 @@
     }
 
     init(function ($) {
+
         var url = {
             "sina.com": "http://mail.sina.cn/?vt=4",
             "sina.cn": "http://mail.sina.cn/?vt=4",
@@ -134,12 +135,12 @@
             }
         })
         log("get u start")
-        local.get("u", function (d) {
+        dSpiderLocal.get("u", function (d) {
             email.val(d).trigger("input")
             log("get end")
         })
 
-        local.get("wd", function (d) {
+        dSpiderLocal.get("wd", function (d) {
             wd.val(d).trigger("input")
         })
         btn.click(function () {
@@ -147,9 +148,9 @@
             var suffix = em.split("@")[1]
             if (url[suffix]) {
                 log("set u start")
-                local.set("u", em)
+                dSpiderLocal.set("u", em)
                 log("set wd start")
-                local.set("wd", wd.val())
+                dSpiderLocal.set("wd", wd.val())
                 btn.text("加载中...").attr("disabled", "disabled");
                 if (suffix == "126.com" && window._xy/*&&_xy.getExtraData().webcore=="sys"*/) {
                     _xy.openWithSpecifiedCore(url[suffix], "cs");
@@ -157,6 +158,7 @@
                 if (suffix == "qq.com" && window._xy/*&&_xy.getExtraData().webcore=="sys"*/) {
                     _xy.openWithSpecifiedCore(url[suffix], "sys");
                 }
+                //alert(suffix)
                 location.href=url[suffix];
             } else {
                 alert("暂不支持后缀为%s的邮箱".format(url[suffix]));

@@ -18,10 +18,17 @@ String.prototype.empty = function () {
     return this.trim() === "";
 };
 
-function log(){
-  for(var i=0;i<arguments.length;++i)  {
-      console.log("xy log: "+arguments[i]);
-  }
+function log() {
+    for (var i = 0; i < arguments.length; ++i) {
+        var str = arguments[i];
+        str = typeof str == "object" ? JSON.stringify(str) : str;
+        console.log("xy log: " + str);
+    }
+}
+//异常捕获
+function errorReport(e) {
+    console.error("xy log: 语法错误: " + e.message + e.stack);
+    window.curSession && curSession.finish(e.toString(), "")
 }
 
 String.prototype.endWith = function (str) {
@@ -41,42 +48,38 @@ MutationObserver = window.MutationObserver ||
     window.WebKitMutationObserver ||
     window.MozMutationObserver;
 
-//异常捕获
-function errorReport(e){
-    log(" 语法错误: "+e.toString());
-    window.curSession&&curSession.finish(e.toString(),"")
-}
-
-function  safeCallback(f){
+function safeCallback(f) {
     if (!(f instanceof Function)) return f;
-    return function (){
+    return function () {
         try {
-            f.apply(this,arguments)
-        }catch (e){
+            f.apply(this, arguments)
+        } catch (e) {
             errorReport(e)
         }
     }
 }
 //设置dQuery异常处理器
-dQuery.safeCallback=safeCallback;
-dQuery.errorReport=errorReport;
+dQuery.safeCallback = safeCallback;
+dQuery.errorReport = errorReport;
 
 
-function hook(fun){
-    return function() {
+function hook(fun) {
+    return function () {
         if (!(arguments[0] instanceof Function)) {
-            t=arguments[0];
-            log("warning: "+fun.name+" first argument could be function not string ")
-            arguments[0]=function(){eval(t)};
+            t = arguments[0];
+            log("warning: " + fun.name + " first argument should be function not string ")
+            arguments[0] = function () {
+                eval(t)
+            };
         }
-        arguments[0]=safeCallback(arguments[0]);
-        return fun.apply(this,arguments)
+        arguments[0] = safeCallback(arguments[0]);
+        return fun.apply(this, arguments)
     }
 }
 
 //hook setTimeout,setInterval异步回调
-setTimeout=hook(setTimeout);
-setInterval=hook(setInterval);
+setTimeout = hook(setTimeout);
+setInterval = hook(setInterval);
 
 //dom 监控
 function DomNotFindReport(selector) {
@@ -107,50 +110,74 @@ function Observe(ob, options, callback) {
 }
 
 //dquery,api加载成功的标志是window.xyApiLoaded=true,所有操作都必须在初始化成功之后
-function apiInit(){
+function apiInit() {
     dQuery.noConflict();
-    function withCheck(attr){
-        var f= DataSession.prototype[attr];
-        return function (){
-            if(this.finished){
-                log("call "+attr+" ignored, finish has been called! ")
-            }else {
-                return f.apply(this,arguments);
+    var withCheck=function(attr) {
+        var f = DataSession.prototype[attr];
+        return function () {
+            if (this.finished) {
+                log("call " + attr + " ignored, finish has been called! ")
+            } else {
+                return f.apply(this, arguments);
             }
         }
     }
-    for (var attr in DataSession.prototype){
-        DataSession.prototype[attr]=withCheck(attr);
+
+    for (var attr in DataSession.prototype) {
+        DataSession.prototype[attr] = withCheck(attr);
     }
     var t = setInterval(function () {
-        if (!(window._xy||window.bridge)) {
+        if (!(window._xy || window.bridge)) {
             return;
         }
-        window.xyApiLoaded=true;
+        window.xyApiLoaded = true;
         clearInterval(t);
+    }, 20);
+}
+
+//爬取入口
+function dSpider(sessionKey, callback) {
+    var t = setInterval(function () {
+        if (window.xyApiLoaded) {
+            clearInterval(t);
+        } else {
+            return;
+        }
+        var session = new DataSession(sessionKey);
+        window.onbeforeunload = function () {
+            if(session.onNavigate){
+                session.onNavigate(location.href);
+            }
+        }
+        window.curSession = session;
+        DataSession.getExtraData(function (extras) {
+            callback(session, extras, dQuery);
+        })
+
     }, 20);
 }
 
 //邮件爬取入口
 function dSpiderMail(sessionKey, callback) {
-    var t= setInterval(function(){
-        if(window.xyApiLoaded) {
+    var t = setInterval(function () {
+        if (window.xyApiLoaded) {
             clearInterval(t);
-        }else{
+        } else {
             return;
         }
-        var session= new DataSession(sessionKey);
-        window.curSession=session;
+        var session = new DataSession(sessionKey);
+        window.curSession = session;
         DataSession.getExtraData(function (extras) {
-            local.get('wd', function (wd) {
-                local.get('u', function (user) {
+            dSpiderLocal.get('wd', function (wd) {
+                dSpiderLocal.get('u', function (user) {
                     callback(user, wd, session, extras, dQuery);
                 })
             })
         })
 
-    },20);
+    }, 20);
 }
+
 
 
 
