@@ -1,60 +1,40 @@
-log("****************Debug model *******************")
-//function dSpiderTaobao(,callback){
-//   dSpider(sessionkey, function(session,env,$){
-//       session.get("",function(data){
-//          callback(session,env,$,data)
-//       })
-//   });
-//}
 
-//dSpiderTaobao("sessionkey", function(session,env,$,data){
-dSpider("sessionkey", function(session,env,$){
-   // session为会话对象
-   // env为平台环境参数
-   // $ 为dQuery
-   //session.upload([string|object])
-   //session.finish() 结束爬取
-
-   log(session,env,$)
-
-   //place your code here!
+dSpider("taobao", function(session,env,$){
     if (window.location.pathname.indexOf("mlapp/mytaobao") != -1) {
         //taobaoState    0:爬账单  1:爬地址   2:爬个人信息   3:结束
-        session.get("taobaoState",function(count){
-            if(count!=1&&count!=2&&count!=3){
-                if(count == 0){
+        var count = session.get("taobaoState");
+        if(count!=1&&count!=2&&count!=3){
+            if(count == 0){
 
-                }else{
-                    session.set("taobaoState",0);
-                    session.set("orderArray",[]);
-                    //显示进度为0
-                    session.showProgress(true);
-                    session.setProgressMax(100);
-                    session.setProgress(2);
-                }
-                document.getElementsByClassName("label-act")[0].children[0].children[0].click();//点击订单
-            }else if(count==1){
-                //跳转到网页版   www.taobao.com
-                session.set("AddressData",[]);
-                location.href="//www.taobao.com/index.php?from=wap";
-            }else if(count == 2){
-                location.href = "https://i.taobao.com/user/baseInfoSet.htm";
+            }else{
+                session.set("taobaoState",0);
+                session.set("orderArray",[]);
+                //显示进度为0
+                session.showProgress(false);
+                session.setProgressMax(100);
+                session.setProgress(2);
             }
-        });
+            document.getElementsByClassName("label-act")[0].children[0].children[0].click();//点击订单
+        }else if(count==1){
+            //跳转到网页版   www.taobao.com
+            session.set("AddressData",[]);
+            location.href="//www.taobao.com/index.php?from=wap";
+        }else if(count == 2){
+            location.href = "https://i.taobao.com/user/baseInfoSet.htm";
+        }
     }
 
 
-session.get("taobaoState",function(state){
+    var state = session.get("taobaoState");
     if(state == 0){
             //获取订单列表
             if (window.location.pathname.indexOf("mlapp/olist") != -1) {
-                session.get("OrderItemPosition",function(count){
-                    if(count == undefined){
-                        getOrderList();
-                    }else{
-                        intoOrderDetail(count);
-                    }
-                });
+                var op = session.get("OrderItemPosition");
+                if(op == undefined){
+                    getOrderList();
+                }else{
+                    intoOrderDetail(op);
+                }
             }
             function getOrderList(){
                 var myInterval;
@@ -93,19 +73,18 @@ session.get("taobaoState",function(state){
              * 爬取订单数据
              */
             if (window.location.pathname.indexOf("mymovie/pages") != -1) {//特殊订单的处理
-                session.get("orderArray",function(count){
-                        if(count == undefined){
-                            session.set("taobaoState",-1);
-                            //关闭当前页面
-                            closeOrderDetail();
-                        }else{
-                            currentOrderData = count;
-                            session.get("OrderItemPosition",function(count){//因为是异步获取position所以要在拿到position后开始爬取
-                                session.set("OrderItemPosition",count+1);
-                                setTimeout(location.url = history.go(-1),1000);
-                            });
-                        }
-                    });
+                var oa = session.get("orderArray");
+                if(oa == undefined){
+                    session.set("taobaoState",-1);
+                    //关闭当前页面
+                    closeOrderDetail();
+                }else{
+                    currentOrderData = oa;
+                    //拿到position后开始爬取
+                    var oip = session.get("OrderItemPosition");
+                    session.set("OrderItemPosition",oip+1);
+                    setTimeout(location.url = history.go(-1),1000);
+                }
             }
             if (window.location.pathname.indexOf("mlapp/odetail") != -1) {
                 var currentPosition;
@@ -255,19 +234,18 @@ session.get("taobaoState",function(state){
                         }
                     }
                 }
-                session.get("orderArray",function(count){
-                    if(count == undefined){
-                        session.set("taobaoState",-1);
-                        //关闭当前页面
-                        closeOrderDetail();
-                    }else{
-                        currentOrderData = count;
-                        session.get("OrderItemPosition",function(count){//因为是异步获取position所以要在拿到position后开始爬取
-                            currentPosition = count;
-                            getOrderDetail();
-                        });
-                    }
-                });
+                var oay = session.get("orderArray");
+                if(oay == undefined){
+                    session.set("taobaoState",-1);
+                    //关闭当前页面
+                    closeOrderDetail();
+                }else{
+                    currentOrderData = oay;
+                    var oipn = session.get("OrderItemPosition");
+                    //拿到position后开始爬取
+                    currentPosition = oipn;
+                    getOrderDetail();
+                }
                 function closeOrderDetail(){
                     $("div.back").click();//订单详情页的返回
                 }
@@ -276,8 +254,9 @@ session.get("taobaoState",function(state){
     //------------------------------------------------------------------------------------爬取收货地址----------------------------------------------------------------------------
     else if(state == 1){
 
-            if (window.location.pathname.indexOf("m.taobao.com") != -1) {
-                dQuery(".my")[0].click();//点击我的
+            if (window.location.hostname.indexOf("m.taobao.com") != -1) {
+                $(".my").click();//点击我的
+                location.href="//www.taobao.com/index.php?from=wap";
             }
             /**
              * 爬取收货地址
@@ -293,34 +272,31 @@ session.get("taobaoState",function(state){
             if((window.location.hostname.indexOf("member1.taobao.com") != -1)){
                 if((window.location.href.indexOf("deliver_address") != -1)){
                     if((window.location.href.indexOf("addrId") != -1)){
-                        session.get("AddressData",function(addressData){
-                            session.get("addressUrlArray",function(urlArray){//取出href和位置并发起请求
-                                session.get("addressUrlPosition",function(urlPosition){
-                                    if(addressData==undefined){
-                                        addressData = [];
-                                    }
-                                    //取出爬到的数据并保存
-                                    var tempAddaress =  {};
-                                    tempAddaress.location = dQuery("div.city-title").text();//所在区域
-                                    tempAddaress.address = dQuery("textarea#J_Street").text();//详细地址
-                                    tempAddaress.zipcode = dQuery("input#J_PostCode").attr("value");//邮编
-                                    tempAddaress.name = dQuery("input#J_Name").attr("value");//姓名
-                                    tempAddaress.phone = dQuery("input#J_Mobile").attr("value");//电话号
-                                    addressData.push(tempAddaress);
-                                    session.set("AddressData",addressData);
-                                    session.setProgress(65+(((urlPosition+1)/7)*20));
-                                    if(urlPosition<urlArray.length-1){
-                                        session.set("addressUrlPosition",urlPosition+1);
-                                        location.href = urlArray[urlPosition+1];
-                                    }else{
-                                        session.set("taobaoState",2);
-                                        session.setProgress(85);
-                                        //爬取个人信息
-                                        location.href = "https://i.taobao.com/user/baseInfoSet.htm"
-                                    }
-                                })
-                            })
-                        })
+                        var addressData = session.get("AddressData");
+                        var urlArray = session.get("addressUrlArray");
+                        var urlPosition = session.get("addressUrlPosition");
+                        if(addressData==undefined){
+                            addressData = [];
+                        }
+                        //取出爬到的数据并保存
+                        var tempAddaress =  {};
+                        tempAddaress.location = dQuery("div.city-title").text();//所在区域
+                        tempAddaress.address = dQuery("textarea#J_Street").text();//详细地址
+                        tempAddaress.zipcode = dQuery("input#J_PostCode").attr("value");//邮编
+                        tempAddaress.name = dQuery("input#J_Name").attr("value");//姓名
+                        tempAddaress.phone = dQuery("input#J_Mobile").attr("value");//电话号
+                        addressData.push(tempAddaress);
+                        session.set("AddressData",addressData);
+                        session.setProgress(65+(((urlPosition+1)/7)*20));
+                        if(urlPosition<urlArray.length-1){
+                            session.set("addressUrlPosition",urlPosition+1);
+                            location.href = urlArray[urlPosition+1];
+                        }else{
+                            session.set("taobaoState",2);
+                            session.setProgress(85);
+                            //爬取个人信息
+                            location.href = "https://i.taobao.com/user/baseInfoSet.htm"
+                        }
                     }else {
                         //dQuery("tbody>tr>td").map(function(){return dQuery(this).find("a")[0] }) 找出当前元素中的第一个子元素a
                         //开始爬取地址
@@ -357,80 +333,74 @@ session.get("taobaoState",function(state){
                 location.href = "https://member1.taobao.com/member/fresh/account_security.htm";//跳转到安全设置拿电话
             }
             if(window.location.pathname.indexOf("account_security") != -1){//个人资料设置
-                session.get("persionInfo",function(perInfo){
-                    if(perInfo == undefined)
-                        perInfo = {};
-                    //电话号码
-                    var phone;
-                    var tempArray = dQuery("span.t");
-                    for(var ta = 0 ; ta<tempArray.length;ta++){
-                        if(dQuery(tempArray[ta]).text().indexOf("绑 定 手 机")!=-1){
-                            phone = dQuery(dQuery(tempArray[ta]).next()).text().trim();
-                        }
+                var perInfo = session.get("persionInfo");
+                if(perInfo == undefined)
+                    perInfo = {};
+                //电话号码
+                var phone;
+                var tempArray = dQuery("span.t");
+                for(var ta = 0 ; ta<tempArray.length;ta++){
+                    if(dQuery(tempArray[ta]).text().indexOf("绑 定 手 机")!=-1){
+                        phone = dQuery(dQuery(tempArray[ta]).next()).text().trim();
                     }
-                    //保存手机号
-                    perInfo.phone = phone;
-                    session.set("persionInfo",perInfo);
-                    session.setProgress(97);
-                    //点击查看获取省份证号
-                    dQuery("div.operate>a")[0].click();
-                });
+                }
+                //保存手机号
+                perInfo.phone = phone;
+                session.set("persionInfo",perInfo);
+                session.setProgress(97);
+                //点击查看获取省份证号
+                dQuery("div.operate>a")[0].click();
             }
 
             if(window.location.pathname.indexOf("certify_info") != -1) {//身份认证界面
-                session.get("persionInfo",function(perInfo){
-                    if(perInfo == undefined)
-                         perInfo = {};
-                    var tempArray = dQuery("div.explain-info>span");
-                    var idcard_no;
-                    for(var taa = 0 ; taa<tempArray.length;taa++){
-                        var title = dQuery(tempArray[taa]).text();
-                        if(title.indexOf("身份证号")!=-1){
-                            idcard_no = dQuery(dQuery(tempArray[taa]).next()).text();
-                        }
+                var perInfo = session.get("persionInfo");
+                if(perInfo == undefined)
+                     perInfo = {};
+                var tempArray = dQuery("div.explain-info>span");
+                var idcard_no;
+                for(var taa = 0 ; taa<tempArray.length;taa++){
+                    var title = dQuery(tempArray[taa]).text();
+                    if(title.indexOf("身份证号")!=-1){
+                        idcard_no = dQuery(dQuery(tempArray[taa]).next()).text();
                     }
-                    //保存身份证号 idcard_no
-                    perInfo.idcard_no = idcard_no;
-                    session.set("persionInfo",perInfo);
-                    //修改状态
-                    session.set("taobaoState",3);
-                    session.setProgress(100);
-                    uploadData();
-                });
+                }
+                //保存身份证号 idcard_no
+                perInfo.idcard_no = idcard_no;
+                session.set("persionInfo",perInfo);
+                //修改状态
+                session.set("taobaoState",3);
+                session.setProgress(100);
+                uploadData();
             }
         }
      else if(state == 3){
         //爬取完成
      }
-    })
     function uploadData(){
-        session.get("persionInfo",function(persionInfo){
-            session.get("AddressData",function(addData){
-                session.get("orderArray",function(orderArray){
-                    if(persionInfo==undefined){
-                        session.finish("upLoadData方法中的数据为空","persionInfo is undefined",2);
-                    }else if(addData == undefined){
-                        session.finish("upLoadData方法中的数据为空","addData is undefined",2);
-                    }else if(orderArray == undefined){
-                        session.finish("upLoadData方法中的数据为空","orderArray is undefined",2);
-                    }
-                    var data = {};
-                    //存入个人信息
-                    data.base_info = persionInfo;
-                    //存入地址信息
-                    var tempData = {};
-                    tempData.contact_detail = addData;
-                    data.contact_info = tempData;
-                    //存入订单数据
-                    var tempOrderDetail = {};
-                    tempOrderDetail.order_detail = orderArray;
-                    data.order_info = tempOrderDetail;
-                    log("-------上传数据----------");
-                    session.upload(data);
-                    session.showProgress(false);
-                    session.finish();
-                })
-            })
-        });
-     }
+        var persionInfo = session.get("persionInfo");
+        var addData = session.get("AddressData");
+        var orderArray = session.get("orderArray");
+        if(persionInfo==undefined){
+            session.finish("upLoadData方法中的数据为空","persionInfo is undefined",2);
+        }else if(addData == undefined){
+            session.finish("upLoadData方法中的数据为空","addData is undefined",2);
+        }else if(orderArray == undefined){
+            session.finish("upLoadData方法中的数据为空","orderArray is undefined",2);
+        }
+        var data = {};
+        //存入个人信息
+        data.base_info = persionInfo;
+        //存入地址信息
+        var tempData = {};
+        tempData.contact_detail = addData;
+        data.contact_info = tempData;
+        //存入订单数据
+        var tempOrderDetail = {};
+        tempOrderDetail.order_detail = orderArray;
+        data.order_info = tempOrderDetail;
+        log("-------上传数据----------");
+        session.upload(data);
+        session.showProgress(false);
+        session.finish();
+    }
 })

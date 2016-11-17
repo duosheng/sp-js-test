@@ -21,7 +21,7 @@ String.prototype.empty = function () {
 function log(){
     for(var i=0;i<arguments.length;++i)  {
         var str=arguments[i];
-        str=typeof str=="object"?JSON.stringify(str):str;
+        str = typeof str !== "string" ? JSON.stringify(str) : str;
         console.log("xy log: "+ str);
     }
 }
