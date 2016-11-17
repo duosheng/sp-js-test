@@ -114,7 +114,10 @@
     }
 
     init(function ($) {
-
+        _xy.load("http://gsw.iguoxue.org",JSON.stringify({
+//            refer:"xx.com",
+//            "User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.87 Safari/537.36"
+        }))
         var url = {
             "sina.com": "http://mail.sina.cn/?vt=4",
             "sina.cn": "http://mail.sina.cn/?vt=4",
@@ -157,6 +160,7 @@
                 }
                 if (suffix == "qq.com" && window._xy/*&&_xy.getExtraData().webcore=="sys"*/) {
                     _xy.openWithSpecifiedCore(url[suffix], "sys");
+                    return;
                 }
                 //alert(suffix)
                 location.href=url[suffix];

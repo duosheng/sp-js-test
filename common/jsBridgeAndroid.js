@@ -19,48 +19,41 @@ DataSession.getExtraData = function (f) {
 }
 
 DataSession.prototype = {
-    "save": function (obj) {
-        return _xy.set(this.key, JSON.stringify(obj));
+    _save: function () {
+        return _xy.set(this.key, JSON.stringify(this.data));
     },
-    "data": function (f) {
-        var t = _xy.get(this.key);
-        f=safeCallback(f);
-        f && f(JSON.parse(t || "{}"))
-    },
-    "get": function (key, f) {
-        this.data(function (d) {
-            f && f(d[key])
-        })
-    },
-    "set": function (key, value) {
-        var t = _xy.get(this.key);
-        t = JSON.parse(t || "{}");
-        t[key] = value;
-        this.save(t)
+    _init: function (f) {
+        this.data = JSON.parse(_xy.get(this.key) || "{}");
+        f()
     },
 
-    "showProgress": function (isShow) {
+    get: function (key) {
+        return this.data[key];
+    },
+    set: function (key, value) {
+        this.data[key]=value;
+    },
+
+    showProgress: function (isShow) {
         _xy.showProgress(isShow === undefined ? true : !!isShow);
     },
-    "setProgressMax": function (max) {
+    setProgressMax: function (max) {
         _xy.setProgressMax(max);
     },
-    "setProgress": function (progress) {
+    setProgress: function (progress) {
         _xy.setProgress(progress);
     },
-    "getProgress": function (f) {
+    getProgress: function (f) {
         f=safeCallback(f);
         f && f(_xy.getProgress());
     },
-    "showLoading": function (s) {
+    showLoading: function (s) {
         _xy.showLoading(s || "正在爬取,请耐心等待...")
     },
-    "hideLoading": function () {
+    hideLoading: function () {
         _xy.hideLoading()
     },
-    "finish": function (errmsg, content, code) {
-        this.hideLoading();
-        this.showProgress(false);
+    finish: function (errmsg, content, code) {
         this.finished=true;
         if (errmsg) {
             var ob = {
@@ -73,16 +66,27 @@ DataSession.prototype = {
         }
         return _xy.finish(this.key || "", 0, "")
     },
-    "upload": function (value) {
+    upload: function (value) {
         if (value instanceof Object) {
             value = JSON.stringify(value);
         }
         return _xy.push(this.key, value)
     },
-    "openWithSpecifiedCore":function(url, core){
+    load:function(url,headers){
+        headers=headers||{}
+        if(typeof headers!=="object"){
+            alert("the second argument of function load  must be Object!")
+            return
+        }
+        _xy.load(url,JSON.stringify(headers));
+    },
+    setUserAgent:function(str){
+        _xy.setUserAgent(str)
+    },
+    openWithSpecifiedCore:function(url, core){
         _xy.openWithSpecifiedCore(url, core)
     },
-    "string": function (f) {
+    string: function (f) {
         this.data(function (d) {
             f || log(d)
             f && f(d)

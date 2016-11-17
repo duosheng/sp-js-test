@@ -48,6 +48,8 @@ MutationObserver = window.MutationObserver ||
     window.WebKitMutationObserver ||
     window.MozMutationObserver;
 
+
+
 function  safeCallback(f){
     if (!(f instanceof Function)) return f;
     return function (){
@@ -134,25 +136,26 @@ function apiInit(){
 
 //爬取入口
 function dSpider(sessionKey, callback) {
-    var t= setInterval(function(){
-        if(window.xyApiLoaded) {
+    var t = setInterval(function () {
+        if (window.xyApiLoaded) {
             clearInterval(t);
-        }else{
+        } else {
             return;
         }
-        var session= new DataSession(sessionKey);
+        var session = new DataSession(sessionKey);
         window.onbeforeunload = function () {
+            session._save()
             if(session.onNavigate){
                 session.onNavigate(location.href);
             }
         }
-        window.curSession=session;
-        DataSession.getExtraData(function (extras) {
-           callback(session, extras, dQuery);
-
+        window.curSession = session;
+        session._init(function(){
+            DataSession.getExtraData(function (extras) {
+                callback(session, extras, dQuery);
+            })
         })
-
-    },20);
+    }, 20);
 }
 
 var dSpiderLocal = {
@@ -177,22 +180,19 @@ DataSession.getExtraData = function (f) {
 
 //js bridge api
 DataSession.prototype = {
-    "save": function (obj) {
-        return _xy.set(this.key, JSON.stringify(obj));
+    _save: function () {
+        return _xy.set(this.key, JSON.stringify(this.data));
     },
-    "data": function (f) {
-        var t = _xy.get(this.key);
-        f=safeCallback(f);
-        f && f(JSON.parse(t || "{}"))
+    _init: function (f) {
+        this.data = JSON.parse(_xy.get(this.key) || "{}");
+        f()
     },
-    "get": function (key, f) {
-        f && f(this.data()[key]);
+
+    get: function (key) {
+        return this.data[key];
     },
-    "set": function (key, value) {
-        var t = _xy.get(this.key);
-        t = JSON.parse(t || "{}");
-        t[key] = value;
-        this.save(t)
+    set: function (key, value) {
+        this.data[key]=value;
     },
 
     "showProgress": function (isShow) {
@@ -216,6 +216,8 @@ DataSession.prototype = {
     },
     "finish": function (errmsg, content, code) {
         this.finished=true;
+        this.hideLoading();
+        this.showProgress(false);
         if (errmsg) {
             var ob = {
                 url: location.href,
@@ -225,8 +227,6 @@ DataSession.prototype = {
             }
             return _xy.finish(this.key || "", code || 2, JSON.stringify(ob));
         }
-        this.hideLoading();
-        this.showProgress(false);
         return _xy.finish(this.key || "", 0, "")
     },
     "upload": function (value) {
@@ -236,11 +236,12 @@ DataSession.prototype = {
         return _xy.push(this.key, value)
     },
 
-    "string": function (f) {
-        this.data(function (d) {
-            f || log(d)
-            f && f(d)
-        })
+    "openWithSpecifiedCore":function(url, core){
+        _xy.openWithSpecifiedCore(url, core)
+    },
+
+    "string": function () {
+        log(this.data)
     }
 };
 apiInit();

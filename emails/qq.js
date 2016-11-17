@@ -79,18 +79,45 @@ dSpiderMail("qq", function (user, wd, session, extras, $) {
                                     timeInterval += 200;
                                 return
                             }
-                            var html;
+
+                            var html
+                            var name;
+                            var subj;
+                            var date;
+                            var addr;
+                            var content={};
+
                             if (d.mls.length > 1) {
                                 html = d.mls[1].content.body || d.mls[1].content.fold[0][1] || "无内容";
-                                //if(d.mls[1].content.fold) {
-                                //    html = d.mls[1].content.fold[0][1];
-                                //}else if(d.mls[1].content.body){
-                                //    html = d.mls[1].content.body;
-                                //}
+                                if(d.mls[1].content.fold) {
+                                    content.html = d.mls[1].content.fold[0][1];
+                                    name=d.mls[1].inf.from.name;
+                                    subj=d.mls[1].inf.subj;
+                                    date=d.mls[1].inf.date;
+                                    addr=d.mls[1].inf.from.addr;
+                                }else if(d.mls[1].content.body){
+                                    content.html = d.mls[1].content.body;
+                                    name=d.mls[1].inf.from.name;
+                                    subj=d.mls[1].inf.subj;
+                                    date=d.mls[1].inf.date;
+                                    addr=d.mls[1].inf.from.addr;
+                                }else {
+                                    name="xx"
+                                }
                             } else {
                                 html = d.mls[0].content.body || "无内容"
+                                name=d.mls[0].inf.from.name;
+                                subj=d.mls[0].inf.subj;
+                                date=d.mls[0].inf.date;
+                                addr=d.mls[0].inf.from.addr;
                             }
-                            session.upload(html)
+                            content.name=name;
+                            content.subject=subj;
+                            content.date=date;
+                            content.sender=addr;
+                            content.html=html;
+                            session.upload(content)
+                            //session.upload(html)
                             //console.log(html)
 
                         })

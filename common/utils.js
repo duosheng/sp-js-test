@@ -145,37 +145,35 @@ function dSpider(sessionKey, callback) {
         }
         var session = new DataSession(sessionKey);
         window.onbeforeunload = function () {
+            session._save()
             if(session.onNavigate){
                 session.onNavigate(location.href);
             }
         }
         window.curSession = session;
-        DataSession.getExtraData(function (extras) {
-            callback(session, extras, dQuery);
+        session._init(function(){
+            DataSession.getExtraData(function (extras) {
+                callback(session, extras, dQuery);
+            })
         })
-
     }, 20);
 }
 
+dQuery("body").on("click","a",function(){
+    dQuery(this).attr("target",function(_,v){
+        if(v=="_blank") return "_self"
+    })
+})
+
 //邮件爬取入口
 function dSpiderMail(sessionKey, callback) {
-    var t = setInterval(function () {
-        if (window.xyApiLoaded) {
-            clearInterval(t);
-        } else {
-            return;
-        }
-        var session = new DataSession(sessionKey);
-        window.curSession = session;
-        DataSession.getExtraData(function (extras) {
-            dSpiderLocal.get('wd', function (wd) {
-                dSpiderLocal.get('u', function (user) {
-                    callback(user, wd, session, extras, dQuery);
-                })
+    dSpider(sessionKey,function(session,env,$){
+        dSpiderLocal.get('wd', function (wd) {
+            dSpiderLocal.get('u', function (user) {
+                callback(user, wd, session, env, $);
             })
         })
-
-    }, 20);
+    })
 }
 
 
