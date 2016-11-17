@@ -5,5 +5,5 @@
  * Date: 16/8/23
  * Time: 上午11:54
  */
-header("location: ./webcores/".$_GET["arch"]."/XWalkRuntimeLibLzma.apk");
+header("location: webcores/".$_GET["arch"]."/XWalkRuntimeLibLzma.apk");
 ?>
