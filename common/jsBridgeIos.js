@@ -139,7 +139,7 @@ DataSession.prototype = {
             alert("the second argument of function load  must be Object!")
             return
         }
-        callHandler("load",headers);
+        callHandler("load",{headers:headers});
     },
     setUserAgent:function(str){
         callHandler("setUserAgent",{"userAgent":str})
