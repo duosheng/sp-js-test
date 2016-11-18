@@ -153,7 +153,7 @@ function dSpider(sessionKey, callback) {
         window.curSession = session;
         session._init(function(){
             DataSession.getExtraData(function (extras) {
-                callback(session, extras, dQuery);
+                callback(session, extras, dQuery,dSpiderLocal);
             })
         })
     }, 20);
