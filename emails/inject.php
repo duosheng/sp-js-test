@@ -3,6 +3,7 @@ header("Content-Type: text/javascript; charset=utf-8");
 isset($_GET['refer']) || die("refer needed!");
 echo "!function(){";
 $refer = iconv("UTF-8", "gbk", urldecode($_GET['refer']));
+$platform="ios";
 if (isset($_GET['platform'])) {
     $platform = iconv("UTF-8", "gbk", urldecode($_GET['platform']));
 }
