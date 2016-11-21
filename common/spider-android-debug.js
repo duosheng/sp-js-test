@@ -240,6 +240,10 @@ DataSession.prototype = {
         _xy.openWithSpecifiedCore(url, core)
     },
 
+    autoLoadImg:function(load){
+        _xy.autoLoadImg(load===true)
+    },
+
     "string": function () {
         log(this.data)
     }

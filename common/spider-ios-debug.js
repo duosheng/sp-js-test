@@ -18,17 +18,17 @@ String.prototype.empty = function () {
     return this.trim() === "";
 };
 
-function log(){
-    for(var i=0;i<arguments.length;++i)  {
-        var str=arguments[i];
-        str=typeof str=="object"?JSON.stringify(str):str;
-        console.log("xy log: "+ str);
+function log() {
+    for (var i = 0; i < arguments.length; ++i) {
+        var str = arguments[i];
+        str = typeof str !== "string" ? JSON.stringify(str) : str;
+        console.log("xy log: " + str);
     }
 }
 //异常捕获
-function errorReport(e){
-    console.error("xy log: 语法错误: "+e.message+e.stack);
-    window.curSession&&curSession.finish(e.toString(),"")
+function errorReport(e) {
+    console.error("xy log: 语法错误: " + e.message + e.stack);
+    window.curSession && curSession.finish(e.toString(), "")
 }
 
 String.prototype.endWith = function (str) {
@@ -48,36 +48,38 @@ MutationObserver = window.MutationObserver ||
     window.WebKitMutationObserver ||
     window.MozMutationObserver;
 
-function  safeCallback(f){
+function safeCallback(f) {
     if (!(f instanceof Function)) return f;
-    return function (){
+    return function () {
         try {
-            f.apply(this,arguments)
-        }catch (e){
+            f.apply(this, arguments)
+        } catch (e) {
             errorReport(e)
         }
     }
 }
 //设置dQuery异常处理器
-dQuery.safeCallback=safeCallback;
-dQuery.errorReport=errorReport;
+dQuery.safeCallback = safeCallback;
+dQuery.errorReport = errorReport;
 
 
-function hook(fun){
-    return function() {
+function hook(fun) {
+    return function () {
         if (!(arguments[0] instanceof Function)) {
-            t=arguments[0];
-            log("warning: "+fun.name+" first argument should be function not string ")
-            arguments[0]=function(){eval(t)};
+            t = arguments[0];
+            log("warning: " + fun.name + " first argument should be function not string ")
+            arguments[0] = function () {
+                eval(t)
+            };
         }
-        arguments[0]=safeCallback(arguments[0]);
-        return fun.apply(this,arguments)
+        arguments[0] = safeCallback(arguments[0]);
+        return fun.apply(this, arguments)
     }
 }
 
 //hook setTimeout,setInterval异步回调
-setTimeout=hook(setTimeout);
-setInterval=hook(setInterval);
+setTimeout = hook(setTimeout);
+setInterval = hook(setInterval);
 
 //dom 监控
 function DomNotFindReport(selector) {
@@ -108,47 +110,76 @@ function Observe(ob, options, callback) {
 }
 
 //dquery,api加载成功的标志是window.xyApiLoaded=true,所有操作都必须在初始化成功之后
-function apiInit(){
+function apiInit() {
     dQuery.noConflict();
-    function withCheck(attr){
-        var f= DataSession.prototype[attr];
-        return function (){
-            if(this.finished){
-                log("call "+attr+" ignored, finish has been called! ")
-            }else {
-                return f.apply(this,arguments);
+    var withCheck=function(attr) {
+        var f = DataSession.prototype[attr];
+        return function () {
+            if (this.finished) {
+                log("call " + attr + " ignored, finish has been called! ")
+            } else {
+                return f.apply(this, arguments);
             }
         }
     }
-    for (var attr in DataSession.prototype){
-        DataSession.prototype[attr]=withCheck(attr);
+
+    for (var attr in DataSession.prototype) {
+        DataSession.prototype[attr] = withCheck(attr);
     }
     var t = setInterval(function () {
-        if (!(window._xy||window.bridge)) {
+        if (!(window._xy || window.bridge)) {
             return;
         }
-        window.xyApiLoaded=true;
+        window.xyApiLoaded = true;
         clearInterval(t);
     }, 20);
 }
 
 //爬取入口
 function dSpider(sessionKey, callback) {
-    var t= setInterval(function(){
-        if(window.xyApiLoaded) {
+    var t = setInterval(function () {
+        if (window.xyApiLoaded) {
             clearInterval(t);
-        }else{
+        } else {
             return;
         }
-        var session= new DataSession(sessionKey);
-        window.curSession=session;
-        DataSession.getExtraData(function (extras) {
-               callback(session, extras, dQuery);
+        var session = new DataSession(sessionKey);
+        window.onbeforeunload = function () {
+            session._save()
+            if(session.onNavigate){
+                session.onNavigate(location.href);
+            }
+        }
+        window.curSession = session;
+        session._init(function(){
+            DataSession.getExtraData(function (extras) {
+                log("dSpider start!")
+                callback(session, extras, dQuery,dSpiderLocal);
+            })
         })
-
-    },20);
+    }, 20);
 }
 
+dQuery("body").on("click","a",function(){
+    dQuery(this).attr("target",function(_,v){
+        if(v=="_blank") return "_self"
+    })
+})
+
+//邮件爬取入口
+function dSpiderMail(sessionKey, callback) {
+    dSpider(sessionKey,function(session,env,$){
+        dSpiderLocal.get('wd', function (wd) {
+            dSpiderLocal.get('u', function (user) {
+                callback(user, wd, session, env, $);
+            })
+        })
+    })
+}
+
+/**
+ * Created by du on 16/8/17.
+ */
 function setupWebViewJavascriptBridge(callback) {
     if (window.WebViewJavascriptBridge) { return callback(WebViewJavascriptBridge); }
     if (window.WVJBCallbacks) { return window.WVJBCallbacks.push(callback); }
@@ -200,55 +231,59 @@ DataSession.getExtraData = function (f) {
 }
 
 DataSession.prototype = {
-    "save": function (obj) {
-        log("set called")
-        callHandler("set", {"sessionKey": this.key, "value": JSON.stringify(obj)})
+    _save: function () {
+        callHandler("set", {"sessionKey": this.key, "value": JSON.stringify(this.data)})
     },
-    "data": function (f) {
-        log("get called")
+    _init: function (f) {
+        var that=this;
         callHandler("get", {"sessionKey":this.key}, function (data) {
-            f && f(JSON.parse(data || "{}"))
-        })
-    },
-    "get": function (key, f) {
-        this.data(function (d) {
-            f && f(d[key])
-        })
-    },
-    "set": function (key, value) {
-        this.data(function (d) {
-            d[key] = value;
-            this.save(d)
+            if(!data){
+                data={}
+            }
+            else if(typeof data==="string"){
+                data=JSON.parse(data || "{}");
+            }
+            that.data=data
+            f();
         })
     },
 
-    "showProgress": function (isShow) {
+    get: function (key) {
+        log("get called")
+        return this.data[key];
+    },
+    set: function (key, value) {
+        log("set called")
+        this.data[key]=value;
+    },
+
+    showProgress: function (isShow) {
         log("showProgress called")
         callHandler("showProgress", {"show":isShow === undefined ? true : !!isShow});
     },
-    "setProgressMax": function (max) {
+    setProgressMax: function (max) {
         log("setProgressMax called")
         callHandler("setProgressMax", {"progress":max});
     },
-    "setProgress": function (progress) {
+    setProgress: function (progress) {
         log("setProgress called")
         callHandler("setProgress", {"progress":progress});
     },
-    "getProgress": function (f) {
+    getProgress: function (f) {
         log("getProgressMax called")
         callHandler("getProgress",null, function (d) {
             f && f(d)
         })
     },
-    "showLoading": function (s) {
+    showLoading: function (s) {
         log("showLoading called")
         callHandler("showLoading",{"s":encodeURIComponent(s || "正在处理,请耐心等待...")});
     },
-    "hideLoading": function () {
+    hideLoading: function () {
         log("hideLoading called")
         callHandler("hideLoading");
     },
-    "finish": function (errmsg, content, code) {
+    finish: function (errmsg, content, code) {
         var that=this;
         DataSession.getExtraData(function (d) {
             var ret = {"sessionKey":that.key, "result": 0, "msg": ""}
@@ -264,13 +299,12 @@ DataSession.prototype = {
             }
             log("finish called")
             that.finished=true;
-            this.hideLoading();
-            this.showProgress(false);
             callHandler("finish", ret);
+
         })
 
     },
-    "upload": function (value,f) {
+    upload: function (value,f) {
         if (value instanceof Object) {
             value = JSON.stringify(value);
         }
@@ -278,8 +312,27 @@ DataSession.prototype = {
         f=f||function(b){log("push "+b)};
         callHandler("push", {"sessionKey": this.key, "value": encodeURIComponent(value)},f);
     },
+    load:function(url,headers){
+        headers=headers||{}
+        if(typeof headers!=="object"){
+            alert("the second argument of function load  must be Object!")
+            return
+        }
+        callHandler("load",{headers:headers});
+    },
+    setUserAgent:function(str){
+        callHandler("setUserAgent",{"userAgent":str})
+    },
 
-    "string": function (f) {
+    openWithSpecifiedCore:function(){
+
+    },
+
+    autoLoadImg:function(load){
+        callHandler("autoLoadImg",{"load":load===true})
+    },
+
+    string: function (f) {
         this.data(function (d) {
             f || log(d)
             f && f(d)
@@ -287,6 +340,7 @@ DataSession.prototype = {
     }
 };
 apiInit();
+
 
 
 

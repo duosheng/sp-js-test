@@ -149,6 +149,10 @@ DataSession.prototype = {
 
     },
 
+    autoLoadImg:function(load){
+        callHandler("autoLoadImg",{"load":load===true})
+    },
+
     string: function (f) {
         this.data(function (d) {
             f || log(d)

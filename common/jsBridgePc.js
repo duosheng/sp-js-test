@@ -122,6 +122,9 @@ DataSession.prototype = {
     setUserAgent:function(str){
         callHandler("setUserAgent",{"userAgent":str})
     },
+    autoLoadImg:function(load){
+
+    },
     openWithSpecifiedCore:function(){
 
     },
