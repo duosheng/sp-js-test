@@ -78,8 +78,8 @@ function hook(fun) {
 }
 
 //hook setTimeout,setInterval异步回调
-setTimeout = hook(setTimeout);
-setInterval = hook(setInterval);
+var setTimeout = hook(window.setTimeout);
+var setInterval = hook(window.setInterval);
 
 //dom 监控
 function DomNotFindReport(selector) {
