@@ -62,7 +62,6 @@ function safeCallback(f) {
 dQuery.safeCallback = safeCallback;
 dQuery.errorReport = errorReport;
 
-
 function hook(fun) {
     return function () {
         if (!(arguments[0] instanceof Function)) {
