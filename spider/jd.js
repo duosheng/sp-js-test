@@ -1,5 +1,5 @@
-dSpider("jd", function(session,env,$){
 
+dSpider("jd", function(session,env,$){
     var re = /sid=(.+)$/ig;
     var infokey = "infokey";
     var sid = "";
@@ -12,14 +12,13 @@ dSpider("jd", function(session,env,$){
 
     session.onNavigate=function(url){
        if(url.indexOf("://plogin.m.jd.com/user")!=-1){
-         session.showLoading();
+          session.showLoading();
+         session.autoLoadImg(false);
        }
      }
 
 
-
     if (location.href.indexOf("://m.jd.com") != -1 ) {
-
         session.showProgress(true);
         session.setProgressMax(100);
         session.setProgress(0);
@@ -118,8 +117,12 @@ dSpider("jd", function(session,env,$){
     if (location.href.indexOf("msc.jd.com/auth/loginpage/wcoo/toAuthPage") != -1) {
         session.setProgress(90);
         info = $.parseJSON(session.get(infokey));
-        info.base_info.name  = $("#username")[0].value;
-        info.base_info.idcard_no  = $("#idcard")[0].value;
+        if($("#username")[0] !=undefined){
+                info.base_info.name  = $("#username")[0].value;
+        }
+        if($("#idcard")[0] !=undefined){
+            info.base_info.idcard_no  = $("#idcard")[0].value;
+        }
         saveInfo();
         logout();
 
