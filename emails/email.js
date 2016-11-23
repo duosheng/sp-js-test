@@ -8,7 +8,7 @@ dSpider("email",function(session,env,$) {
         "sina.cn": "http://mail.sina.cn/?vt=4",
         "qq.com": "https://w.mail.qq.com/cgi-bin/loginpage?f=xhtml",
         "163.com": "http://smart.mail.163.com/?dv=smart",
-        "126.com": "http://smart.mail.126.com/?dv=smart"
+        "126.com": "http://smart.mail.126.com/"
     }
     var btn = $("button");
     var wd = $("#wd")
@@ -38,14 +38,15 @@ dSpider("email",function(session,env,$) {
             log("set wd start")
             dSpiderLocal.set("wd", wd.val())
             btn.text("加载中...").attr("disabled", "disabled");
-            if (suffix == "126.com" && window._xy/*&&_xy.getExtraData().webcore=="sys"*/) {
-                _xy.openWithSpecifiedCore(url[suffix], "cs");
-            }
+            //if (suffix == "126.com" && window._xy/*&&_xy.getExtraData().webcore=="sys"*/) {
+            //    _xy.openWithSpecifiedCore(url[suffix], "cs");
+            //}
             if (suffix == "qq.com" && window._xy/*&&_xy.getExtraData().webcore=="sys"*/) {
                 _xy.openWithSpecifiedCore(url[suffix], "sys");
                 return;
             }
-            location.href=url[suffix];
+            //location.href=url[suffix];
+            session.load(url[suffix],{Referer:""})
         } else {
             alert("暂不支持后缀为%s的邮箱".format(url[suffix]));
         }

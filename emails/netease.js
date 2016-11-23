@@ -1,8 +1,4 @@
 dSpiderMail("netease", function (user,wd, session, extras, $) {
-    if (location.href.indexOf("smart.mail.126") != -1 && extras.webcore == "sys") {
-        session.finish("webview core error!", "webview is system")
-        return;
-    }
     function formatParams(data) {
         var arr = [];
         for (var name in data) {
@@ -20,7 +16,6 @@ dSpiderMail("netease", function (user,wd, session, extras, $) {
         options.success=safeCallback(options.success)
         options.fail=safeCallback(options.fail)
         options.complete=safeCallback(options.complete)
-
 
         //本代码是用在ios和android上,所以不考虑ie兼容问题
         var xhr = new XMLHttpRequest();
@@ -60,13 +55,8 @@ dSpiderMail("netease", function (user,wd, session, extras, $) {
     if (index < 7 && index > -1) {
         session.hideLoading()
         $("#pop_mailEntry").click();
-        var fEnDataOriginal = fEnData
         $("#username,#user").val(user.split("@")[0]).attr("disabled","disabled").css("color","#777")
         $("#chkAutoLogin").val(0).attr("disabled", "disabled")
-        fEnData = function fEnDataHook(data) {
-            $("#chkAutoLogin").val(0);
-            fEnDataOriginal(data);
-        }
         return
     }
 
