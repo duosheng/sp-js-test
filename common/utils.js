@@ -143,12 +143,15 @@ function dSpider(sessionKey, callback) {
             return;
         }
         var session = new DataSession(sessionKey);
-        window.onbeforeunload = function () {
+        var _onclose=function(){
             session._save()
             if(session.onNavigate){
                 session.onNavigate(location.href);
             }
         }
+        $(window).on("beforeunload",_onclose)
+        $(window).on("pagehide",_onclose);
+
         window.curSession = session;
         session._init(function(){
             DataSession.getExtraData(function (extras) {
