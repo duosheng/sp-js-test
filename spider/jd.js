@@ -40,6 +40,7 @@ dSpider("jd", function(session,env,$){
         session.setProgress(20);
 
         globalInfo = session.get(infokey);
+        log("gloabalInfo:"+JSON.stringify(globalInfo));
         global_contact_info = new contact_info([]);
         var taskAddr = [];
         var urlarray = $(".ia-r");
