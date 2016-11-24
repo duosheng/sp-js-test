@@ -144,6 +144,7 @@ function dSpider(sessionKey, callback) {
         }
         var session = new DataSession(sessionKey);
         var _onclose=function(){
+            log("onNavigate:"+location.href)
             session._save()
             if(session.onNavigate){
                 session.onNavigate(location.href);
