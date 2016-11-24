@@ -5,6 +5,7 @@ dSpider("jd", function(session,env,$){
     var sid = "";
     var max_order_num = 30;
     var max_order_date = 100;
+    var globalInfo;
 
     sid = session.get("sid");
     session.onNavigate=function(url){
@@ -28,23 +29,57 @@ dSpider("jd", function(session,env,$){
 
         // log(JSON.stringify(new info({},{},{})));
         session.set(infokey, JSON.stringify(new info({},{},{})));
-        info = $.parseJSON(session.get(infokey));
-        info.base_info.username  = $("[report-eventid$='MCommonHTail_Account']").text().replace(/\n/g,"").replace(/\t/g,"");
+        globalInfo = $.parseJSON(session.get(infokey));
+        globalInfo.base_info.username  = $("[report-eventid$='MCommonHTail_Account']").text().replace(/\n/g,"").replace(/\t/g,"");
         saveInfo();
         session.setProgress(10);
         location.href="http://home.m.jd.com/maddress/address.action?";
     }
 
+    if (location.href.indexOf("home.m.jd.com/maddress") != -1) {
+        session.setProgress(20);
+
+        globalInfo = $.parseJSON(session.get(infokey));
+        contact_info = new contact_info([]);
+        var taskAddr = [];
+        var urlarray = $(".ia-r");
+        for(var i=0;i<urlarray.length;i++){
+            taskAddr.push($.get(urlarray[i],function(response,status){
+                var node = $("<div>").append($(response))
+                var name = node.find("#uersNameId")[0].value;
+                var phone = node.find("#mobilePhoneId")[0].value;
+                var addr = node.find("#addressLabelId")[0].innerHTML;
+                var detail = node.find("#address_where")[0].innerHTML;
+
+                contact_info.contact_detail.push(new contact(name,addr,detail,phone, ""));
+            }) );
+
+        }
+
+
+        $.when.apply($,taskAddr).done(
+            // $.when(taskAddr).done(
+            function(){
+                globalInfo.contact_info = contact_info;
+                saveInfo();
+                session.setProgress(30);
+                getOrder();
+            });
+
+
+    }
 
 
     function getOrder(){
         session.setProgress(40);
+        globalInfo = $.parseJSON(session.get(infokey));
         var orders = new order_info([]);
-        info.order_info.order_detail = [];
+        globalInfo.order_info = new order_info([]);
+        globalInfo.order_info.order_detail = [];
         function getPageOrder(page){
             $.getJSON("http://home.m.jd.com//newAllOrders/newAllOrders.json?sid="+sid+"&page="+page,function(d){
                 page++;
-                if( info.order_info.order_detail.length <=  max_order_num && d.orderList.length!=0 && (orders.order_detail.length == 0 || d.orderList[d.orderList.length-1].orderId != orders.order_detail[orders.order_detail.length-1].orderId) ){
+                if( globalInfo.order_info.order_detail.length <=  max_order_num && d.orderList.length!=0 && (orders.order_detail.length == 0 || d.orderList[d.orderList.length-1].orderId != orders.order_detail[orders.order_detail.length-1].orderId) ){
                     orders.order_detail = orders.order_detail.concat(d.orderList);
                     var task = [];
                     task.push($.each(d.orderList,function(i,e){
@@ -61,9 +96,9 @@ dSpider("jd", function(session,env,$){
                                     var num = $("<div>").append(products[k]).find(".s3-num").text();
                                     orderitem.products.push(new product(name,  num ,price));
                                 });
-                                if(info.order_info.order_detail.length < max_order_num &&
+                                if(globalInfo.order_info.order_detail.length < max_order_num &&
                                     Date.parse(new Date()) < (new Date(orderitem.time)).getTime() + max_order_date * 24 * 60 * 60 * 1000){
-                                    info.order_info.order_detail.push(orderitem);
+                                    globalInfo.order_info.order_detail.push(orderitem);
                                 }
                             });
                     }));
@@ -98,9 +133,9 @@ dSpider("jd", function(session,env,$){
     //已实名用户
     if (location.href.indexOf("msc.jd.com/auth/loginpage/wcoo/toAuthInfoPage") != -1) {
         session.setProgress(90);
-        info = $.parseJSON(session.get(infokey));
-        info.base_info.name  = $(".pos-ab")[0].innerHTML;
-        info.base_info.idcard_no  = $(".pos-ab")[1].innerHTML;
+        globalInfo = $.parseJSON(session.get(infokey));
+        globalInfo.base_info.name  = $(".pos-ab")[0].innerHTML;
+        globalInfo.base_info.idcard_no  = $(".pos-ab")[1].innerHTML;
         saveInfo();
         logout();
 
@@ -110,18 +145,18 @@ dSpider("jd", function(session,env,$){
     function logout(){
         location.href = "https://passport.m.jd.com/user/logout.action?sid="+session.get("sid");
         session.setProgress(100);
-        session.upload(JSON.stringify(info));
+        session.upload(JSON.stringify(globalInfo));
         session.finish();
     }
     //快捷卡实名用户
     if (location.href.indexOf("msc.jd.com/auth/loginpage/wcoo/toAuthPage") != -1) {
         session.setProgress(90);
-        info = $.parseJSON(session.get(infokey));
+        globalInfo = $.parseJSON(session.get(infokey));
         if($("#username")[0] !=undefined){
-            info.base_info.name  = $("#username")[0].value;
+            globalInfo.base_info.name  = $("#username")[0].value;
         }
         if($("#idcard")[0] !=undefined){
-            info.base_info.idcard_no  = $("#idcard")[0].value;
+            globalInfo.base_info.idcard_no  = $("#idcard")[0].value;
         }
         saveInfo();
         logout();
@@ -130,39 +165,10 @@ dSpider("jd", function(session,env,$){
     }
 
     function saveInfo(){
-        session.set(infokey, JSON.stringify(info));
-
+        session.set(infokey, JSON.stringify(globalInfo));
     }
 
-    if (location.href.indexOf("home.m.jd.com/maddress") != -1) {
-        session.setProgress(20);
 
-        info = $.parseJSON(session.get(infokey));
-        contact_info = new contact_info([]);
-        var taskAddr = [];
-        var urlarray = $(".ia-r");
-        for(var i=0;i<urlarray.length;i++){
-            taskAddr.push($.get(urlarray[i],function(response,status){
-                var node = $("<div>").append($(response))
-                var name = node.find("#uersNameId")[0].value;
-                var phone = node.find("#mobilePhoneId")[0].value;
-                var addr = node.find("#addressLabelId")[0].innerHTML;
-                var detail = node.find("#address_where")[0].innerHTML;
-                contact_info.contact_detail.push(new contact(name,addr,detail,phone, ""));
-            }) );
-
-        }
-
-        $.when(taskAddr).done(
-            function(){
-                info.contact_info = contact_info;
-                saveInfo();
-                session.setProgress(30);
-                getOrder();
-            });
-
-
-    }
 
     function addr(name,phone,addrdetail) {
         this.name = name;
