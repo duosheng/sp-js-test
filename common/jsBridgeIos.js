@@ -76,7 +76,7 @@ DataSession.prototype = {
     set: function (key, value) {
         log("set called")
         this.data[key]=value;
-        //this._save();
+        this._save();
     },
 
     showProgress: function (isShow) {
