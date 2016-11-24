@@ -150,7 +150,7 @@ function dSpider(sessionKey, callback) {
                 session.onNavigate(location.href);
             }
         }
-        dQuery(window).on("unload",_onclose)
+        //dQuery(window).on("unload",_onclose)
        // dQuery(window).on("unbeforeload",_onclose)
         dQuery(window).on("pagehide",_onclose);
         window.curSession = session;
