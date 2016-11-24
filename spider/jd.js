@@ -28,8 +28,8 @@ dSpider("jd", function(session,env,$){
         }
 
         // log(JSON.stringify(new info({},{},{})));
-        session.set(infokey, JSON.stringify(new info({},{},{})));
-        globalInfo = $.parseJSON(session.get(infokey));
+        session.set(infokey, new info({},{},{}));
+        globalInfo = session.get(infokey);
         globalInfo.base_info.username  = $("[report-eventid$='MCommonHTail_Account']").text().replace(/\n/g,"").replace(/\t/g,"");
         saveInfo();
         session.setProgress(10);
@@ -39,7 +39,7 @@ dSpider("jd", function(session,env,$){
     if (location.href.indexOf("home.m.jd.com/maddress") != -1) {
         session.setProgress(20);
 
-        globalInfo = $.parseJSON(session.get(infokey));
+        globalInfo = session.get(infokey);
         contact_info = new contact_info([]);
         var taskAddr = [];
         var urlarray = $(".ia-r");
@@ -72,7 +72,7 @@ dSpider("jd", function(session,env,$){
 
     function getOrder(){
         session.setProgress(40);
-        globalInfo = $.parseJSON(session.get(infokey));
+        globalInfo = session.get(infokey);
         var orders = new order_info([]);
         globalInfo.order_info = new order_info([]);
         globalInfo.order_info.order_detail = [];
@@ -133,7 +133,7 @@ dSpider("jd", function(session,env,$){
     //已实名用户
     if (location.href.indexOf("msc.jd.com/auth/loginpage/wcoo/toAuthInfoPage") != -1) {
         session.setProgress(90);
-        globalInfo = $.parseJSON(session.get(infokey));
+        globalInfo = session.get(infokey);
         globalInfo.base_info.name  = $(".pos-ab")[0].innerHTML;
         globalInfo.base_info.idcard_no  = $(".pos-ab")[1].innerHTML;
         saveInfo();
@@ -145,13 +145,13 @@ dSpider("jd", function(session,env,$){
     function logout(){
         location.href = "https://passport.m.jd.com/user/logout.action?sid="+session.get("sid");
         session.setProgress(100);
-        session.upload(JSON.stringify(globalInfo));
+        session.upload(globalInfo);
         session.finish();
     }
     //快捷卡实名用户
     if (location.href.indexOf("msc.jd.com/auth/loginpage/wcoo/toAuthPage") != -1) {
         session.setProgress(90);
-        globalInfo = $.parseJSON(session.get(infokey));
+        globalInfo = session.get(infokey);
         if($("#username")[0] !=undefined){
             globalInfo.base_info.name  = $("#username")[0].value;
         }
@@ -165,7 +165,7 @@ dSpider("jd", function(session,env,$){
     }
 
     function saveInfo(){
-        session.set(infokey, JSON.stringify(globalInfo));
+        session.set(infokey, globalInfo);
     }
 
 
