@@ -151,7 +151,8 @@ function dSpider(sessionKey, callback) {
             }
         }
         dQuery(window).on("unload",_onclose)
-       // dQuery(window).on("pagehide",_onclose);
+       // dQuery(window).on("unbeforeload",_onclose)
+        dQuery(window).on("pagehide",_onclose);
         window.curSession = session;
         session._init(function(){
             DataSession.getExtraData(function (extras) {
