@@ -38,8 +38,8 @@ dSpider("jd", function(session,env,$){
 
     if (location.href.indexOf("home.m.jd.com/maddress") != -1) {
         session.setProgress(20);
-
         globalInfo = session.get(infokey);
+        log("globalInfo"+JSON.stringify(globalInfo))
         contact_info = new contact_info([]);
         var taskAddr = [];
         var urlarray = $(".ia-r");
