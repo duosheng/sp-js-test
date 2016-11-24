@@ -38,9 +38,9 @@ dSpider("jd", function(session,env,$){
 
     if (location.href.indexOf("home.m.jd.com/maddress") != -1) {
         session.setProgress(20);
+
         globalInfo = session.get(infokey);
-        log("globalInfo"+JSON.stringify(globalInfo))
-        contact_info = new contact_info([]);
+        global_contact_info = new contact_info([]);
         var taskAddr = [];
         var urlarray = $(".ia-r");
         for(var i=0;i<urlarray.length;i++){
@@ -51,7 +51,7 @@ dSpider("jd", function(session,env,$){
                 var addr = node.find("#addressLabelId")[0].innerHTML;
                 var detail = node.find("#address_where")[0].innerHTML;
 
-                contact_info.contact_detail.push(new contact(name,addr,detail,phone, ""));
+                global_contact_info.contact_detail.push(new contact(name,addr,detail,phone, ""));
             }) );
 
         }
@@ -60,7 +60,7 @@ dSpider("jd", function(session,env,$){
         $.when.apply($,taskAddr).done(
             // $.when(taskAddr).done(
             function(){
-                globalInfo.contact_info = contact_info;
+                globalInfo.contact_info = global_contact_info;
                 saveInfo();
                 session.setProgress(30);
                 getOrder();
@@ -177,7 +177,7 @@ dSpider("jd", function(session,env,$){
     }
 
     var address = [];
-    var contact_info;
+    var global_contact_info;
 
 
     function info(base_info,contact_info,order_info ){
