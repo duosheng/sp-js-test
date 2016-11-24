@@ -149,7 +149,7 @@ function dSpider(sessionKey, callback) {
                 session.onNavigate(location.href);
             }
         }
-        $(window).on("unload",_onclose)
+        $(window).on("beforeunload",_onclose)
         $(window).on("pagehide",_onclose);
         window.curSession = session;
         session._init(function(){
