@@ -143,16 +143,14 @@ function dSpider(sessionKey, callback) {
             return;
         }
         var session = new DataSession(sessionKey);
-        var _onclose=function(){
+        var onclose=function(){
             log("onNavigate:"+location.href)
             session._save()
             if(session.onNavigate){
                 session.onNavigate(location.href);
             }
         }
-        //dQuery(window).on("unload",_onclose)
-        dQuery(window).on("unbeforeload",_onclose)
-        //dQuery(window).on("pagehide",_onclose);
+        dQuery(window).on("unbeforeload",onclose)
         window.curSession = session;
         session._init(function(){
             DataSession.getExtraData(function (extras) {
