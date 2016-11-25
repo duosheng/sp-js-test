@@ -89,11 +89,8 @@ DataSession.prototype = {
     autoLoadImg:function(load){
        _xy.autoLoadImg(load===true)
     },
-    string: function (f) {
-        this.data(function (d) {
-            f || log(d)
-            f && f(d)
-        })
+    string: function () {
+        log(this.data)
     }
 };
 

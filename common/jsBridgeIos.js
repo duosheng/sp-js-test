@@ -154,11 +154,8 @@ DataSession.prototype = {
         callHandler("autoLoadImg",{"load":load===true})
     },
 
-    string: function (f) {
-        this.data(function (d) {
-            f || log(d)
-            f && f(d)
-        })
+    string: function () {
+        log(this.data)
     }
 };
 apiInit();
