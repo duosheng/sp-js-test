@@ -1,12 +1,6 @@
 /**
  * Created by du on 16/11/17.
  */
-/**
- * Created by du on 16/11/15.
- */
-/**
- * Created by du on 16/8/17.
- */
 function callHandler(){
     var f=arguments[2];
     if (f) {
@@ -117,7 +111,7 @@ DataSession.prototype = {
             alert("the second argument of function load  must be Object!")
             return
         }
-        callHandler("load",{headers:headers});
+        callHandler("load",{url:url,headers:headers});
     },
     setUserAgent:function(str){
         callHandler("setUserAgent",{"userAgent":str})
