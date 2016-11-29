@@ -1,15 +1,16 @@
 dSpiderMail("qq", function (user, wd, session, extras, $) {
+    log(location.href)
     var index = location.href.indexOf("://w.mail.qq.com/cgi-bin/loginpage")
     if (index < 7 && index > -1) {
-        location.replace($('.enter_mail_button_td a').attr('href'));
+        var url=$('.enter_mail_button_td a').attr("href");
+        if(url) {
+            location.replace(url);
+        }
         return
     }
     index = location.href.indexOf("://ui.ptlogin2.qq.com/cgi-bin/login?")
     if (index < 7 && index > -1) {
-        $("#auto_login").hide()
         $("#u").val(user).attr("disabled", "disabled").css("color", "#777")
-        $("#del_touch").remove();
-        $("#remember").attr("disabled", "disabled").attr("checked", false);
         return
     }
     session.showProgress();
