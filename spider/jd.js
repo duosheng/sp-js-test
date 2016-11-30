@@ -40,7 +40,7 @@ dSpider("jd", function(session,env,$){
         session.setProgress(20);
 
         globalInfo = session.get(infokey);
-        log("gloabalInfo:"+JSON.stringify(globalInfo));
+        log("globalinfo",globalInfo)
         global_contact_info = new contact_info([]);
         var taskAddr = [];
         var urlarray = $(".ia-r");
@@ -128,6 +128,8 @@ dSpider("jd", function(session,env,$){
         session.setProgress(70);
         if($('#shimingrenzheng')[0] != undefined){
             $('#shimingrenzheng')[0].click();
+        }else{
+            logout();
         }
     }
 
@@ -144,6 +146,7 @@ dSpider("jd", function(session,env,$){
     }
 
     function logout(){
+        alert("爬取订单总计:" + session.get(infokey).order_info.order_detail.length);
         location.href = "https://passport.m.jd.com/user/logout.action?sid="+session.get("sid");
         session.setProgress(100);
         session.upload(globalInfo);
@@ -219,8 +222,8 @@ dSpider("jd", function(session,env,$){
         this.address  = address;
     }
 
-    function product(product, number, price){
-        this.product  = product;
+    function product(name, number, price){
+        this.name  = name;
         this.number  = number;
         this.price  = price;
     }
