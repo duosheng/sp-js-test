@@ -137,6 +137,7 @@ function apiInit() {
 
 //爬取入口
 function dSpider(sessionKey, callback) {
+    var $=dQuery;
     var t = setInterval(function () {
         if (window.xyApiLoaded) {
             clearInterval(t);
@@ -144,17 +145,26 @@ function dSpider(sessionKey, callback) {
             return;
         }
         var session = new DataSession(sessionKey);
-        window.onbeforeunload = function () {
+        var onclose=function(){
+            log("onNavigate:"+location.href)
             session._save()
             if(session.onNavigate){
                 session.onNavigate(location.href);
             }
         }
+        $(window).on("beforeunload",onclose)
         window.curSession = session;
         session._init(function(){
             DataSession.getExtraData(function (extras) {
-                log("dSpider start!")
-                callback(session, extras, dQuery,dSpiderLocal);
+                $(function(){
+                    $("body").on("click","a",function(){
+                        $(this).attr("target",function(_,v){
+                            if(v=="_blank") return "_self"
+                        })
+                    })
+                    log("dSpider start!")
+                    callback(session, extras, $);
+                })
             })
         })
     }, 20);

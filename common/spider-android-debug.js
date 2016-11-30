@@ -67,19 +67,22 @@ dQuery.errorReport=errorReport;
 
 function hook(fun){
     return function() {
+
         if (!(arguments[0] instanceof Function)) {
             t=arguments[0];
             log("warning: "+fun.name+" first argument should be function not string ")
             arguments[0]=function(){eval(t)};
         }
         arguments[0]=safeCallback(arguments[0]);
+
         return fun.apply(this,arguments)
+
     }
 }
 
 //hook setTimeout,setInterval异步回调
-setTimeout=hook(setTimeout);
-setInterval=hook(setInterval);
+var setTimeout=hook(window.setTimeout);
+var setInterval=hook(window.setInterval);
 
 //dom 监控
 function DomNotFindReport(selector) {
@@ -136,6 +139,7 @@ function apiInit(){
 
 //爬取入口
 function dSpider(sessionKey, callback) {
+    var $=dQuery;
     var t = setInterval(function () {
         if (window.xyApiLoaded) {
             clearInterval(t);
@@ -143,16 +147,26 @@ function dSpider(sessionKey, callback) {
             return;
         }
         var session = new DataSession(sessionKey);
-        window.onbeforeunload = function () {
+        var onclose=function(){
+            log("onNavigate:"+location.href)
             session._save()
             if(session.onNavigate){
                 session.onNavigate(location.href);
             }
         }
+        $(window).on("beforeunload",onclose)
         window.curSession = session;
         session._init(function(){
             DataSession.getExtraData(function (extras) {
-                callback(session, extras, dQuery);
+                $(function(){
+                    $("body").on("click","a",function(){
+                        $(this).attr("target",function(_,v){
+                            if(v=="_blank") return "_self"
+                        })
+                    })
+                    log("dSpider start!")
+                    callback(session, extras, $);
+                })
             })
         })
     }, 20);
@@ -229,6 +243,17 @@ DataSession.prototype = {
         }
         return _xy.finish(this.key || "", 0, "")
     },
+    load:function(url,headers){
+        headers=headers||{}
+        if(typeof headers!=="object"){
+            alert("the second argument of function load  must be Object!")
+            return
+        }
+        _xy.load(url,JSON.stringify(headers));
+    },
+    setUserAgent:function(str){
+        _xy.setUserAgent(str)
+    },
     "upload": function (value) {
         if (value instanceof Object) {
             value = JSON.stringify(value);
@@ -241,7 +266,7 @@ DataSession.prototype = {
     },
 
     autoLoadImg:function(load){
-        _xy.autoLoadImg(load===true)
+        _xy.autoLoadImg(load)
     },
 
     "string": function () {

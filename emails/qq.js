@@ -1,5 +1,11 @@
 dSpiderMail("qq", function (user, wd, session, extras, $) {
     log(location.href)
+    session.onNavigate=function(url){
+        if(url.indexOf("://ui.ptlogin2.qq.com/cgi-bin/login?")!=-1){
+            session.showProgress();
+            session.autoLoadImg(false);
+        }
+    }
     var index = location.href.indexOf("://w.mail.qq.com/cgi-bin/loginpage")
     if (index < 7 && index > -1) {
         var url=$('.enter_mail_button_td a').attr("href");
@@ -11,19 +17,18 @@ dSpiderMail("qq", function (user, wd, session, extras, $) {
     index = location.href.indexOf("://ui.ptlogin2.qq.com/cgi-bin/login?")
     if (index < 7 && index > -1) {
         $("#u").val(user).attr("disabled", "disabled").css("color", "#777")
+        session.showProgress(false);
         return
     }
-    session.showProgress();
+
     log("x1" + location.href);
     if (location.href.indexOf("w.mail.qq.com/cgi-bin/today?sid=") != -1) {
-        //session.showProgress();
         var url = "https://w.mail.qq.com/cgi-bin/mobile?sid=$$sid&t=phone#today"
         url = url.replace(/\$\$sid/g, qs['sid'])
         log("x2" + url)
-        location.replace(url);
+        location.href=url;
     }
 
-    log(location.href)
     if (location.href.indexOf("w.mail.qq.com/cgi-bin/mobile?sid=") != -1) {
         var timeInterval = 300;
         var sid = qs["sid"]

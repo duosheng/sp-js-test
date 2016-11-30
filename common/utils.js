@@ -136,6 +136,7 @@ function apiInit() {
 
 //爬取入口
 function dSpider(sessionKey, callback) {
+    var $=dQuery;
     var t = setInterval(function () {
         if (window.xyApiLoaded) {
             clearInterval(t);
@@ -150,22 +151,23 @@ function dSpider(sessionKey, callback) {
                 session.onNavigate(location.href);
             }
         }
-        dQuery(window).on("beforeunload",onclose)
+        $(window).on("beforeunload",onclose)
         window.curSession = session;
         session._init(function(){
             DataSession.getExtraData(function (extras) {
-                log("dSpider start!")
-                callback(session, extras, dQuery,dSpiderLocal);
+                $(function(){
+                    $("body").on("click","a",function(){
+                        $(this).attr("target",function(_,v){
+                            if(v=="_blank") return "_self"
+                        })
+                    })
+                    log("dSpider start!")
+                    callback(session, extras, $);
+                })
             })
         })
     }, 20);
 }
-
-dQuery("body").on("click","a",function(){
-    dQuery(this).attr("target",function(_,v){
-        if(v=="_blank") return "_self"
-    })
-})
 
 //邮件爬取入口
 function dSpiderMail(sessionKey, callback) {
