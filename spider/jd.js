@@ -137,8 +137,12 @@ dSpider("jd", function(session,env,$){
     if (location.href.indexOf("msc.jd.com/auth/loginpage/wcoo/toAuthInfoPage") != -1) {
         session.setProgress(90);
         globalInfo = session.get(infokey);
-        globalInfo.base_info.name  = $(".pos-ab")[0].innerHTML;
-        globalInfo.base_info.idcard_no  = $(".pos-ab")[1].innerHTML;
+        if( $(".pos-ab")[0] != undefined){
+            globalInfo.base_info.name  = $(".pos-ab")[0].innerHTML;
+        }
+        if($(".pos-ab")[1] != undefined){
+            globalInfo.base_info.idcard_no  = $(".pos-ab")[1].innerHTML;
+        }
         saveInfo();
         logout();
 
