@@ -30,6 +30,7 @@ dSpiderMail("qq", function (user, wd, session, extras, $) {
     }
 
     if (location.href.indexOf("w.mail.qq.com/cgi-bin/mobile?sid=") != -1) {
+        session.showProgress();
         var timeInterval = 300;
         var sid = qs["sid"]
         $.get("mail_list?ef=js&sid=" + sid, {
