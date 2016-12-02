@@ -19,7 +19,7 @@ dSpider("jd", function(session,env,$){
 
 
     if (location.href.indexOf("://m.jd.com") != -1 ) {
-        session.showProgress(false);
+        session.showProgress(true);
         session.setProgressMax(100);
         session.setProgress(0);
         session.hideLoading();
@@ -86,6 +86,7 @@ dSpider("jd", function(session,env,$){
                     orders.order_detail = orders.order_detail.concat(d.orderList);
                     var task = [];
                     log("xxdebug-orderList" + d.orderList);
+                    var tempOrder = [];
                     task.push($.each(d.orderList,function(i,e){
                         $.get("http://home.m.jd.com/newAllOrders/queryOrderDetailInfo.action?orderId="+ d.orderList[i].orderId+"&from=newUserAllOrderList&passKey="+d.passKeyList[i]+"&sid="+sid,
                             function(response,status){
@@ -102,13 +103,15 @@ dSpider("jd", function(session,env,$){
                                 });
                                 if(globalInfo.order_info.order_detail.length < max_order_num &&
                                     Date.parse(new Date()) < (new Date(orderitem.time.split(" ")[0])).getTime() + max_order_date * 24 * 60 * 60 * 1000){
+                                    log("xxxxxxxq" + JSON.stringify(tempOrder));
                                     globalInfo.order_info.order_detail.push(orderitem);
                                 }
                             });
                     }));
+
                     $.when(task).done(function(){
                         getPageOrder(page);
-
+                        globalInfo.order_info.order_detail.sort(compare());
                     });
 
                 }else {
@@ -122,7 +125,13 @@ dSpider("jd", function(session,env,$){
         getPageOrder(1);
     }
 
-
+    function compare(){
+        return function(a,b){
+            var value1 = (new Date(a.time.split(" ")[0])).getTime();
+            var value2 = (new Date(b.time.split(" ")[0])).getTime();
+            return value2 - value1;
+        }
+    }
 
     function getUserInfo(){
         location.href = "http://home.m.jd.com/user/accountCenter.action";
