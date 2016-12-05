@@ -14,7 +14,7 @@ dSpiderMail("sina", function (user,wd, session, extras, $) {
     var index = location.href.indexOf("://mail.sina.cn/?")
     if (index < 7 && index > -1) {
         //alert(JSON.stringify(DataSession.getExtraData()))
-        $("#mailFnCoverAndroid,#btnSkipCoverAndroid").hide()
+        $("#mailFnCoverAndroid,#mailFnCoveriOS,#btnSkipCoverAndroid").hide()
         $("input[name=username]").val(user).attr("disabled","disabled").css("color","#777")
         $("input[name=savelogin]").val(0).parents("li").add("changeUrl>:last").hide()
         return

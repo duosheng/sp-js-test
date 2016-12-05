@@ -241,6 +241,5 @@ dSpider("jd", function(session,env,$){
         this.price  = price;
     }
 
-
 //end
 })
