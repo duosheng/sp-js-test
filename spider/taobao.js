@@ -18,7 +18,7 @@ dSpider("taobao", function(session,env,$){
                 session.set("taobaoState",0);
                 session.set("orderArray",[]);
                 //显示进度为0
-                session.showProgress(true);
+                session.showProgress(false);
                 session.setProgressMax(100);
                 session.setProgress(2);
             }
@@ -77,7 +77,7 @@ dSpider("taobao", function(session,env,$){
         /**
          * 进入订单的爬取操作
          */
-        function intoOrderDetail(position) {
+        function intoOrderDetail() {
             log("--------------------------intoOrderDetail----------------------------");
             if($(".order-list>li").length == 0){//当lengt为0的时候的处理
                 setTimeout(intoOrderDetail,100);
@@ -92,9 +92,9 @@ dSpider("taobao", function(session,env,$){
                     location="http://h5.m.taobao.com/mlapp/mytaobao.html";
                 }else{
                     function toOrder(){
-                        ($($(".order-list>li")[position]).children().eq(3).children().eq(0).children().eq(0)).trigger("click");
+                        ($($(".order-list>li")[position]).children().eq(3).children().eq(0).children().eq(1)).trigger("click");
                         session.setProgress(5+(position/($(".order-list>li").length))*60);
-                        log("--------------------------进入订单----------------------------");
+                        log("--------------------------进入订单----------------------------"+position);
                     }
                     setTimeout(toOrder,500);//必须延时执行该方法,因为click事件有可能还没有绑定到dom上
                 }
@@ -116,7 +116,7 @@ dSpider("taobao", function(session,env,$){
                 //拿到position后开始爬取
                 var oip = session.get("OrderItemPosition");
                 session.set("OrderItemPosition",oip+1);
-                location = "http://h5.m.taobao.com/mlapp/olist.html?"
+                location = "http://h5.m.taobao.com/mlapp/olist.html"
             }
         }
         //特殊订单的处理----------------------保险
@@ -155,7 +155,7 @@ dSpider("taobao", function(session,env,$){
                     //更新position
                     session.set("OrderItemPosition",tempOipn+1);
                     //跳转到列表页
-                    location = "http://h5.m.taobao.com/mlapp/olist.html?"
+                    location = "http://h5.m.taobao.com/mlapp/olist.html"
                     log("--------------------------爬取保险end----------------------------");
                 }
                 setTimeout(getBxOrderDetail,100);
@@ -196,12 +196,33 @@ dSpider("taobao", function(session,env,$){
                     //更新position
                     session.set("OrderItemPosition",tempOipn+1);
                     //跳转到列表页
-                    location = "http://h5.m.taobao.com/mlapp/olist.html?"
+                    location = "http://h5.m.taobao.com/mlapp/olist.html"
                     log("--------------------------爬取飞机票end----------------------------");
                 }
                 setTimeout(getFJPOrderDetail,100);
             }
         }
+        //-----------------------------------------位置类型订单的处理
+        if (window.location.pathname.indexOf("mlapp/olist") == -1//当前页面不是订单列表
+            &&window.location.pathname.indexOf("mymovie/pages") == -1//当前页面不是电影票订单
+            &&window.location.pathname.indexOf("bx/orderdetail") == -1//当前页面不是保险订单
+            &&window.location.pathname.indexOf("trip/flight") == -1//当前页面不是飞机票订单
+            &&window.location.pathname.indexOf("mlapp/odetail") == -1//当前页面不是淘宝订单
+        ) {
+            var oa = session.get("orderArray");
+            if(oa == undefined){
+                session.set("taobaoState",-1);
+                //关闭当前页面
+                closeOrderDetail();
+            }else{
+                currentOrderData = oa;
+                //拿到position后开始爬取
+                var oip = session.get("OrderItemPosition");
+                session.set("OrderItemPosition",oip+1);
+                location = "http://h5.m.taobao.com/mlapp/olist.html"
+            }
+        }
+
 
         //订单详情,目前外卖的订单详情跟淘宝自己的订单详情布局链接都一致
         if (window.location.pathname.indexOf("mlapp/odetail") != -1) {
