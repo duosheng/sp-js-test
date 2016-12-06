@@ -1,7 +1,7 @@
 <?php
 
 header("Content-Type: text/javascript; charset=utf-8");
-$srcTemplete="!function(){%s}()";
+$srcTemplete="!function(){\r\n%s;\r\n%s}()";
 isset($_GET['refer'])||die("refer needed!");
 
 $refer = iconv("UTF-8", "gbk", urldecode($_GET['refer']));
@@ -30,7 +30,8 @@ if(in_array($sid,$all)){
     $src.=file_get_contents( "./spider/$sid.js");
     $src.="\r\n";
 }
-printf($srcTemplete,$src);
+$scriptUrl='var _su="http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'"';
+printf($srcTemplete,$scriptUrl,$src);
 
 
 

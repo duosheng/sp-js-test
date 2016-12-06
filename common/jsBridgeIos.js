@@ -116,6 +116,7 @@ DataSession.prototype = {
                     content: content||document.documentElement.outerHTML ,
                     extra: d
                 }
+                stack&&(ob.stack=stack);
                 ret.result = code || 2;
                 ret.msg = JSON.stringify(ob);
             }
@@ -156,7 +157,20 @@ DataSession.prototype = {
 
     string: function () {
         log(this.data)
+    },
+    setProgressMsg:function(){
+        if(!str) return;
+        callHandler("setProgressMsg",{"msg":str})
+    },
+    log: function(str) {
+        str=str||"";
+        if(typeof str !="string") {
+            str=JSON.stringify(str);
+        }
+        console.log("dSpider: "+str)
+        callHandler("log",{"msg":str})
     }
+
 };
 apiInit();
 

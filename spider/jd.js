@@ -87,27 +87,29 @@ dSpider("jd", function(session,env,$){
                     var task = [];
                     log("xxdebug-orderList" + d.orderList);
                     var tempOrder = [];
-                    task.push($.each(d.orderList,function(i,e){
-                        $.get("http://home.m.jd.com/newAllOrders/queryOrderDetailInfo.action?orderId="+ d.orderList[i].orderId+"&from=newUserAllOrderList&passKey="+d.passKeyList[i]+"&sid="+sid,
-                            function(response,status){
-                                var addr = $("<div>").append($(response)).find(".step2-in-con").text();
-                                var orderitem = new order(d.orderList[i].orderId,d.orderList[i].dataSubmit,d.orderList[i].price,addr);
+                    if(globalInfo.order_info.order_detail.length < max_order_num){
+                        task.push($.each(d.orderList,function(i,e){
+                            $.get("http://home.m.jd.com/newAllOrders/queryOrderDetailInfo.action?orderId="+ d.orderList[i].orderId+"&from=newUserAllOrderList&passKey="+d.passKeyList[i]+"&sid="+sid,
+                                function(response,status){
+                                    var addr = $("<div>").append($(response)).find(".step2-in-con").text();
+                                    var orderitem = new order(d.orderList[i].orderId,d.orderList[i].dataSubmit,d.orderList[i].price,addr);
 
-                                orderitem.products = [];
-                                var products = $("<div>").append($(response)).find(".pdiv");
-                                $.each(products,function(k, e){
-                                    var name = $("<div>").append(products[k]).find(".sitem-m-txt").text();
-                                    var price = $("<div>").append(products[k]).find(".sitem-r").text();
-                                    var num = $("<div>").append(products[k]).find(".s3-num").text();
-                                    orderitem.products.push(new product(name,  num ,price));
+                                    orderitem.products = [];
+                                    var products = $("<div>").append($(response)).find(".pdiv");
+                                    $.each(products,function(k, e){
+                                        var name = $("<div>").append(products[k]).find(".sitem-m-txt").text();
+                                        var price = $("<div>").append(products[k]).find(".sitem-r").text();
+                                        var num = $("<div>").append(products[k]).find(".s3-num").text();
+                                        orderitem.products.push(new product(name,  num ,price));
+                                    });
+                                    if(Date.parse(new Date()) < (new Date(orderitem.time.split(" ")[0])).getTime() + max_order_date * 24 * 60 * 60 * 1000){
+                                        log("xxxxxxxq" + JSON.stringify(tempOrder));
+                                        globalInfo.order_info.order_detail.push(orderitem);
+                                    }
                                 });
-                                if(globalInfo.order_info.order_detail.length < max_order_num &&
-                                    Date.parse(new Date()) < (new Date(orderitem.time.split(" ")[0])).getTime() + max_order_date * 24 * 60 * 60 * 1000){
-                                    log("xxxxxxxq" + JSON.stringify(tempOrder));
-                                    globalInfo.order_info.order_detail.push(orderitem);
-                                }
-                            });
-                    }));
+                        }));
+                    }
+
 
                     $.when(task).done(function(){
                         getPageOrder(page);
@@ -240,6 +242,7 @@ dSpider("jd", function(session,env,$){
         this.number  = number;
         this.price  = price;
     }
+
 
 //end
 })

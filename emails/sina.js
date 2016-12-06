@@ -3,7 +3,6 @@
  */
 
 dSpiderMail("sina", function (user,wd, session, extras, $) {
-
     $.fn.trigger_=function(e){
         var evt = document.createEvent("MouseEvents");
         evt.initEvent(e, false, false);

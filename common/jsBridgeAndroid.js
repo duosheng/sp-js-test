@@ -9,12 +9,12 @@ var dSpiderLocal = {
 
 function DataSession(key) {
     this.key = key;
-    this.finished=false;
+    this.finished = false;
     _xy.start(key);
 }
 
 DataSession.getExtraData = function (f) {
-    f=safeCallback(f);
+    f = safeCallback(f);
     f && f(JSON.parse(_xy.getExtraData() || "{}"));
 }
 
@@ -31,7 +31,7 @@ DataSession.prototype = {
         return this.data[key];
     },
     set: function (key, value) {
-        this.data[key]=value;
+        this.data[key] = value;
     },
 
     showProgress: function (isShow) {
@@ -44,7 +44,7 @@ DataSession.prototype = {
         _xy.setProgress(progress);
     },
     getProgress: function (f) {
-        f=safeCallback(f);
+        f = safeCallback(f);
         f && f(_xy.getProgress());
     },
     showLoading: function (s) {
@@ -53,15 +53,16 @@ DataSession.prototype = {
     hideLoading: function () {
         _xy.hideLoading()
     },
-    finish: function (errmsg, content, code) {
-        this.finished=true;
+    finish: function (errmsg, content, code, stack) {
+        this.finished = true;
         if (errmsg) {
             var ob = {
                 url: location.href,
                 msg: errmsg,
-                content: content||document.documentElement.outerHTML ,
+                content: content || document.documentElement.outerHTML,
                 extra: _xy.getExtraData()
             }
+            stack && (ob.stack = stack);
             return _xy.finish(this.key || "", code || 2, JSON.stringify(ob));
         }
         return _xy.finish(this.key || "", 0, "")
@@ -72,25 +73,37 @@ DataSession.prototype = {
         }
         return _xy.push(this.key, value)
     },
-    load:function(url,headers){
-        headers=headers||{}
-        if(typeof headers!=="object"){
+    load: function (url, headers) {
+        headers = headers || {}
+        if (typeof headers !== "object") {
             alert("the second argument of function load  must be Object!")
             return
         }
-        _xy.load(url,JSON.stringify(headers));
+        _xy.load(url, JSON.stringify(headers));
     },
-    setUserAgent:function(str){
+    setUserAgent: function (str) {
         _xy.setUserAgent(str)
     },
-    openWithSpecifiedCore:function(url, core){
+    openWithSpecifiedCore: function (url, core) {
         _xy.openWithSpecifiedCore(url, core)
     },
-    autoLoadImg:function(load){
-       _xy.autoLoadImg(load===true)
+    autoLoadImg: function (load) {
+        _xy.autoLoadImg(load === true)
     },
     string: function () {
         log(this.data)
+    },
+    setProgressMsg:function(str){
+        if(!str) return;
+        _xy.setProgressMsg(str);
+    },
+    log: function(str) {
+      str=str||"";
+      if(typeof str !="string") {
+         str=JSON.stringify(str);
+      }
+      console.log("dSpider: "+str)
+      _xy.log(str)
     }
 };
 

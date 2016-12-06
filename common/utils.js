@@ -18,17 +18,21 @@ String.prototype.empty = function () {
     return this.trim() === "";
 };
 
-function log() {
-    for (var i = 0; i < arguments.length; ++i) {
-        var str = arguments[i];
-        str = typeof str !== "string" ? JSON.stringify(str) : str;
-        console.log("xy log: " + str);
-    }
+
+function log(str) {
+   var s= window.curSession
+   if(s){
+       s.log(str)
+   }else {
+       console.log("dSpider: "+typeof str=="string"?str:JSON.stringify(str))
+   }
 }
+
 //异常捕获
 function errorReport(e) {
-    console.error("xy log: 语法错误: " + e.message + e.stack);
-    window.curSession && curSession.finish(e.toString(), "")
+    var stack=e.stack.replace(/http.*?inject\.php.*?:/ig," "+_su+":");
+    log("语法错误: " + e.message + stack) ;
+    window.curSession && curSession.finish(e, "",3,stack);
 }
 
 String.prototype.endWith = function (str) {
@@ -155,7 +159,7 @@ function dSpider(sessionKey, callback) {
         window.curSession = session;
         session._init(function(){
             DataSession.getExtraData(function (extras) {
-                $(function(){
+                $(safeCallback(function(){
                     $("body").on("click","a",function(){
                         $(this).attr("target",function(_,v){
                             if(v=="_blank") return "_self"
@@ -163,7 +167,7 @@ function dSpider(sessionKey, callback) {
                     })
                     log("dSpider start!")
                     callback(session, extras, $);
-                })
+                }))
             })
         })
     }, 20);

@@ -124,6 +124,18 @@ DataSession.prototype = {
     },
     string: function () {
         log(this.data)
+    },
+    setProgressMsg:function(){
+        if(!str) return;
+        callHandler("setProgressMsg",{"msg":str})
+    },
+    log: function(str) {
+        str=str||"";
+        if(typeof str !="string") {
+            str=JSON.stringify(str);
+        }
+        console.log("dSpider: "+str)
+        callHandler("log",{"msg":str})
     }
 };
 apiInit();

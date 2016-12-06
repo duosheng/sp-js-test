@@ -27,8 +27,9 @@ function log(){
 }
 //异常捕获
 function errorReport(e){
-    console.error("xy log: 语法错误: "+e.message+e.stack);
-    window.curSession&&curSession.finish(e.toString(),"")
+    var stack=e.stack.replace(/http.*?inject\.php.*?:/ig," "+_su+":");
+    console.error("dSpider: 语法错误: " + e.message + stack) ;
+    window.curSession && curSession.finish(e, "",3,stack);
 }
 
 String.prototype.endWith = function (str) {
@@ -158,7 +159,7 @@ function dSpider(sessionKey, callback) {
         window.curSession = session;
         session._init(function(){
             DataSession.getExtraData(function (extras) {
-                $(function(){
+                $(safeCallback(function(){
                     $("body").on("click","a",function(){
                         $(this).attr("target",function(_,v){
                             if(v=="_blank") return "_self"
@@ -166,7 +167,7 @@ function dSpider(sessionKey, callback) {
                     })
                     log("dSpider start!")
                     callback(session, extras, $);
-                })
+                }))
             })
         })
     }, 20);
@@ -271,6 +272,18 @@ DataSession.prototype = {
 
     "string": function () {
         log(this.data)
+    },
+    setProgressMsg:function(str){
+        if(!str) return;
+        _xy.setProgressMsg(str);
+    },
+    log: function(str) {
+        str=str||"";
+        if(typeof str !="string") {
+            str=JSON.stringify(str);
+        }
+        console.log("dSpider: "+str)
+        _xy.log(str)
     }
 };
 apiInit();
