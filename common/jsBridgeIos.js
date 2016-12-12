@@ -97,6 +97,7 @@ DataSession.prototype = {
                 var ob = {
                     url: location.href,
                     msg: errmsg,
+                    args:that._args
                    // content: content||document.documentElement.outerHTML ,
                 }
                 stack&&(ob.stack=stack);
@@ -166,8 +167,3 @@ DataSession.prototype = {
 
 };
 apiInit();
-
-
-
-
-

@@ -31,8 +31,11 @@ function log(str) {
 //异常捕获
 function errorReport(e) {
     var stack=e.stack.replace(/http.*?inject\.php.*?:/ig," "+_su+":");
-    log("语法错误: " + e.message + stack) ;
-    window.curSession && curSession.finish(e.message,"",3,stack);
+    var msg="语法错误: " + e.message +"\nscript_url:"+_su+"\n"+stack
+    if(window.curSession){
+        curSession.log(msg);
+        curSession.finish(e.message,"",3,msg);
+    }
 }
 
 String.prototype.endWith = function (str) {
@@ -167,6 +170,7 @@ function dSpider(sessionKey, callback) {
                     })
                     log("dSpider start!")
                     extras.config=typeof _config==="object"?_config:"{}";
+                    session._args=extras.arguments;
                     callback(session, extras, $);
                 }))
             })
@@ -186,8 +190,3 @@ function dSpiderMail(sessionKey, callback) {
       callback(session.getLocal("u"), session.getLocal("wd"), session, env, $);
     })
 }
-
-
-
-
-

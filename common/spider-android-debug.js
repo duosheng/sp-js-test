@@ -187,6 +187,12 @@ function DataSession(key) {
     _xy.start(key);
 }
 
+function DataSession(key) {
+    this.key = key;
+    this.finished = false;
+    _xy.start(key);
+}
+
 DataSession.getExtraData = function (f) {
     f = safeCallback(f);
     f && f(JSON.parse(_xy.getExtraData() || "{}"));
@@ -236,7 +242,7 @@ DataSession.prototype = {
                 url: location.href,
                 msg: errmsg,
                 //content: content || document.documentElement.outerHTML,
-                extra: _xy.getExtraData()
+                args: this._args
             }
             stack && (ob.stack = stack);
             return _xy.finish(this.key || "", code || 2, JSON.stringify(ob));
