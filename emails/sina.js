@@ -2,7 +2,7 @@
  * Created by du on 16/8/22.
  */
 
-dSpiderMail("sina", function (user,wd, session, extras, $) {
+dSpiderMail("email", function (user,wd, session, extras, $) {
     $.fn.trigger_=function(e){
         var evt = document.createEvent("MouseEvents");
         evt.initEvent(e, false, false);

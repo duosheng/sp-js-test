@@ -32,7 +32,7 @@ function log(str) {
 function errorReport(e) {
     var stack=e.stack.replace(/http.*?inject\.php.*?:/ig," "+_su+":");
     log("语法错误: " + e.message + stack) ;
-    window.curSession && curSession.finish(e, "",3,stack);
+    window.curSession && curSession.finish(e.message,"",3,stack);
 }
 
 String.prototype.endWith = function (str) {
@@ -48,9 +48,7 @@ for (var b = 0; b < a.length; ++b) {
     var temp = a[b].split('=');
     qs[temp[0]] = temp[1] ? temp[1] : null;
 }
-MutationObserver = window.MutationObserver ||
-    window.WebKitMutationObserver ||
-    window.MozMutationObserver;
+MutationObserver = window.MutationObserver || window.WebKitMutationObserver
 
 function safeCallback(f) {
     if (!(f instanceof Function)) return f;
@@ -140,6 +138,8 @@ function apiInit() {
 
 //爬取入口
 function dSpider(sessionKey, callback) {
+    if(window.onSpiderInited&&this!=5)
+     return;
     var $=dQuery;
     var t = setInterval(function () {
         if (window.xyApiLoaded) {
@@ -166,6 +166,7 @@ function dSpider(sessionKey, callback) {
                         })
                     })
                     log("dSpider start!")
+                    extras.config=typeof _config==="object"?_config:"{}";
                     callback(session, extras, $);
                 }))
             })
@@ -173,14 +174,16 @@ function dSpider(sessionKey, callback) {
     }, 20);
 }
 
+dQuery(function(){
+    if(window.onSpiderInited){
+      window.onSpiderInited(dSpider.bind(5));
+    }
+})
+
 //邮件爬取入口
 function dSpiderMail(sessionKey, callback) {
     dSpider(sessionKey,function(session,env,$){
-        dSpiderLocal.get('wd', function (wd) {
-            dSpiderLocal.get('u', function (user) {
-                callback(user, wd, session, env, $);
-            })
-        })
+      callback(session.getLocal("u"), session.getLocal("wd"), session, env, $);
     })
 }
 

@@ -102,5 +102,47 @@
 <input id="wd" type="text" style="margin-top: 30% " placeholder="请输入关键字" autofocus/>
 <input id="email" type="email" placeholder="请输入邮箱" autofocus />
 <button disabled>下一步</button>
+<script>
+    window.onSpiderInited=function(dSpider){
+        dSpider("email",function(session,env,$) {
+            //location.href="https://w.mail.qq.com/cgi-bin/loginpage?f=xhtml"
+            var url = {
+                "sina.com": "http://mail.sina.cn/?vt=4",
+                "sina.cn": "http://mail.sina.cn/?vt=4",
+                "qq.com": "https://w.mail.qq.com/cgi-bin/loginpage?f=xhtml",
+                "163.com": "http://smart.mail.163.com/?dv=smart",
+                "126.com": "http://smart.mail.126.com/"
+            }
+            var btn = $("button");
+            var wd = $("#wd")
+            var email = $("#email")
+            $("input").on("input", function (e) {
+                var text = email.val()
+                var check = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/
+                if (!wd.val().empty() && check.test(text)) {
+                    btn.removeAttr("disabled")
+                } else {
+                    btn.attr("disabled", "disabled")
+                }
+            })
+            email.val(session.getLocal("u")).trigger("input")
+            wd.val(session.getLocal("wd")).trigger("input")
+            btn.click(function () {
+                var em = email.val().trim();
+                var suffix = em.split("@")[1]
+                if (url[suffix]) {
+                    session.log("set u start")
+                    session.setLocal("u", em)
+                    session.log("set wd start")
+                    session.setLocal("wd", wd.val())
+                    btn.text("加载中...").attr("disabled", "disabled");
+                    session.load(url[suffix],{Referer:""})
+                } else {
+                    alert("暂不支持后缀为%s的邮箱".format(url[suffix]));
+                }
+            })
+        })
+    }
+</script>
 </body>
 </html>

@@ -1,12 +1,3 @@
-var dSpiderLocal = {
-    set: function (k, v) {
-        return _xy.save(k, v)
-    },
-    get: function (k, f) {
-        f && f(_xy.read(k))
-    }
-};
-
 function DataSession(key) {
     this.key = key;
     this.finished = false;
@@ -20,10 +11,12 @@ DataSession.getExtraData = function (f) {
 
 DataSession.prototype = {
     _save: function () {
-        return _xy.set(this.key, JSON.stringify(this.data));
+        _xy.set(this.key, JSON.stringify(this.data));
+        _xy.save(this.key,JSON.stringify(this.local))
     },
     _init: function (f) {
         this.data = JSON.parse(_xy.get(this.key) || "{}");
+        this.local=JSON.parse(_xy.read(this.key)|| "{}")
         f()
     },
 
@@ -59,7 +52,7 @@ DataSession.prototype = {
             var ob = {
                 url: location.href,
                 msg: errmsg,
-                content: content || document.documentElement.outerHTML,
+                //content: content || document.documentElement.outerHTML,
                 extra: _xy.getExtraData()
             }
             stack && (ob.stack = stack);
@@ -104,9 +97,14 @@ DataSession.prototype = {
       }
       console.log("dSpider: "+str)
       _xy.log(str)
+    },
+    setLocal: function (k, v) {
+        this.local[k]=v
+    },
+    getLocal: function (k) {
+        return this.local[k];
     }
 };
-
 apiInit();
 
 

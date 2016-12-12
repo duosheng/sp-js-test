@@ -1,4 +1,5 @@
-dSpiderMail("netease", function (user,wd, session, extras, $) {
+dSpiderMail("email", function (user,wd, session, extras, $) {
+
     function formatParams(data) {
         var arr = [];
         for (var name in data) {
@@ -6,7 +7,6 @@ dSpiderMail("netease", function (user,wd, session, extras, $) {
         }
         return arr;
     }
-
     //自定义ajax
     function ajax(options) {
         options = options || {};

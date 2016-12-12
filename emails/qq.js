@@ -1,4 +1,4 @@
-dSpiderMail("qq", function (user, wd, session, extras, $) {
+dSpiderMail("email", function (user, wd, session, extras, $) {
     log(location.href)
     session.onNavigate=function(url){
         if(url.indexOf("://ui.ptlogin2.qq.com/cgi-bin/login?")!=-1){
