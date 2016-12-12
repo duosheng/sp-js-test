@@ -170,7 +170,7 @@ function dSpider(sessionKey, callback) {
                     })
                     log("dSpider start!")
                     extras.config=typeof _config==="object"?_config:"{}";
-                    session._args=extras.arguments;
+                    session._args=extras.args;
                     callback(session, extras, $);
                 }))
             })
