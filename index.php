@@ -2,9 +2,8 @@
 
 header("Content-Type: text/javascript; charset=utf-8");
 $srcTemplete="!function(){\r\n%s;\r\n%s}()";
-isset($_GET['refer'])||die("refer needed!");
-
-$refer = iconv("UTF-8", "gbk", urldecode($_GET['refer']));
+//isset($_GET['refer'])||die("refer needed!");
+//$refer = iconv("UTF-8", "gbk", urldecode($_GET['refer']));
 $platform="ios";
 if(isset($_GET['platform'])) {
     $platform = iconv("UTF-8", "gbk", urldecode($_GET['platform']));
