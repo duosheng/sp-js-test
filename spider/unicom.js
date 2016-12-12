@@ -1,5 +1,4 @@
 dSpider("unicom", function(session,env,$){
-   log(session,env,$)
     function parseThxd(msg) {
         $(msg).find("tr.tips_dial").each(function() {
             var tel = $(this).find("label.telphone").text();
