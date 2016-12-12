@@ -1,4 +1,4 @@
-dSpider("email",function(session,env,$){
+dSpider("mobile",function(session,env,$){
     checkLogin_first();
 
     // -------------------------------------------
