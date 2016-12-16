@@ -22,7 +22,7 @@ else{
     $src.= file_get_contents("./common/jsBridgeIos.js");
 }
 $sid=$_GET["sid"];
-$all=array("jd","taobao","unicom","mobile");
+$all=array("jd","taobao","unicom","mobile","alipay");
 
 if(in_array($sid,$all)){
     $src.="\r\n";
