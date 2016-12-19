@@ -1,7 +1,5 @@
 dSpider("alipay", function(session, env, $) {
-    log(session, env, $);
     log("current page url: " + location.href);
-
 
     if (window.location.href.indexOf('/account/index.htm') != -1) {
         session.showProgress(true);
@@ -9,19 +7,22 @@ dSpider("alipay", function(session, env, $) {
         session.setProgress(0);
 
         fetchUserInfo();
-        log('jumptoOrderListPage')
+        log('----------jumptoOrderListPage-----------')
         jumptoOrderListPage();
         session.setProgress(50);
     }
 
+    if (window.location.href.indexOf('/record/standard.htm') != -1) {
+        switchVersion();
+    }
+
     if (window.location.href.indexOf('/record/advanced.htm') != -1) {
 
-        log('fetchOrderListBy')
+        log('---------fetchOrderListBy--------------')
         var bt = '2016.08.01'; //TODO: 根据用户的注册时间来定
         fetchOrderListBy(1, bt);
 
     }
-
 
     //获取交易记录
     function fetchOrderListBy(pageNum, bt) {
@@ -92,6 +93,13 @@ dSpider("alipay", function(session, env, $) {
     //跳到交易记录
     function jumptoOrderListPage() {
         location.href = "https://consumeprod.alipay.com/record/advanced.htm";
+    }
+
+    //切换交易记录显示版本（标准、高级）
+    function switchVersion() {
+        $('div.link > a')[0].click(function(){
+            location.href = $('#' + $(this).attr('rel')).attr('href');
+        });
     }
 
     //结束爬取
