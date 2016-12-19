@@ -88,6 +88,10 @@ dSpider("jd", function(session,env,$){
                     log("xxdebug-orderList" + d.orderList);
                     var tempOrder = [];
                     if(globalInfo.order_info.order_detail.length < max_order_num){
+                        if(d.orderList.length + globalInfo.order_info.order_detail.length > max_order_num){
+                            d.orderList = d.orderList.slice(0, max_order_num -  globalInfo.order_info.order_detail.length);
+
+                        }
                         task.push($.each(d.orderList,function(i,e){
                             $.get("http://home.m.jd.com/newAllOrders/queryOrderDetailInfo.action?orderId="+ d.orderList[i].orderId+"&from=newUserAllOrderList&passKey="+d.passKeyList[i]+"&sid="+sid,
                                 function(response,status){
@@ -103,8 +107,9 @@ dSpider("jd", function(session,env,$){
                                         orderitem.products.push(new product(name,  num ,price));
                                     });
                                     if(Date.parse(new Date()) < (new Date(orderitem.time.split(" ")[0])).getTime() + max_order_date * 24 * 60 * 60 * 1000){
-                                        log("xxxxxxxq" + JSON.stringify(tempOrder));
-                                        globalInfo.order_info.order_detail.push(orderitem);
+                                        if(globalInfo.order_info.order_detail.length < max_order_num){
+                                            globalInfo.order_info.order_detail.push(orderitem);
+                                        }
                                     }
                                 });
                         }));
