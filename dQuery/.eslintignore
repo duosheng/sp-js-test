@@ -11,5 +11,6 @@ test/data/support/csp.js
 test/data/support/getComputedSupport.js
 src/callbacks.js
 src/event.js
+src/exports/global.js
 dist/dQuery.js
 test/node_smoke_tests/lib/ensure_iterability.js

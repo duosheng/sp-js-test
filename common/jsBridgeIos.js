@@ -147,10 +147,7 @@ DataSession.prototype = {
         callHandler("setProgressMsg",{"msg":encodeURIComponent(str)})
     },
     log: function(str) {
-        str=str||"";
-        if(typeof str !="string") {
-            str=JSON.stringify(str);
-        }
+        str=_logstr(str);
         console.log("dSpider: "+str)
         callHandler("log",{"msg":encodeURIComponent(str)})
     },

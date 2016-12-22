@@ -1,4 +1,6 @@
-
+/**
+ * Created by du on 16/9/1.
+ */
 var $ = dQuery;
 var jQuery=$;
 String.prototype.format = function () {
@@ -17,12 +19,16 @@ String.prototype.empty = function () {
     return this.trim() === "";
 };
 
+function _logstr(str){
+    str=str||" "
+    return typeof str=="object"?JSON.stringify(str):(new String(str)).toString()
+}
 function log(str) {
     var s= window.curSession
     if(s){
         s.log(str)
     }else {
-        console.log("dSpider: "+typeof str=="string"?str:JSON.stringify(str))
+        console.log("dSpider: "+_logstr(str))
     }
 }
 
@@ -189,6 +195,9 @@ function dSpiderMail(sessionKey, callback) {
     })
 }
 
+/**
+ * Created by du on 16/8/17.
+ */
 function setupWebViewJavascriptBridge(callback) {
     if (window.WebViewJavascriptBridge) { return callback(WebViewJavascriptBridge); }
     if (window.WVJBCallbacks) { return window.WVJBCallbacks.push(callback); }
@@ -264,20 +273,15 @@ DataSession.prototype = {
         callHandler("setProgress", {"progress":progress});
     },
     getProgress: function (f) {
-        log("getProgressMax called")
-        callHandler("getProgress",null, function (d) {
-            f && f(d)
-        })
+
     },
     showLoading: function (s) {
-        log("showLoading called")
-        callHandler("showLoading",{"s":encodeURIComponent(s || "正在处理,请耐心等待...")});
+
     },
     hideLoading: function () {
-        log("hideLoading called")
-        callHandler("hideLoading");
+
     },
-    finish: function (errmsg, content, code,stack) {
+    finish: function (errmsg, content, code) {
         var that=this;
         DataSession.getExtraData(function (d) {
             var ret = {"sessionKey":that.key, "result": 0, "msg": ""}
@@ -335,10 +339,7 @@ DataSession.prototype = {
         callHandler("setProgressMsg",{"msg":encodeURIComponent(str)})
     },
     log: function(str) {
-        str=str||"";
-        if(typeof str !="string") {
-            str=JSON.stringify(str);
-        }
+        str=_logstr(str);
         console.log("dSpider: "+str)
         callHandler("log",{"msg":encodeURIComponent(str)})
     },

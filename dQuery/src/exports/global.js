@@ -1,5 +1,5 @@
 define( [
-	"../core"
+	"../core",
 ], function( jQuery, noGlobal ) {
 
 "use strict";
@@ -28,8 +28,8 @@ jQuery.noConflict = function( deep ) {
 // (#7102#comment:10, https://github.com/jquery/jquery/pull/557)
 // and CommonJS for browser emulators (#13566)
 if ( !noGlobal ) {
-	window.dQuery = window.$ = jQuery;
-	window.$.noConflict();
+	window.dQuery  = jQuery;
+	window.dQuery.noConflict();
 }
 
 } );

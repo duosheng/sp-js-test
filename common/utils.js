@@ -19,14 +19,17 @@ String.prototype.empty = function () {
     return this.trim() === "";
 };
 
-
+function _logstr(str){
+    str=str||" "
+    return typeof str=="object"?JSON.stringify(str):(new String(str)).toString()
+}
 function log(str) {
-   var s= window.curSession
-   if(s){
-       s.log(str)
-   }else {
-       console.log("dSpider: "+typeof str=="string"?str:JSON.stringify(str))
-   }
+    var s= window.curSession
+    if(s){
+        s.log(str)
+    }else {
+        console.log("dSpider: "+_logstr(str))
+    }
 }
 
 //异常捕获
