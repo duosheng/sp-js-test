@@ -131,17 +131,11 @@ dSpider("mobile",function(session,env,$) {
 
             var data = result.data;
 
-            var time = new Date().getTime();
-            var uid = (function zfill(num, size) {
-                var s = "000000000" + num;
-                return s.substr(s.length - size);
-            }(time, 10));
-
             var xd_user_info = {
+                'mobile':window.xd_phone,
                 'name': data.name,
                 'household_address': data.address,
                 'contactNum': data.contactNum,
-                'uid': uid,
                 'registration_time': data.inNetDate,
             };
 
@@ -336,14 +330,26 @@ dSpider("mobile",function(session,env,$) {
 
         //第一次添加月份
         if (monthData == null) {
+
+            var time = new Date().getTime();
+            var xd_cid = (function zfill(num, size) {
+                var s = "000000000" + num;
+                return s.substr(s.length - size);
+            }(time, 10));
+
             monthData = new Object();
             monthData['data'] = new Array();
             monthData['calldate'] = data.month;
             monthData['totalCount'] = data.total;
             monthData['mobile'] = window.xd_phone;
+            monthData['cid'] = xd_cid;
+            monthData['status'] = 4;
             window.xd_callBill.push(monthData);
         }
-        monthData['status'] = data.status;
+
+        if (data.status){
+            monthData['status'] = data.status;
+        }
 
         if (data.value.length > 0) {
             for (var i = 0; i < data.value.length; i++) {
