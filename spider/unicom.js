@@ -32,9 +32,9 @@ dSpider("unicom", function(session,env,$){
             url: '/mobileService/query/getPhoneByDetailContent.htm',
             type: 'post',
             data: 't=' + new Date().getTime() + '&YYYY=' + year + '&MM=' + month + '&DD=&queryMonthAndDay=month&menuId=',
-            dataType: 'html',
-            async: true,
-            cache: false,
+            //dataType: 'html',
+            //async: true,
+            //cache: false,
             success: function(msg) {
                 log("请求" + month + "月份数据成功....")
                 parseThxd(msg);
@@ -111,7 +111,7 @@ dSpider("unicom", function(session,env,$){
     function spide() {
         var monthArr = session.get("months")
         if (monthArr && monthArr.length > 0) {
-            session.setProgress(session.get("max") - monthArr.length)
+            session.setProgress(session.get("max") - monthArr.length - 1)
             var monthObj = monthArr.shift();
             session.set("months", monthArr)
             getThxdByAjax(monthObj.year, monthObj.month);
@@ -160,20 +160,18 @@ dSpider("unicom", function(session,env,$){
         log("开始爬取....." + JSON.stringify(monthArr))
         spide()
     } else if(window.location.href.indexOf('mobileService/siteMap.htm') != -1){//服务界面，获取个人信息跳转
-        var infoTag = $(".checklistcontainer.newmore:eq(0)").find("li:eq(3)");
-        if(infoTag.html().indexOf("基本信息") == -1) {
-            infoTag = ""
-            $(".checklistcontainer.newmore:eq(0)").find("li").each(function(){
-                if($(this).html().indexOf("基本信息") != -1) {
-                    infoTag = $(this)
-                    return;
-                }
-            });
-        }
+        var infoTag = ""
+        $(".checklistcontainer.newmore").find("li").each(function(){
+            if($(this).html().indexOf("基本信息") != -1) {
+                infoTag = $(this)
+                return
+            }
+        });
         if(infoTag) {
             //跳转到我的基本信息页面
             window.location.href = infoTag.attr("name")
         } else {
+            log("用户信息获取失败.....")
             var thxd = session.get("thxd")
             thxd["user_info"] = {}
             endSpide(thxd)
@@ -205,6 +203,7 @@ dSpider("unicom", function(session,env,$){
             userInfo["household_address"] = $(".detail_con.con_ft:eq(1)").find("p:eq(18)").find("span:eq(1)").text().replace(/[\n|\s]/g, "").replace()
         } catch (e) {
         }
+        log("爬取用户信息结束-----" + JSON.stringify(userInfo))
         var thxd = session.get("thxd")
         thxd["user_info"] = userInfo
         endSpide(thxd)
