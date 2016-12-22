@@ -90,10 +90,10 @@ DataSession.prototype = {
         if(!str) return;
         _xy.setProgressMsg(str);
     },
-    log: function(str) {
+    log: function(str,type) {
         str=_logstr(str);
         console.log("dSpider: "+str)
-        _xy.log(str)
+        _xy.log(str,type||1)
     },
     setLocal: function (k, v) {
         this.local[k]=v

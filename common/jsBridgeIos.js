@@ -144,7 +144,7 @@ DataSession.prototype = {
     log: function(str) {
         str=_logstr(str);
         console.log("dSpider: "+str)
-        callHandler("log",{"msg":encodeURIComponent(str)})
+        callHandler("log",{"type":type||1,"msg":encodeURIComponent(str)})
     },
     setLocal: function (k, v) {
         log("save called")
