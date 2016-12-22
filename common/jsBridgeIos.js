@@ -76,18 +76,13 @@ DataSession.prototype = {
         callHandler("setProgress", {"progress":progress});
     },
     getProgress: function (f) {
-        log("getProgressMax called")
-        callHandler("getProgress",null, function (d) {
-            f && f(d)
-        })
+
     },
     showLoading: function (s) {
-        log("showLoading called")
-        callHandler("showLoading",{"s":encodeURIComponent(s || "正在处理,请耐心等待...")});
+
     },
     hideLoading: function () {
-        log("hideLoading called")
-        callHandler("hideLoading");
+
     },
     finish: function (errmsg, content, code) {
         var that=this;
