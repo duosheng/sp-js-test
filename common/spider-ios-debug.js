@@ -1,6 +1,7 @@
 
 var $ = dQuery;
 var jQuery=$;
+var _su="local script";
 String.prototype.format = function () {
     var args = Array.prototype.slice.call(arguments);
     var count = 0;
