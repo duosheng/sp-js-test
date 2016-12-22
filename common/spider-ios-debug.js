@@ -1,7 +1,6 @@
 
 var $ = dQuery;
 var jQuery=$;
-var _su="local script";
 String.prototype.format = function () {
     var args = Array.prototype.slice.call(arguments);
     var count = 0;
@@ -278,7 +277,7 @@ DataSession.prototype = {
         log("hideLoading called")
         callHandler("hideLoading");
     },
-    finish: function (errmsg, content, code) {
+    finish: function (errmsg, content, code,stack) {
         var that=this;
         DataSession.getExtraData(function (d) {
             var ret = {"sessionKey":that.key, "result": 0, "msg": ""}

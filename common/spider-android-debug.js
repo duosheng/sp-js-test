@@ -1,7 +1,7 @@
 /**
  * Created by du on 16/9/1.
  */
-var _su="local script";
+
 String.prototype.format = function () {
     var args = Array.prototype.slice.call(arguments);
     var count = 0;
