@@ -1,5 +1,8 @@
 dSpider("alipay", function(session, env, $) {
     log("current page url: " + location.href);
+    var monthArray = []; //存储月份数据
+    var monCount = 3; //需要爬取的月份
+    var now = new Date();
 
     if (window.location.href.indexOf('/account/index.htm') != -1) {
         session.showProgress(true);
@@ -7,7 +10,6 @@ dSpider("alipay", function(session, env, $) {
         session.setProgress(0);
 
         fetchUserInfo();
-        log('----------jumptoOrderListPage-----------')
         jumptoOrderListPage();
         session.setProgress(50);
     }
@@ -17,60 +19,75 @@ dSpider("alipay", function(session, env, $) {
     }
 
     if (window.location.href.indexOf('/record/advanced.htm') != -1) {
-
-        log('---------fetchOrderListBy--------------')
-        var bt = '2016.08.01'; //TODO: 根据用户的注册时间来定
-        fetchOrderListBy(1, bt);
-
+        spideOrder();
     }
 
-    //获取交易记录
-    function fetchOrderListBy(pageNum, bt) {
-        log('---------start spide order:【' + pageNum + '】page-------');
+    //开始爬取交易记录
+    function spideOrder() {
+        log('--------------start spideOrder------------')
+        var endDate = formateDate(now);
+        now.setMonth(now.getMonth() - 1);
+        var beginDate = formateDate(now);
+        fetchOrderListBy(1, beginDate, endDate);
+    }
 
-        var et = formateDate(new Date());
+    //获取交易记录 pageNum:第几页  beginDate:开始时间  endDate:结束时间
+    function fetchOrderListBy(pageNum, beginDate, endDate) {
+        log('---------fetchOrderListBy--------------')
+        log('---------start spide order:【' + pageNum + '】page-------');
         var daterange = 'customDate';
         var beginTime = '00:00';
         var endTime = '24:00';
         $.ajax({
             url: 'https://consumeprod.alipay.com/record/advanced.htm',
             type: 'post',
-            data: 'pageNum=' + pageNum + '&beginDate=' + bt + '&endDate=' + et + '&dateRange=' + daterange + '&beginTime=' + beginTime + '&endTime=' + endTime,
+            data: 'pageNum=' + pageNum + '&beginDate=' + beginDate + '&endDate=' + endDate + '&dateRange=' + daterange + '&beginTime=' + beginTime + '&endTime=' + endTime,
             dataType: 'html',
             async: true,
             cache: false,
             success: function(data) {
                 var res = $(data).find('#tradeRecordsIndex');
-                console.log(res[0]);
-                if ($(res).find('tr:has(td)').length == 0) {
-                    log('-------------already last page!!!');
-                    finish();
-                } else {
+                if ($(res).find('tr:has(td)').length == 0) { //到达最后一页
 
+                    log('beginDate:' + beginDate + '|endDate:' + endDate + '|monthArray:');
+                    log(monthArray);
+                    session.upload(monthArray);
+
+                    monCount = monCount - 1;
+                    if (monCount == 0) {
+                        finish();
+                    } else {
+                        log('----------------spideOrder over-----------------!!')
+                        spideOrder();
+                    }
+
+                    monthArray = []; //上传后清空
+
+                } else {
                     var data = $(res).find('tr:has(td)').map(function(index) {
                         return {
                             name: $(this).find('p.consume-title').text(),
-                            time: $(this).find('p.time-d').text() + $(this).find('p.time-h.ft-gray').text(),
+                            time: $(this).find('p.time-d').text() + ' ' + $(this).find('p.time-h.ft-gray').text(),
                             amount: $(this).find('span.amount-pay').text(),
                             tradeNo: $(this).find('.tradeNo.ft-gray').text(),
                         }
                     }).get();
-                    log(data);
-                    session.upload(data);
-                    fetchOrderListBy(pageNum + 1, bt);
+
+                    monthArray = monthArray.concat(data);
+                    fetchOrderListBy(pageNum + 1, beginDate, endDate);
                 }
 
             },
             error: function(xhr, data) {
-
                 log("-----------spider【" + pageNum + "】page error!!!");
-                finish();
+                finish(); //TODO: 错误的话是否结束
             }
         });
     }
 
     //获取用户信息
     function fetchUserInfo() {
+        log('--------------fetchUserInfo-----------------------')
         var userInfo = new Object();
         userInfo.name = $("#username").text();
         userInfo.certId = $('#account-main > div > table > tbody > tr:nth-child(1) > td:nth-child(2) > span:nth-child(3)').text();
@@ -85,19 +102,16 @@ dSpider("alipay", function(session, env, $) {
         log(userInfo);
     }
 
-    //跳到个人信息中心
-    function jumptoAccountPage() {
-        location.href = "https://custweb.alipay.com/account/index.htm";
-    }
-
     //跳到交易记录
     function jumptoOrderListPage() {
+        log('----------jumptoOrderListPage-----------')
         location.href = "https://consumeprod.alipay.com/record/advanced.htm";
     }
 
     //切换交易记录显示版本（标准、高级）
     function switchVersion() {
-        $('div.link > a')[0].click(function(){
+        log('--------------switchVersion------------')
+        $('div.link > a')[0].click(function() {
             location.href = $('#' + $(this).attr('rel')).attr('href');
         });
     }
@@ -122,7 +136,7 @@ dSpider("alipay", function(session, env, $) {
     //用户信息
     function userInfo(name, mail, phone, taoId, regTime, certId, bVerify, bankCard) {
         this.name = name; //真实名字
-        this.mail = mail; //邮箱 
+        this.mail = mail; //邮箱
         this.phone = phone; //手机号
         this.taoId = taoId; //淘宝id
         this.regTime = regTime; //注册时间

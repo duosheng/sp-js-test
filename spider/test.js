@@ -5,5 +5,5 @@ dSpider("test", function(session,env,$) {
     log(session)
     log(env)
     log($)
-    xx
+
 })
