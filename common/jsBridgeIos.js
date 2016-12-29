@@ -141,7 +141,7 @@ DataSession.prototype = {
         if(!str) return;
         callHandler("setProgressMsg",{"msg":encodeURIComponent(str)})
     },
-    log: function(str) {
+    log: function(str,type) {
         str=_logstr(str);
         console.log("dSpider: "+str)
         callHandler("log",{"type":type||1,"msg":encodeURIComponent(str)})
