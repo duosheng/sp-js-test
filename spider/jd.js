@@ -10,7 +10,6 @@ dSpider("jd", function(session,env,$){
     sid = session.get("sid");
 
 
-
     if (location.href.indexOf("://m.jd.com") != -1 ) {
         session.showProgress(true);
         session.setProgressMax(100);
@@ -72,7 +71,7 @@ dSpider("jd", function(session,env,$){
         globalInfo.order_info = new order_info([]);
         globalInfo.order_info.order_detail = [];
         function getPageOrder(page){
-           $.getJSON("http://home.m.jd.com//newAllOrders/newAllOrders.json?sid="+sid+"&page="+page,function(d){
+           $.getJSON("https://home.m.jd.com//newAllOrders/newAllOrders.json?sid="+sid+"&page="+page,function(d){
                page++;
                if( globalInfo.order_info.order_detail.length <=  max_order_num && d.orderList.length!=0 && (orders.order_detail.length == 0 || d.orderList[d.orderList.length-1].orderId != orders.order_detail[orders.order_detail.length-1].orderId) ){
                    orders.order_detail = orders.order_detail.concat(d.orderList);
@@ -83,7 +82,7 @@ dSpider("jd", function(session,env,$){
                            d.orderList = d.orderList.slice(0, max_order_num -  globalInfo.order_info.order_detail.length);
                         }
                         task.push($.each(d.orderList,function(i,e){
-                                           $.get("http://home.m.jd.com/newAllOrders/queryOrderDetailInfo.action?orderId="+ d.orderList[i].orderId+"&from=newUserAllOrderList&passKey="+d.passKeyList[i]+"&sid="+sid,
+                                           $.get("https://home.m.jd.com/newAllOrders/queryOrderDetailInfo.action?orderId="+ d.orderList[i].orderId+"&from=newUserAllOrderList&passKey="+d.passKeyList[i]+"&sid="+sid,
                                                                                              function(response,status){
                                                                                                    var addr = $("<div>").append($(response)).find(".step2-in-con").text();
                                                                                                    var orderitem = new order(d.orderList[i].orderId,d.orderList[i].dataSubmit,d.orderList[i].price,addr);
