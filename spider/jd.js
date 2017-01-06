@@ -1,5 +1,6 @@
 
 dSpider("jd", function(session,env,$){
+
     var re = /sid=(.+)$/ig;
     var infokey = "infokey";
     var sid = "";
@@ -8,7 +9,6 @@ dSpider("jd", function(session,env,$){
     var globalInfo;
 
     sid = session.get("sid");
-
 
     if (location.href.indexOf("://m.jd.com") != -1 ) {
         session.showProgress(true);
@@ -29,7 +29,7 @@ dSpider("jd", function(session,env,$){
         location.href="http://home.m.jd.com/maddress/address.action?";
     }
 
-    if (location.href.indexOf("home.m.jd.com/maddress") != -1) {
+    if (location.href.indexOf("://home.m.jd.com/maddress") != -1) {
         session.setProgress(20);
 
         globalInfo = session.get(infokey);
@@ -132,7 +132,7 @@ dSpider("jd", function(session,env,$){
     function getUserInfo(){
            location.href = "http://home.m.jd.com/user/accountCenter.action";
     }
-    if (location.href.indexOf("home.m.jd.com/user/accountCenter.action") != -1) {
+    if (location.href.indexOf("://home.m.jd.com/user/accountCenter.action") != -1 && location.href.indexOf("loginpage") == -1) {
         session.setProgress(70);
         if($('#shimingrenzheng')[0] != undefined){
            $('#shimingrenzheng')[0].click();
@@ -164,15 +164,22 @@ dSpider("jd", function(session,env,$){
         session.finish();
     }
     //快捷卡实名用户
-    if (location.href.indexOf("msc.jd.com/auth/loginpage/wcoo/toAuthPage") != -1) {
+    if (location.href.indexOf("msc.jd.com/auth/loginpage/wcoo/toAuthPage") != -1 ) {
         session.setProgress(90);
         globalInfo = session.get(infokey);
         if($("#username")[0] !=undefined){
-            globalInfo.base_info.name  = $("#username")[0].value;
+            globalInfo.base_info.name  = $("#username")[0].innerHTML;
+        }
+        if($(".info-user-name")[0] !=undefined){
+                    globalInfo.base_info.name  = $(".info-user-name")[0].innerHTML;
         }
         if($("#idcard")[0] !=undefined){
-            globalInfo.base_info.idcard_no  = $("#idcard")[0].value;
+            globalInfo.base_info.idcard_no  = $("#idcard")[0].innerHTML;
         }
+        if($(".pos-ab[data-cardno]") !=undefined){
+                    globalInfo.base_info.idcard_no  = $(".pos-ab[data-cardno]").attr("data-cardno");
+        }
+
         saveInfo();
         logout();
     }
