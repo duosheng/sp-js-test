@@ -168,13 +168,13 @@ dSpider("jd", function(session,env,$){
         session.setProgress(90);
         globalInfo = session.get(infokey);
         if($("#username")[0] !=undefined){
-            globalInfo.base_info.name  = $("#username")[0].value;
+            globalInfo.base_info.name  = $("#username")[0].innerHTML;
         }
         if($(".info-user-name")[0] !=undefined){
-                    globalInfo.base_info.name  = $(".info-user-name")[0].value;
+                    globalInfo.base_info.name  = $(".info-user-name")[0].innerHTML;
         }
         if($("#idcard")[0] !=undefined){
-            globalInfo.base_info.idcard_no  = $("#idcard")[0].value;
+            globalInfo.base_info.idcard_no  = $("#idcard")[0].innerHTML;
         }
         if($(".pos-ab[data-cardno]") !=undefined){
                     globalInfo.base_info.idcard_no  = $(".pos-ab[data-cardno]").attr("data-cardno");
