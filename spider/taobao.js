@@ -50,8 +50,10 @@ dSpider("taobao", function(session,env,$){
                 var myInterval;
                 //循环调用获取订单的方法
                 function getOrder() {
-                    if($("div.order-more").length > 0 && window.getComputedStyle($("div.order-more")[0], '::before') != null){
-                        if (window.getComputedStyle($("div.order-more")[0], '::before').getPropertyValue('content')||$(".order-list>li").length>=5) {//限制订单爬取的数量
+//                    if($("div.order-more").length > 0 && window.getComputedStyle($("div.order-more")[0], '::before') != null){
+//                        if (window.getComputedStyle($("div.order-more")[0], '::before').getPropertyValue('content')||$(".order-list>li").length>=5) {//限制订单爬取的数量
+                      if($("div.order-more").length > 0 ){
+                          if ($(".order-list>li").length>=5) {//限制订单爬取的数量
                             var tempOllLength = $(".order-list>li").length;
                             var orderListArray = [];
                             for(var tol = 0 ; tol < tempOllLength ; tol ++){
