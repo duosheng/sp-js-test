@@ -9,8 +9,6 @@ dSpider("jd", function(session,env,$){
 
     sid = session.get("sid");
 
-
-
     if (location.href.indexOf("://m.jd.com") != -1 ) {
         session.showProgress(true);
         session.setProgressMax(100);
