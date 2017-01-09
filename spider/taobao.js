@@ -69,7 +69,7 @@ dSpider("taobao", function(session,env,$){
                             log("正在获取订单");
                         }
                     }else{
-                        log("  ::before  is  null ! "+ window.getComputedStyle($("div.order-more")[0], '::before'));
+                        log("  ::before  is  "+ window.getComputedStyle($("div.order-more")[0], '::before')+" ! " + "order-more length is " + $("div.order-more").length );
                     }
                 }
                 myInterval = setInterval(getOrder, 3000);
