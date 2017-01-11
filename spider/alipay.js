@@ -138,7 +138,6 @@ dSpider("alipay", function(session, env, $) {
       function finish() {
             log("---------------spider end success------------------------");
             session.setProgress(100);
-            session.showProgress(false);
             session.finish();
       }
 

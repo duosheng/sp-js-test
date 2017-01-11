@@ -11,9 +11,6 @@ String.prototype.format = function () {
     });
 };
 
-String.prototype.trim = function () {
-    return this.replace(/(^\s*)|(\s*$)/g, '');
-};
 
 String.prototype.empty = function () {
     return this.trim() === "";
@@ -49,7 +46,7 @@ String.prototype.endWith = function (str) {
 
 //queryString helper
 window.qs = [];
-var s = decodeURI(location.search.substr(1));
+var s = location.search.substr(1);
 var a = s.split('&');
 for (var b = 0; b < a.length; ++b) {
     var temp = a[b].split('=');
@@ -124,7 +121,7 @@ function apiInit() {
         var f = DataSession.prototype[attr];
         return function () {
             if (this.finished) {
-                log("call " + attr + " ignored, finish has been called! ")
+                console.log("dSpider: call " + attr + " ignored, since finish has been called! ")
             } else {
                 return f.apply(this, arguments);
             }
@@ -144,7 +141,7 @@ function apiInit() {
 }
 
 //爬取入口
-function dSpider(sessionKey, callback) {
+function dSpider(sessionKey,timeOut, callback) {
     if(window.onSpiderInited&&this!=5)
         return;
     var $=dQuery;
@@ -165,6 +162,30 @@ function dSpider(sessionKey, callback) {
         $(window).on("beforeunload",onclose)
         window.curSession = session;
         session._init(function(){
+            //超时处理
+            if (!callback) {
+                callback = timeOut;
+                timeOut = -1;
+            }
+            if (timeOut != -1) {
+                var startTime = session.get("startTime")
+                var now = new Date().getTime();
+                if (!startTime) {
+                    session.set("startTime", now);
+                    startTime=now
+                }
+                timeOut *= 1000;
+                var passed = (now - startTime);
+                var left = timeOut -passed;
+                left = left > 0 ? left : 0;
+                log("left:"+left)
+                setTimeout(function () {
+                    log("time out");
+                    if (!session.finished) {
+                        session.finish("timeout ["+timeOut/1000+"s] ", "",4)
+                    }
+                }, left);
+            }
             DataSession.getExtraData(function (extras) {
                 $(safeCallback(function(){
                     $("body").on("click","a",function(){
@@ -338,10 +359,10 @@ DataSession.prototype = {
         if(!str) return;
         callHandler("setProgressMsg",{"msg":encodeURIComponent(str)})
     },
-    log: function(str) {
+    log: function(str,type) {
         str=_logstr(str);
         console.log("dSpider: "+str)
-        callHandler("log",{"msg":encodeURIComponent(str)})
+        callHandler("log",{"type":type||1,"msg":encodeURIComponent(str)})
     },
     setLocal: function (k, v) {
         log("save called")
