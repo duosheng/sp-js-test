@@ -1,5 +1,5 @@
 
-dSpider("taobao", function(session,env,$){
+dSpider("taobao", 60*10 , function(session,env,$){
     //禁止加载图片
     session.autoLoadImg(false)
     log(location.href)
