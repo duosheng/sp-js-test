@@ -1,4 +1,4 @@
-dSpider("unicom", function(session,env,$){
+dSpider("unicom", 60*5, function(session,env,$){
 
     function parseThxd(msg) {
         $(msg).find("tr.tips_dial").each(function() {
