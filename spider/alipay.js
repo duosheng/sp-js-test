@@ -26,11 +26,10 @@ dSpider("alipay", function(session, env, $) {
 
       //开始爬取交易记录
       function spideOrder() {
-            log('--------------start spideOrder------------')
+            log('--------------start spideOrder------------' + 'beginDate:' + beginDate + '|endDate:' + endDate )
             var endDate = formateDate(now);
             now.setMonth(now.getMonth() - 1);
             var beginDate = formateDate(now);
-            log('beginDate:' + beginDate + '|endDate:' + endDate + '|monthArray:' + monthArray);
             fetchOrderListBy(1, beginDate, endDate);
       }
 
@@ -66,14 +65,14 @@ dSpider("alipay", function(session, env, $) {
                               session.setProgress(100.0 * (sumCount - monCount) / sumCount);
 
                               if (monCount == 0) { //爬取结束
-                                    log('----------------spideOrder finish-----------------!!')
+                                    log('----------------spideOrder finish!!!----------------- beginDate:' + beginDate + '|endDate:' + endDate + ' && monthArray:' + monthArray)
                                     var uploadData = {
                                           order_info: uploadMonArray
                                     };
                                     session.upload(uploadData);
                                     finish();
                               } else {
-                                    log('----------------spideOrder beginDate:' + beginDate + '|endDate:' + endDate + 'over-----------------!! && monthArray:' + monthArray)
+                                    log('----------------spideOrder single_month over!!!----------------- beginDate:' + beginDate + '|endDate:' + endDate + ' && monthArray:' + monthArray)
                                     monthArray = []; //上传后清空
                                     spideOrder();
                               }
