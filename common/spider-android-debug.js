@@ -42,7 +42,7 @@ String.prototype.endWith = function (str) {
 
 //queryString helper
 window.qs = [];
-var s = decodeURI(location.search.substr(1));
+var s = location.search.substr(1);
 var a = s.split('&');
 for (var b = 0; b < a.length; ++b) {
     var temp = a[b].split('=');
