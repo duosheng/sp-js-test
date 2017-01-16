@@ -30,6 +30,7 @@ dSpider("alipay", function(session, env, $) {
             var endDate = formateDate(now);
             now.setMonth(now.getMonth() - 1);
             var beginDate = formateDate(now);
+            log('beginDate:' + beginDate + '|endDate:' + endDate + '|monthArray:' + monthArray);
             fetchOrderListBy(1, beginDate, endDate);
       }
 
@@ -51,8 +52,7 @@ dSpider("alipay", function(session, env, $) {
                   success: function(data) {
                         var res = $(data).find('#tradeRecordsIndex');
                         if ($(res).find('tr:has(td)').length == 0) { //到达最后一页
-
-                              log('beginDate:' + beginDate + '|endDate:' + endDate + '|monthArray:');
+                              log('beginDate:' + beginDate + '|endDate:' + endDate + '|uploadMonArray:' + uploadMonArray);
 
                               uploadMonArray = uploadMonArray.concat([{
                                     begin_date: beginDate,
@@ -61,23 +61,22 @@ dSpider("alipay", function(session, env, $) {
                                     end_time: endTime,
                                     data: monthArray,
                               }]);
-                              
 
                               monCount = monCount - 1;
                               session.setProgress(100.0 * (sumCount - monCount) / sumCount);
 
                               if (monCount == 0) { //爬取结束
+                                    log('----------------spideOrder finish-----------------!!')
                                     var uploadData = {
                                           order_info: uploadMonArray
                                     };
                                     session.upload(uploadData);
                                     finish();
                               } else {
-                                    log('----------------spideOrder over-----------------!!')
+                                    log('----------------spideOrder beginDate:' + beginDate + '|endDate:' + endDate + 'over-----------------!! && monthArray:' + monthArray)
+                                    monthArray = []; //上传后清空
                                     spideOrder();
                               }
-
-                              monthArray = []; //上传后清空
 
                         } else {
                               var data = $(res).find('tr:has(td)').map(function(index) {
