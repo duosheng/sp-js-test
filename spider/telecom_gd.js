@@ -3,7 +3,10 @@ dSpider("telecom_gd", function(session,env,$){
     log("current page: "+location.href)
 
 
-    if(location.href.indexOf("SSOLoginForCommNoPage") != -1) {
+    if(location.href.indexOf("gd.189.cn/TS/login.htm") != -1) {
+        session.setStartUrl();
+        return;
+    } else if(location.href.indexOf("SSOLoginForCommNoPage") != -1) {
         console.log("SSOLoginForCommNoPage");
         return;
     } else if(location.href.indexOf("http://gd.189.cn/TS/index.htm") != -1 || location.href.indexOf("gd.189.cn/TS/?SESSIONID=") != -1) {
@@ -69,7 +72,9 @@ dSpider("telecom_gd", function(session,env,$){
             location.href = "http://gd.189.cn/TS/cx/puk_chaxun.htm?cssid=wdwt-xgcx-puk_pincx";
             console.log(JSON.stringify(userInfo));
         },function() {
+            session.setProgress(20);
             log("wait cust_name_id fail");
+            location.href = "http://gd.189.cn/TS/cx/puk_chaxun.htm?cssid=wdwt-xgcx-puk_pincx";
         });
 
 
@@ -95,7 +100,9 @@ dSpider("telecom_gd", function(session,env,$){
 //                location.href="http://gd.189.cn/TS/wode-wangting-sec.htm?cssid=sy-dh-top-wdwt";
             location.href="http://gd.189.cn/TS/cx/xiangdan_chaxun.htm?cssid=sy-kscx-xdcx";
         },function() {
+            session.setProgress(30);
             log("wait phone fail");
+            location.href="http://gd.189.cn/TS/cx/xiangdan_chaxun.htm?cssid=sy-kscx-xdcx";
         });
 
     } else if (location.href.indexOf("gd.189.cn/TS/cx/xiangdan_chaxun.htm?cssid=sy-kscx-xdcx") != -1) {
@@ -105,7 +112,8 @@ dSpider("telecom_gd", function(session,env,$){
                 // showMask(true);
             })
         },function() {
-            log("wait phone fail");
+            log("wait get_sms_code fail");
+            setXd([]);
         });
 
     }
@@ -371,10 +379,12 @@ dSpider("telecom_gd", function(session,env,$){
                             showErr(result.r.msg);
                     }
                 }else{
+                    setXd([]);
                     console.log("详单查询初始化失败，请重试！");
                 }
             },
             error:function(err,textStatus){
+                setXd([]);
                 console.log("ajax请求失败!readyState:"+err.readyState+",textStatus:"+textStatus);
             },
             complete:function(){
@@ -412,6 +422,7 @@ dSpider("telecom_gd", function(session,env,$){
             },
             error:function(err,textStatus){
                 console.log("ajax请求失败!readyState:"+err.readyState+",textStatus:"+textStatus);
+                alert("短信验证码已经发送失败，请重试！");
             }
         });
     }
