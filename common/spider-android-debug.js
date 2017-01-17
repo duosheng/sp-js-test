@@ -1,7 +1,8 @@
 /**
  * Created by du on 16/9/1.
  */
-
+var $ = dQuery;
+var jQuery=$;
 String.prototype.format = function () {
     var args = Array.prototype.slice.call(arguments);
     var count = 0;
@@ -18,21 +19,27 @@ String.prototype.empty = function () {
     return this.trim() === "";
 };
 
-
+function _logstr(str){
+    str=str||" "
+    return typeof str=="object"?JSON.stringify(str):(new String(str)).toString()
+}
 function log(str) {
     var s= window.curSession
     if(s){
         s.log(str)
     }else {
-        console.log("dSpider: "+typeof str=="string"?str:JSON.stringify(str))
+        console.log("dSpider: "+_logstr(str))
     }
 }
 
 //异常捕获
 function errorReport(e) {
-    var stack=e.stack.replace(/http.*?inject\.php.*?:/ig," "+_su+":");
-    log("语法错误: " + e.message + stack) ;
-    window.curSession && curSession.finish(e.message,"",3,stack);
+    var stack=e.stack? e.stack.replace(/http.*?inject\.php.*?:/ig," "+_su+":"): e.toString();
+    var msg="语法错误: " + e.message +"\nscript_url:"+_su+"\n"+stack
+    if(window.curSession){
+        curSession.log(msg);
+        curSession.finish(e.message,"",3,msg);
+    }
 }
 
 String.prototype.endWith = function (str) {
@@ -117,7 +124,7 @@ function apiInit() {
         var f = DataSession.prototype[attr];
         return function () {
             if (this.finished) {
-                log("call " + attr + " ignored, finish has been called! ")
+                console.log("dSpider: call " + attr + " ignored, since finish has been called! ")
             } else {
                 return f.apply(this, arguments);
             }
@@ -137,7 +144,7 @@ function apiInit() {
 }
 
 //爬取入口
-function dSpider(sessionKey, callback) {
+function dSpider(sessionKey,timeOut, callback) {
     if(window.onSpiderInited&&this!=5)
         return;
     var $=dQuery;
@@ -158,6 +165,30 @@ function dSpider(sessionKey, callback) {
         $(window).on("beforeunload",onclose)
         window.curSession = session;
         session._init(function(){
+            //超时处理
+            if (!callback) {
+                callback = timeOut;
+                timeOut = -1;
+            }
+            if (timeOut != -1) {
+                var startTime = session.get("startTime")
+                var now = new Date().getTime();
+                if (!startTime) {
+                    session.set("startTime", now);
+                    startTime=now
+                }
+                timeOut *= 1000;
+                var passed = (now - startTime);
+                var left = timeOut -passed;
+                left = left > 0 ? left : 0;
+                log("left:"+left)
+                setTimeout(function () {
+                    log("time out");
+                    if (!session.finished) {
+                        session.finish("timeout ["+timeOut/1000+"s] ", "",4)
+                    }
+                }, left);
+            }
             DataSession.getExtraData(function (extras) {
                 $(safeCallback(function(){
                     $("body").on("click","a",function(){
@@ -167,6 +198,7 @@ function dSpider(sessionKey, callback) {
                     })
                     log("dSpider start!")
                     extras.config=typeof _config==="object"?_config:"{}";
+                    session._args=extras.args;
                     callback(session, extras, $);
                 }))
             })
@@ -180,13 +212,12 @@ dQuery(function(){
     }
 })
 
-//Js bridge api
-function DataSession(key) {
-    this.key = key;
-    this.finished = false;
-    _xy.start(key);
+//邮件爬取入口
+function dSpiderMail(sessionKey, callback) {
+    dSpider(sessionKey,function(session,env,$){
+        callback(session.getLocal("u"), session.getLocal("wd"), session, env, $);
+    })
 }
-
 function DataSession(key) {
     this.key = key;
     this.finished = false;
@@ -279,13 +310,10 @@ DataSession.prototype = {
         if(!str) return;
         _xy.setProgressMsg(str);
     },
-    log: function(str) {
-        str=str||"";
-        if(typeof str !="string") {
-            str=JSON.stringify(str);
-        }
+    log: function(str,type) {
+        str=_logstr(str);
         console.log("dSpider: "+str)
-        _xy.log(str)
+        _xy.log(str,type||1)
     },
     setLocal: function (k, v) {
         this.local[k]=v
