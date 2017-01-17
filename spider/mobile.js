@@ -1,4 +1,6 @@
-checkLogin_first();
+dSpider("mobile",function(session,env,$) {
+
+    checkLogin_first();
 
     // -------------------------------------------
     function checkLogin_first() {
@@ -476,3 +478,9 @@ checkLogin_first();
             setTimeout(function() {che_vertify_dismiss();}, 3000);
         }
     }
+
+    //设置当前页是登陆页
+    if ($('#forget_btn').length && $('#forget_btn').length > 0) {
+        session.setStartUrl();
+    }
+});
