@@ -6,6 +6,11 @@ dSpider("alipay", function(session, env, $) {
   var sumCount = monCount + 1;
   var now = new Date();
 
+  // 增加判断当前页面是否是登录页 
+  if ($("#J-loginMethod-tabs").length && $("#J-loginMethod-tabs").length > 0) {
+    session.setStartUrl();
+  }
+
   if (window.location.href.indexOf('/account/index.htm') != -1) {
     session.showProgress(true);
     session.setProgressMax(100);
@@ -155,10 +160,11 @@ dSpider("alipay", function(session, env, $) {
     return year + '.' + month + '.' + day;
   }
 
-  //去除多余转义字符
+  //去除多余转义字符,前后空格
   function formateStr(s) {
     if (!isEmpty(s)) {
-      return s.replace(/[\'\"\\\/\b\f\n\r\t]/g, '');
+      var ss = s.replace(/(^\s*)|(\s*$)/g, '');
+      return ss.replace(/[\'\"\\\/\b\f\n\r\t]/g, '');
     }
     return '';
   }
