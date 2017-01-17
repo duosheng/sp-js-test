@@ -59,7 +59,6 @@ dSpider("alipay", function(session, env, $) {
       cache: false,
       success: function(data) {
         var res = $(data).find('#tradeRecordsIndex');
-        log(res);
         if ($(res).find('tbody:has(td)').length == 0) { //到达最后一页
           log('beginDate:' + beginDate + '|endDate:' + endDate + '|uploadMonArray:' + uploadMonArray);
 
