@@ -152,7 +152,6 @@ dSpider("mobile",function(session,env,$) {
                 $('#month-data li').eq(month).click();
                 setTimeout(function() {startSpiderMonthData(month, index);}, 3000);
             } else {
-                session.showProgress(false);
                 var nextIndex = parseInt(xd_page1);
                 nextIndex++;
                 window.jQuery(".gs-page").eq(nextIndex - 1).click();
