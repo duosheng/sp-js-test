@@ -13,7 +13,7 @@ dSpider("taobao", 60*10 , function(session,env,$){
         location="https://h5.m.taobao.com/mlapp/mytaobao.html";
     }
 
-    if(location.href.indexOf("https://login.m.taobao.com/login.htm")){
+    if($("div.submit>button").text().indexOf("登 录") != -1){
         session.setStartUrl();
     }
 
