@@ -1,5 +1,5 @@
 
-dSpider("jd", function(session,env,$){
+dSpider("jd", 60*5, function(session,env,$){
 
     var re = /sid=(.+)$/ig;
     var infokey = "infokey";
@@ -42,8 +42,8 @@ dSpider("jd", function(session,env,$){
                                     var node = $("<div>").append($(response))
                                     var name = node.find("#uersNameId")[0].value;
                                     var phone = node.find("#mobilePhoneId")[0].value;
-                                    var addr = node.find("#addressLabelId")[0].innerHTML;
-                                    var detail = node.find("#address_where")[0].innerHTML;
+                                    var addr =$.trim(node.find("#addressLabelId")[0].innerHTML);
+                                    var detail = $.trim(node.find("#address_where")[0].innerHTML);
 
                                     global_contact_info.contact_detail.push(new contact(name,addr,detail,phone, ""));
                                     }) );
@@ -83,18 +83,18 @@ dSpider("jd", function(session,env,$){
                         }
                         task.push($.each(d.orderList,function(i,e){
                                            $.get("https://home.m.jd.com/newAllOrders/queryOrderDetailInfo.action?orderId="+ d.orderList[i].orderId+"&from=newUserAllOrderList&passKey="+d.passKeyList[i]+"&sid="+sid,
-                                                                                             function(response,status){
-                                                                                                   var addr = $("<div>").append($(response)).find(".step2-in-con").text();
-                                                                                                   var orderitem = new order(d.orderList[i].orderId,d.orderList[i].dataSubmit,d.orderList[i].price,addr);
+                                                   function(response,status){
+                                                        var addr = $("<div>").append($(response)).find(".step2-in-con").text();
+                                                        var orderitem = new order(d.orderList[i].orderId,d.orderList[i].dataSubmit,d.orderList[i].price,addr);
 
-                                                                                                   orderitem.products = [];
-                                                                                                   var products = $("<div>").append($(response)).find(".pdiv");
-                                                                                                   $.each(products,function(k, e){
+                                                        orderitem.products = [];
+                                                        var products = $("<div>").append($(response)).find(".pdiv");
+                                                        $.each(products,function(k, e){
                                                                                                        var name = $("<div>").append(products[k]).find(".sitem-m-txt").text();
                                                                                                        var price = $("<div>").append(products[k]).find(".sitem-r").text();
                                                                                                        var num = $("<div>").append(products[k]).find(".s3-num").text();
                                                                                                        orderitem.products.push(new product(name,  num ,price));
-                                                                                                   });
+                                                         });
                                                                                                    if(Date.parse(new Date()) < ((new Date(orderitem.time.split(" ")[0])).getTime() + max_order_date * 24 * 60 * 60 * 1000)){
                                                                                                            if(globalInfo.order_info.order_detail.length < max_order_num){
                                                                                                                  globalInfo.order_info.order_detail.push(orderitem);
@@ -158,7 +158,7 @@ dSpider("jd", function(session,env,$){
     function logout(){
 
         //alert("爬取订单总计:" + session.get(infokey).order_info.order_detail.length);
-        location.href = "https://passport.m.jd.com/user/logout.action?sid="+session.get("sid");
+        //location.href = "https://passport.m.jd.com/user/logout.action?sid="+session.get("sid");
         session.setProgress(100);
         session.upload(session.get(infokey));
         session.finish();

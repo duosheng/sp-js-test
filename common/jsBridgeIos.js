@@ -84,7 +84,10 @@ DataSession.prototype = {
     hideLoading: function () {
 
     },
-    finish: function (errmsg, content, code) {
+    setStartUrl:function(){
+       this.set('__loginUrl',location.href);
+    },
+    finish: function (errmsg, content, code,stack) {
         var that=this;
         DataSession.getExtraData(function (d) {
             var ret = {"sessionKey":that.key, "result": 0, "msg": ""}

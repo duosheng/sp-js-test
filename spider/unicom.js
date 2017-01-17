@@ -1,4 +1,4 @@
-dSpider("unicom", 60*5 , function(session,env,$){
+dSpider("unicom", 60*5, function(session,env,$){
 
     function parseThxd(msg) {
         $(msg).find("tr.tips_dial").each(function() {
@@ -131,7 +131,9 @@ dSpider("unicom", 60*5 , function(session,env,$){
         session.showProgress(false)
     }
 
-    if(window.location.href.indexOf('query/getPhoneByDetailTip.htm') != -1){
+    if(window.location.href.indexOf("/uac.10010.com/oauth2/new_auth") != -1) {
+        session.showProgress(false)
+    } if(window.location.href.indexOf('query/getPhoneByDetailTip.htm') != -1){
         //显示loading
         session.showProgress()
 
@@ -206,6 +208,10 @@ dSpider("unicom", 60*5 , function(session,env,$){
         log("爬取用户信息结束-----" + JSON.stringify(userInfo))
         var thxd = session.get("thxd")
         thxd["user_info"] = userInfo
+        var len = thxd["month_status"].length;
+        for(var i = 0; i < len; i ++) {
+            thxd["month_status"][i]["mobile"] = userInfo["mobile"]
+        }
         endSpide(thxd)
     }
 })

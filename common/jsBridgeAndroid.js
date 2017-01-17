@@ -74,6 +74,9 @@ DataSession.prototype = {
         }
         _xy.load(url, JSON.stringify(headers));
     },
+    setStartUrl:function(){
+        this.set('__loginUrl',location.href);
+    },
     setUserAgent: function (str) {
         _xy.setUserAgent(str)
     },
