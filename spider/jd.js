@@ -244,6 +244,9 @@ dSpider("jd", 60*5, function(session,env,$){
         this.price  = price;
     }
 
-
+// 增加判断当前页面是否是登录页  modify by renxin 2017.1.17
+if ($("#loginOneStep").length && $("#loginOneStep").length > 0) {       
+  session.setStartUrl();
+}
 //end
 })
