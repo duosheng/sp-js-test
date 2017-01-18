@@ -12,6 +12,8 @@ dSpider("telecom_gd", function(session,env,$){
     } else if(location.href.indexOf("http://gd.189.cn/TS/index.htm") != -1 || location.href.indexOf("gd.189.cn/TS/?SESSIONID=") != -1) {
 
         session.showProgress();
+        session.setProgressMax(100);
+        session.autoLoadImg(false);
         session.setProgress(0);
         var thxd = session.get("thxd")
         if(!thxd) {
