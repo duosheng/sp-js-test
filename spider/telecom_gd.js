@@ -397,12 +397,13 @@ dSpider("telecom_gd", function(session,env,$){
      * @param lantId
      * @param phone
      */
-    function getSmsCode(lantId,phone){
+    function getSmsCode(){
+        console.log("getSmsCode:" + loginUser.latnId + "|" + loginUser.account);
         $.ajax({
             url:"/J/J20009.j?a.c=0&a.u=user&a.p=pass&a.s=ECSS",
             type:'post',
             dataType:"json",
-            data:{"d.d01":lantId,"d.d02":phone,"d.d03":"CDMA"},
+            data:{"d.d01":loginUser.latnId,"d.d02":loginUser.account,"d.d03":"CDMA"},
             success:function(result){
                 if(result&&result.b&&result.b.c==="00"){//查询成功
                     var r=result.r;
@@ -441,90 +442,24 @@ dSpider("telecom_gd", function(session,env,$){
 
         if (isShow) {
             if ($('#maskDiv').length == 0) {
-                var maskDiv = $('<div></div>');        //创建一个父div
-                maskDiv.attr('id', 'maskDiv');        //给父div设置id
+                var maskDiv = $('<div id="maskDiv" style="opacity: 1;position: absolute;top: 0;left: 0;background-color: white;width: 100%;height: 100%;z-index: 10000"></div>');        //创建一个父div
                 $("body").append(maskDiv);
-                $("#maskDiv").css({
-                    'opacity': 1,
-                    'position': 'absolute',
-                    'top': 0,
-                    'left': 0,
-                    'background-color': '#AAAAAA',
-                    'width': '200%',
-                    'height': '200%',
-                    'z-index': 10000
-                });
-
-                //提示2
-                var title2 = $($('<p><p/>'));
-                title2.text('请输入短信验证码：');
-                $("#maskDiv").append(title2);
-
-                title2.css({
-                    'position': 'absolute',
-                    'left': '30px',
-                    'top': '200px',
-                    'height': '60px',
-                    'width': '300px',
-                    'font-size': '30px',
-                });
-
-                //短信输入框
-                var inputSms = $('<input type="text" id="inputSms"/>');
-                $("#maskDiv").append(inputSms);
-
-                var title1Left = title2.offset().left + 'px';
-                var inputSmsTop = title2.offset().top + title2.height() + 10 + 'px';
-                $('#inputSms').css({
-                    'position': 'absolute',
-                    'left': title1Left,
-                    'top': inputSmsTop,
-                    'height': '60px',
-                    'width': '300px',
-                    'font-size': '30px',
-                    'background-color': 'yellow',
-                });
-
-                //发送短信
-                var sendSms = $('<input type="button" id="sendSmsBtn" value="免费获取验证码"/>').click(getSmsCode(loginUser.latnId,loginUser.account));
-                $("#maskDiv").append(sendSms);
-
-                $('#sendSmsBtn').css({
-                    'position': 'absolute',
-                    'left': $('#inputSms').offset().left + $('#inputSms').width() + 30 + 'px',
-                    'top': $('#inputSms').offset().top + 'px',
-                    'height': '60px',
-                    'width': '200px',
-                    'font-size': '30px',
-                    'background-color': 'green',
-                });
-
-                //认证
-                var certificateBtn = $('<input type="button" id="certificateBtn" value="去认证"/>').click(certificateBtnAction);
-                $("#maskDiv").append(certificateBtn);
-
-                $('#certificateBtn').css({
-                    'position': 'absolute',
-                    'left': title1Left,
-                    'top': $('#inputSms').offset().top + $('#inputSms').height() + 50 + 'px',
-                    'height': '60px',
-                    'width': '300px',
-                    'font-size': '30px',
-                    'background-color': 'green',
-                });
-
+                var button = $($('<li class="input-row" style="display:-webkit-box;display: -webkit-flex"><span class="lf" style="display: block;width: 90px;height: 50px;line-height: 50px;margin-left: 15px;text-align: left;color: #3c3c3c;font-size: 18px">验证码</span><div style="-webkit-box-flex: 1;-webkit-flex: 1;flex: 1;display: -webkit-box;display: -webkit-flex;height: 50px"><p style="-webkit-box-flex: 1;-webkit-flex: 1;flex: 1;display: -webkit-box;display: -webkit-flex;height: 50px;"><input id="inputSms" style="width: 100%;height: 50px;border: none;font-size: 18px" placeholder="验证码"></p><span id="sendSmsBtn" style="display: block;width: 100px;height: 30px;line-height: 30px;background: #fe6246;color:white;font-size: 14px;margin-top: 10px;margin-right: 15px;text-align: center;border-radius: 6px">发送验证码</span></div></li><li style="display:-webkit-box;display: -webkit-flex;margin-top: 20px;margin-left: 15px;margin-right: 15px"><div style="-webkit-box-flex: 1;-webkit-flex: 1;flex: 1;display: -webkit-box;display: -webkit-flex;height: 50px"><span id="certificateBtn" style="width:100%;height:50px;line-height:50px;background:#fe6246;font-size:20px;color:white;text-align: center;border-radius: 6px">确定</span></div></li>'));
+                $("#maskDiv").append(button);
+                $('#sendSmsBtn').click(getSmsCode);
+                $('#certificateBtn').click(certificateBtnAction);
             } else {
                 $('#maskDiv').show();
             }
         } else {
-            if ($('#maskDiv').lensgth != 0) {
+            if ($('#maskDiv').length != 0) {
                 $('#maskDiv').hide();
             }
         }
     }
 
     function certificateBtnAction() {
-        window.xd_pwd = $('#inputPwd').val();
+        console.log('certificateBtnAction');
 
         if (!/^\d{6}$/.test($('#inputSms').val())) {
             alert('请输入6位短信验证码！');
@@ -541,17 +476,17 @@ dSpider("telecom_gd", function(session,env,$){
 
     window.countdown = 60;
     function settime() {
-
+        console.log("time:" + window.countdown);
         var obj = $('#sendSmsBtn')[0];
         if (window.countdown == 0) {
             obj.removeAttribute("disabled");
-            obj.value = "免费获取验证码";
+            $('#sendSmsBtn').text("发送验证码");
             window.countdown = 60;
             return;
         } else {
             window.xd_pwd = $('#inputPwd').val();
             obj.setAttribute("disabled", true);
-            obj.value = "重新发送(" + window.countdown + ")";
+            $('#sendSmsBtn').text("重新发送(" + window.countdown + ")");
             window.countdown--;
         }
         setTimeout(function () {
