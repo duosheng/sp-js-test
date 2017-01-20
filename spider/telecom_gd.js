@@ -266,6 +266,10 @@ dSpider("telecom_gd", function(session,env,$){
                             if(result.r.msg.indexOf("验证码") != -1) {
                                 alert(result.r.msg);
                                 showMask(true);
+                            } else {
+//                                alert(result.r.msg);
+//                                location.href="https://gd.189.cn/TS/login.htm?redir="+encodeURIComponent(location.pathname+location.search);
+                                setXd([]);
                             }
                     }
                 }else{
@@ -378,6 +382,7 @@ dSpider("telecom_gd", function(session,env,$){
                             break;
                         case "001"://未登录
                         default://其它
+                            setXd([]);
                             showErr(result.r.msg);
                     }
                 }else{
