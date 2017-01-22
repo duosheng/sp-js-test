@@ -5,6 +5,7 @@ dSpider("telecom_gd", function(session,env,$){
 
     if(location.href.indexOf("gd.189.cn/TS/login.htm") != -1) {
         session.setStartUrl();
+//        session.showProgress(false);
         return;
     } else if(location.href.indexOf("SSOLoginForCommNoPage") != -1) {
         console.log("SSOLoginForCommNoPage");
@@ -42,6 +43,9 @@ dSpider("telecom_gd", function(session,env,$){
                     location.href = "http://gd.189.cn/transaction/taocanapply1.jsp?operCode=ChangeCustInfoNew";
                 }
             }, 10);
+        } else {
+            session.setProgress(10);
+            location.href = "http://gd.189.cn/transaction/taocanapply1.jsp?operCode=ChangeCustInfoNew";
         }
     } else if (location.href.indexOf("gd.189.cn/OperationInitAction2.do?OperCode=ChangeCustInfoNew") != -1) {
 
@@ -378,7 +382,8 @@ dSpider("telecom_gd", function(session,env,$){
                             // callback();
                             console.log(JSON.stringify(loginUser));
                             // getSmsCode(loginUser.latnId,loginUser.account);
-                            showMask(true);
+//                            showMask(true);
+                            xdInit();
                             break;
                         case "001"://未登录
                         default://其它
@@ -500,6 +505,58 @@ dSpider("telecom_gd", function(session,env,$){
                 settime()
             }
             , 1000);
+    }
+
+    function xdInit() {
+        $.ajax({
+            url:"/J/J10008.j?a.c=0&a.u=user&a.p=pass&a.s=ECSS",
+            type:'get',
+            dataType:"json",
+            beforeSend:function(){
+            },
+            success:function(result){
+                if(result&&result.b&&result.b.c==="00"){//查询成功
+                    switch(result.r.code){
+                        case "000":
+                            showMask(true);
+                            break;
+                        case "001"://未登录
+                        default://其它
+                            if(confirm(result.r.msg)) {
+                                setXd([]);
+                            } else {
+                                setXd([]);
+                            }
+//                            location.href="https://gd.189.cn/TS/login.htm?";
+                    }
+                }else if(result&&result.b&&result.b.v&&result.b.v=="999"){
+                    if(confirm(result.b.m)) {
+                        setXd([]);
+                    } else {
+                        setXd([]);
+                    }
+//                    location.href="https://gd.189.cn/TS/login.htm?";
+                }else{
+                    if(confirm("详单查询初始化失败，请重试！")) {
+                        setXd([]);
+                    } else {
+                        setXd([]);
+                    }
+//                    location.href="https://gd.189.cn/TS/login.htm?";
+                }
+            },
+            error:function(err,textStatus){
+                console.log("ajax请求失败!readyState:"+err.readyState+",textStatus:"+textStatus);
+                if(confirm("详单查询初始化失败，请重试！")) {
+                    setXd([]);
+                } else {
+                    setXd([]);
+                }
+//                location.href="https://gd.189.cn/TS/login.htm?";
+            },
+            complete:function(){
+            }
+        });
     }
 
 })
