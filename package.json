@@ -13,7 +13,7 @@
   },
   "scripts": {
     "build": "gulp",
-    "production": "gulp js:js"
+    "production": "gulp js:r"
   },
   "devDependencies": {
     "babel-preset-es2015": "^6.16.0",

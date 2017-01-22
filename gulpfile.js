@@ -10,10 +10,7 @@ var minimist = require('minimist');
 js()
 js(":r")
 gulp.task("default",["js"])
-
-
 var files=fs.readdirSync("spider");
-
 files.forEach(function(item) {
     var stats=fs.statSync("spider/"+item);
         if (stats.isDirectory()) {
