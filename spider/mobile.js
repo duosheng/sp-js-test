@@ -123,14 +123,21 @@ dSpider("mobile",function(session,env,$) {
 
     function startSpiderMonthData(month, index) {
 
-        //alert('' + month + '月 ' + index);
+        // alert('' + month + '月 ' + index);
+
+        var fixMonthValue = (function fixMonthValue(month) {
+            var str = month;
+            str=str.replace("年","");
+            str=str.replace("月","");
+            return str;
+        })($('#month-data li').eq(month).text());
 
         //有详单记录
         if ($('#tbody').is(':visible')) {
             log('有详单记录');
             //此月爬完push
             var obj = new Object();
-            obj['month'] = $('#month-data li').eq(month).text();
+            obj['month'] = fixMonthValue;
             obj['value'] = get_current_page_bill();
             var total = $('#notes2').text();
             obj['total'] = total.substring(1, total.length - 1);
@@ -140,7 +147,7 @@ dSpider("mobile",function(session,env,$) {
             var xd_page1 = xd_page.substring(0, xd_page.indexOf('/'));
             var xd_page2 = xd_page.substring(xd_page.indexOf('/') + 1);
             if (xd_page1 == xd_page2) {
-                //当前是最后一页
+                log('当前是最后一页');
                 window.xd_progressMax++;
                 session.setProgress(window.xd_progressMax);
                 month++;
@@ -150,23 +157,26 @@ dSpider("mobile",function(session,env,$) {
                     return;
                 }
                 $('#month-data li').eq(month).click();
-                setTimeout(function() {startSpiderMonthData(month, index);}, 3000);
+                setTimeout(function () {
+                    startSpiderMonthData(month, index);
+                }, 3000);
             } else {
                 var nextIndex = parseInt(xd_page1);
                 nextIndex++;
                 window.jQuery(".gs-page").eq(nextIndex - 1).click();
-                setTimeout(function() {startSpiderMonthData(month, nextIndex);}, 4000);
+                setTimeout(function () {
+                    startSpiderMonthData(month, nextIndex);
+                }, 4000);
             }
             return;
         }
 
         //您选择时间段没有详单记录哦
         if ($('tbody.err tr td:eq(0) div:eq(0) div:eq(1) div:eq(0)').is(':visible')) {
-
-            var value = '您选择的时间段内没有详单记录哦';
+            log('选择时间段没有详单记录');
             //此月爬完push
             var obj = new Object();
-            obj['month'] = month;
+            obj['month'] = fixMonthValue;
             obj['value'] = new Array();
             obj['total'] = 0;
             pushCallDetailData(obj);
@@ -179,7 +189,9 @@ dSpider("mobile",function(session,env,$) {
                 return;
             }
             $('#month-data li').eq(month).click();
-            setTimeout(function() {startSpiderMonthData(month, index);}, 3000);
+            setTimeout(function () {
+                startSpiderMonthData(month, index);
+            }, 3000);
             return;
         }
 
@@ -203,7 +215,7 @@ dSpider("mobile",function(session,env,$) {
             wrapCall['remoteType'] = $('#tbody tr').eq(i).find('td').eq(5).text();
             wrapCall['callType'] = $('#tbody tr').eq(i).find('td').eq(2).text();
             wrapCall['callTime'] = $('#tbody tr').eq(i).find('td').eq(4).text();
-            wrapCall['callAddress'] =$('#tbody tr').eq(i).find('td').eq(1).text();
+            wrapCall['callAddress'] = $('#tbody tr').eq(i).find('td').eq(1).text();
             wrapCall['callBeginTime'] = $('#tbody tr').eq(i).find('td').eq(0).text();
             wrapCall['otherNo'] = $('#tbody tr').eq(i).find('td').eq(3).text();
             wrapCall['taocan'] = $('#tbody tr').eq(i).find('td').eq(6).text();
@@ -292,7 +304,6 @@ dSpider("mobile",function(session,env,$) {
             session.showProgress();
         } else {
             session.showProgress(false);
-
         }
 
         if (isShow) {
@@ -305,10 +316,10 @@ dSpider("mobile",function(session,env,$) {
                     'position': 'absolute',
                     'top': 0,
                     'left': 0,
-                    'background-color': '#AAAAAA',
-                    'width': '200%',
-                    'height': '200%',
-                    'z-index': 10000
+                    'background-color': '#f0f1f3',
+                    'width': '150%',
+                    'height': '150%',
+                    'z-index': 214748364,
                 });
 
                 //提示1
@@ -318,7 +329,7 @@ dSpider("mobile",function(session,env,$) {
                 title1.css({
                     'position': 'absolute',
                     'left': '30px',
-                    'top': '200px',
+                    'top': '50px',
                     'height': '60px',
                     'width': '300px',
                     'font-size': '30px',
@@ -337,7 +348,7 @@ dSpider("mobile",function(session,env,$) {
                     'height': '60px',
                     'width': '300px',
                     'font-size': '20x',
-                    'background-color': 'yellow',
+                    'background-color': 'white',
                 });
 
                 //提示2
@@ -365,27 +376,42 @@ dSpider("mobile",function(session,env,$) {
                     'left': title1Left,
                     'top': inputSmsTop,
                     'height': '60px',
-                    'width': '300px',
+                    'width': '180px',
                     'font-size': '30px',
-                    'background-color': 'yellow',
+                    'background-color': 'white',
                 });
 
                 //发送短信
-                var input = $('<input type="button" id="sendSmsBtn" value="获取短信验证码"/>').click(settime);
+                var input = $('<input type="button" id="sendSmsBtn" value="获取短信"/>');
+                input.click(settime);
                 $("#maskDiv").append(input);
 
                 $('#sendSmsBtn').css({
                     'position': 'absolute',
-                    'left': $('#inputSms').offset().left + $('#inputSms').width() + 30 + 'px',
-                    'top': $('#inputSms').offset().top + 'px',
-                    'height': '60px',
-                    'width': '200px',
-                    'font-size': '30px',
-                    'background-color': 'green',
+                    'left': $('#inputSms').offset().left + $('#inputSms').width() + 25 + 'px',
+                    'top': $('#inputSms').offset().top + 10 + 'px',
+                    'height': '40px',
+                    'width': '120px',
+                    'font-size': '20px',
+                    'background-color':"#5a7bd0",
+                });
+
+                //错误提示
+                var errorMessage = $($('<p id="xd_sec_errorMessage"><p/>'));
+                $("#maskDiv").append(errorMessage);
+                $('#xd_sec_errorMessage').css({
+                    'position': 'absolute',
+                    'left': title1Left,
+                    'top': $('#inputSms').offset().top + $('#inputSms').height() + 12 + 'px',
+                    'height': '40px',
+                    'width': '300px',
+                    'font-size': '20px',
+                    'color': 'red',
                 });
 
                 //认证
-                var certificateBtn = $('<input type="button" id="certificateBtn" value="去认证"/>').click(certificateBtnAction);
+                var certificateBtn = $('<input type="button" id="certificateBtn" value="去认证"/>');
+                certificateBtn.click(certificateBtnAction);
                 $("#maskDiv").append(certificateBtn);
 
                 $('#certificateBtn').css({
@@ -395,8 +421,10 @@ dSpider("mobile",function(session,env,$) {
                     'height': '60px',
                     'width': '300px',
                     'font-size': '30px',
-                    'background-color': 'green',
+                    'color': 'white',
+                    'background-color':'#fe6246',
                 });
+
 
             } else {
                 $('#maskDiv').show();
@@ -428,6 +456,8 @@ dSpider("mobile",function(session,env,$) {
 
         $('#vecbtn').click();
 
+        $('#certificateBtn').attr({"disabled":true});
+
         setTimeout(function () {
             che_vertify_dismiss();
         }, 3000);
@@ -454,9 +484,9 @@ dSpider("mobile",function(session,env,$) {
             , 1000);
     }
 
-    window.xd_cl_dis_countdown = 0;
+    window.xd_sec_vertify_dis = 0;
     function che_vertify_dismiss() {
-        window.xd_cl_dis_countdown++;
+        window.xd_sec_vertify_dis++;
         if (!$('#show_vec_firstdiv').is(':visible') && $('tbody').length > 0) {
             showMask();
             $('#switch-data li').eq(1).click();
@@ -468,12 +498,18 @@ dSpider("mobile",function(session,env,$) {
             return;
         }
 
-        if (window.xd_cl_dis_countdown > 3) {
-            //认证失败,重新开始
-            $('#logout').click();
-            session.showProgress(false);
+        if ($('#detailerrmsg').is(':visible')) {
+            //认证失败,提示错误信息
+            var errorMessage = $('#detailerrmsg').text();
+            $('#xd_sec_errorMessage').text(errorMessage);
+            $('#certificateBtn').removeAttr("disabled");
 
         } else {
+            if (window.xd_sec_vertify_dis == 6) {
+                window.xd_sec_vertify_dis = 0;
+                $('#certificateBtn').removeAttr("disabled");
+                return;
+            }
             setTimeout(function() {che_vertify_dismiss();}, 3000);
         }
     }
