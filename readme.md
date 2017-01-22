@@ -1,3 +1,5 @@
+
+
 脚本拼接规则,最终拼接的脚本内容如下：
 
 ```javascript
@@ -36,3 +38,46 @@
 126: "http://smart.mail.126.com/"
 ```
 
+
+
+## 工程构建说明
+
+构建工具提供javascript语法检查、压缩混淆、ES6转ES5功能。
+
+### 构建流程
+
+语法检查－> es6转es5 －> 压缩混淆
+
+### 使用
+
+首先安装构建依赖，进入工程根目录下，执行：
+
+```javascript
+npm install
+```
+
+脚本提交之前，请先进行语法检查，否则编译机会build失败：检查命令
+
+gulp hint:[脚本名称]
+
+以京东为例：
+
+```javascript
+gulp hint:jd
+```
+
+### 构建整个工程
+
+整个工程构建时会检查spider文件夹下所有脚本语法，命令：
+
+```
+gulp 或 npm run build
+```
+
+如果在构建之后进行压缩：
+
+```
+gulp js:r 或 npm run production
+```
+
+构建后的代码会保存在spider-release目录下
