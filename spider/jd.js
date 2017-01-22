@@ -40,9 +40,9 @@ dSpider("jd", function(session,env,$){
         for(var i=0;i<urlarray.length;i++){
                                     taskAddr.push($.get(urlarray[i],function(response,status){
                                     var node = $("<div>").append($(response))
-                                    var name = node.find("#uersNameId")[0].value;
-                                    var phone = node.find("#mobilePhoneId")[0].value;
-                                    var addr =$.trim(node.find("#addressLabelId")[0].innerHTML);
+                                    var name = $.trim(node.find("#uersNameId")[0].value);
+                                    var phone = $.trim(node.find("#mobilePhoneId")[0].value);
+                                    var addr = $.trim(node.find("#addressLabelId")[0].innerHTML);
                                     var detail = $.trim(node.find("#address_where")[0].innerHTML);
 
                                     global_contact_info.contact_detail.push(new contact(name,addr,detail,phone, ""));
@@ -110,15 +110,15 @@ dSpider("jd", function(session,env,$){
                                                       async : false,
                                                       success : function(response){
                                                         log("orderId: " + d.orderList[i].orderId);
-                                                         var addr = $("<div>").append($(response)).find(".step2-in-con").text();
+                                                         var addr = $.trim($("<div>").append($(response)).find(".step2-in-con").text());
                                                          var orderitem = new order(d.orderList[i].orderId,d.orderList[i].dataSubmit,d.orderList[i].price,addr);
 
                                                          orderitem.products = [];
                                                          var products = $("<div>").append($(response)).find(".pdiv");
                                                          $.each(products,function(k, e){
-                                                                var name = $("<div>").append(products[k]).find(".sitem-m-txt").text();
-                                                                var price = $("<div>").append(products[k]).find(".sitem-r").text();
-                                                                var num = $("<div>").append(products[k]).find(".s3-num").text();
+                                                                var name = $.trim($("<div>").append(products[k]).find(".sitem-m-txt").text());
+                                                                var price = $.trim($("<div>").append(products[k]).find(".sitem-r").text());
+                                                                var num = $.trim($("<div>").append(products[k]).find(".s3-num").text());
                                                                 orderitem.products.push(new product(name,  num ,price));
                                                           });
                                                           if(Date.parse(new Date()) < ((new Date(orderitem.time.split(" ")[0])).getTime() + max_order_date * 24 * 60 * 60 * 1000)){
