@@ -1,2 +1,556 @@
-!function t(e,o,n){function s(i,r){if(!o[i]){if(!e[i]){var d="function"==typeof require&&require;if(!r&&d)return d(i,!0);if(a)return a(i,!0);throw new Error("Cannot find module '"+i+"'")}var c=o[i]={exports:{}};e[i][0].call(c.exports,function(t){var o=e[i][1][t];return s(o?o:t)},c,c.exports,t,e,o,n)}return o[i].exports}for(var a="function"==typeof require&&require,i=0;i<n.length;i++)s(n[i]);return s}({1:[function(t,e,o){"use strict";log("****************Debug model *******************"),dSpider("telecom_gd",function(t,e,o){function n(){o.each(o(".rq_list").find("li"),function(){var t={};t.month=o(this).attr("data-month"),t.start=o(this).attr("data-start"),t.end=o(this).attr("data-end"),h.push(t)}),console.log(JSON.stringify(h)),m=0,T={"d.d01":"","d.d02":"","d.d03":"","d.d04":"","d.d05":"20","d.d06":"1","d.d07":"","d.d08":"1"},T["d.d06"]=1,T["d.d01"]="call",T["d.d02"]=h[m].month,T["d.d03"]=h[m].start,T["d.d04"]=h[m].end;var t=o("#input_code").val().trim();T["d.d07"]=t,s()}function s(){o.ajax({url:"/J/J10009.j?a.c=0&a.u=user&a.p=pass&a.s=ECSS",type:"get",dataType:"json",data:T,beforeSend:function(){console.log("beforeSend"),console.log(T)},success:function(e){if(console.log(T),console.log(e),e&&e.b&&"00"===e.b.c)switch(e.r.code){case"000":case"009":e=e.r||e;var n=e.r06,i=e.r05;if(1==n&&o.each(e.r02,function(t){this.indexOf("通话类型")!=-1?b=t:this.indexOf("号码")!=-1?x=t:this.indexOf("日期")!=-1?v=t:this.indexOf("时长")!=-1?S=t:this.indexOf("费用")!=-1?w=t:this.indexOf("呼叫类型")!=-1?_=t:this.indexOf("通话地")!=-1&&(y=t)}),o.each(e.r03,function(){var t={};o.each(this,function(e){var o=this+"";e==b?t.remoteType=o:e==x?t.otherNo=o:e==v?t.callBeginTime=o:e==S?t.callTime=o:e==w?t.callFee=o:e==_?t.callType=o:e==y&&(t.callAddress=o)}),k.push(t)}),i>n)T["d.d06"]=parseInt(T["d.d06"])+1,t.setProgress(45+55/h.length*(m+n/i)),s();else{console.log("load success:"+h[m].month);var r={};r.calldate=h[m].month,r.cid=parseInt((new Date).getTime()/1e3).toString(),r.data=k,r.status=4,O.push(r),k=[],m<h.length-1?(t.setProgress(45+55*(m+1)/h.length),m++,T["d.d02"]=h[m].month,T["d.d03"]=h[m].start,T["d.d04"]=h[m].end,T["d.d06"]=1,console.log("curMonthIndex:"+m+"|"+h[m].month),s()):(console.log("details"),console.log(JSON.stringify(O)),a(O))}break;case"001":sessionStorage.setItem("gd_TS_login_url",location.pathname),setTimeout(function(){location.href="https://gd.189.cn/TS/login.htm?redir="+encodeURIComponent(location.pathname+location.search)},1500);default:console.log(e.r.msg),e.r.msg.indexOf("验证码")!=-1&&(alert(e.r.msg),d(!0))}else{alert("清单查询初始化，请重试！"),console.log("load fail:"+h[m].month);var r={};r.calldate=h[m].month,r.cid=parseInt((new Date).getTime()/1e3).toString(),r.data=k,k.length>0?r.status=5:r.status=2,O.push(r),k=[],m<h.length-1?(t.setProgress(45+55*(m+1)/h.length),m++,T["d.d02"]=h[m].month,T["d.d03"]=h[m].start,T["d.d04"]=h[m].end,T["d.d06"]=1,console.log("curMonthIndex:"+m+"|"+h[m].month),s()):(console.log("details"),console.log(JSON.stringify(O)),a(O))}},error:function(e,o){console.log("ajax请求失败!readyState:"+e.readyState+",textStatus:"+o),alert("清单查询初始化，请重试！"),console.log("load error:"+h[m].month);var n={};n.calldate=h[m].month,n.cid=parseInt((new Date).getTime()/1e3).toString(),n.data=k,k.length>0?n.status=5:n.status=2,O.push(n),k=[],m<h.length-1?(t.setProgress(45+55*(m+1)/h.length),m++,T["d.d02"]=h[m].month,T["d.d03"]=h[m].start,T["d.d04"]=h[m].end,T["d.d06"]=1,console.log("curMonthIndex:"+m+"|"+h[m].month),s()):(console.log("details"),console.log(JSON.stringify(O)),a(O))},complete:function(){console.log("complete")}})}function a(e){var o=t.get("thxd");o||(o={}),o.month_status=e,t.set("thxd",o),t.setProgress(100),log("爬取完毕----------"+JSON.stringify(o)),t.upload(JSON.stringify(o)),t.finish()}function i(e){o.ajax({url:"/J/J10036.j?a.c=0&a.u=user&a.p=pass&a.s=ECSS",type:"get",dataType:"json",data:{},beforeSend:function(){},success:function(e){if(e&&e.b&&"00"===e.b.c)switch(e.r.code){case"000":var o=e.r;I.account=o.r03||o.r02,I.currNumBusiType=o.r05||o.r04,I.payType=o.r07,I.latnId=o.r14,t.setProgress(45),console.log(JSON.stringify(I)),d(!0);break;case"001":default:showErr(e.r.msg)}else console.log("详单查询初始化失败，请重试！")},error:function(t,e){console.log("ajax请求失败!readyState:"+t.readyState+",textStatus:"+e)},complete:function(){}})}function r(t,e){o.ajax({url:"/J/J20009.j?a.c=0&a.u=user&a.p=pass&a.s=ECSS",type:"post",dataType:"json",data:{"d.d01":t,"d.d02":e,"d.d03":"CDMA"},success:function(t){if(t&&t.b&&"00"===t.b.c){var e=t.r;"000"===e.code?(l(),console.log("短信验证码已经发送，请查收！"),alert("短信验证码已经发送，请查收！")):(console.log(msg),alert(msg))}else console.log("短信验证码已经发送失败，请重试！"),alert("短信验证码已经发送失败，请重试！")},error:function(t,e){console.log("ajax请求失败!readyState:"+t.readyState+",textStatus:"+e)}})}function d(e){if(e?t.showProgress(!1):t.showProgress(),e)if(0==o("#maskDiv").length){var n=o("<div></div>");n.attr("id","maskDiv"),o("body").append(n),o("#maskDiv").css({opacity:1,position:"absolute",top:0,left:0,"background-color":"#AAAAAA",width:"200%",height:"200%","z-index":1e4});var s=o(o("<p><p/>"));s.text("请输入短信验证码："),o("#maskDiv").append(s),s.css({position:"absolute",left:"30px",top:"200px",height:"60px",width:"300px","font-size":"30px"});var a=o('<input type="text" id="inputSms"/>');o("#maskDiv").append(a);var i=s.offset().left+"px",d=s.offset().top+s.height()+10+"px";o("#inputSms").css({position:"absolute",left:i,top:d,height:"60px",width:"300px","font-size":"30px","background-color":"yellow"});var l=o('<input type="button" id="sendSmsBtn" value="免费获取验证码"/>').click(r(I.latnId,I.account));o("#maskDiv").append(l),o("#sendSmsBtn").css({position:"absolute",left:o("#inputSms").offset().left+o("#inputSms").width()+30+"px",top:o("#inputSms").offset().top+"px",height:"60px",width:"200px","font-size":"30px","background-color":"green"});var u=o('<input type="button" id="certificateBtn" value="去认证"/>').click(c);o("#maskDiv").append(u),o("#certificateBtn").css({position:"absolute",left:i,top:o("#inputSms").offset().top+o("#inputSms").height()+50+"px",height:"60px",width:"300px","font-size":"30px","background-color":"green"})}else o("#maskDiv").show();else 0!=o("#maskDiv").lensgth&&o("#maskDiv").hide()}function c(){return window.xd_pwd=o("#inputPwd").val(),/^\d{6}$/.test(o("#inputSms").val())?(d(!1),o("#input_code").val(o("#inputSms").val()),void n()):void alert("请输入6位短信验证码！")}function l(){var t=o("#sendSmsBtn")[0];return 0==window.countdown?(t.removeAttribute("disabled"),t.value="免费获取验证码",void(window.countdown=60)):(window.xd_pwd=o("#inputPwd").val(),t.setAttribute("disabled",!0),t.value="重新发送("+window.countdown+")",window.countdown--,void setTimeout(function(){l()},1e3))}if(log("current page: "+location.href),location.href.indexOf("SSOLoginForCommNoPage")!=-1)return void console.log("SSOLoginForCommNoPage");if(location.href.indexOf("http://gd.189.cn/TS/index.htm")!=-1||location.href.indexOf("gd.189.cn/TS/?SESSIONID=")!=-1){t.showProgress(),t.setProgress(0);var u=t.get("thxd");u||(u={});var g=u.user_info;if(g||(g={}),!g.name)var f=1e4,p=setInterval(function(){f-=10;var e=o("#user_name");e[0]&&"--"!=e.text()?(t.setProgress(10),clearInterval(p),g.name=e.text(),console.log(JSON.stringify(g)),u.user_info=g,t.set("thxd",u),location.href="http://gd.189.cn/transaction/taocanapply1.jsp?operCode=ChangeCustInfoNew"):0==f&&(t.setProgress(10),clearInterval(p),location.href="http://gd.189.cn/transaction/taocanapply1.jsp?operCode=ChangeCustInfoNew")},10)}else location.href.indexOf("gd.189.cn/OperationInitAction2.do?OperCode=ChangeCustInfoNew")!=-1?waitDomAvailable("#cust_name_id",function(e,n){t.setProgress(20),log("wait cust_name_id success");var s=t.get("thxd");s||(s={});var a=s.user_info;a||(a={}),a.name||(a.name=o("#cust_name_id").val()),a.idcard_no=o("#id_num_id").val(),a.contactNum=o("#moblie_id").val();var i=o("#post_addr_id").val();0==i.length&&(i=o("#id_addr_id").val()),a.household_address=i,s.user_info=a,t.set("thxd",s),location.href="http://gd.189.cn/TS/cx/puk_chaxun.htm?cssid=wdwt-xgcx-puk_pincx",console.log(JSON.stringify(a))},function(){log("wait cust_name_id fail")}):location.href.indexOf("gd.189.cn/TS/cx/puk_chaxun.htm?cssid=wdwt-xgcx-puk_pincx")!=-1?waitDomAvailable("#phone",function(e,n){t.setProgress(30),log("wait custName success");var s=t.get("thxd");s||(s={});var a=s.user_info;a||(a={}),a.mobile=o("#phone").text(),s.user_info=a,t.set("thxd",s),console.log(JSON.stringify(a)),location.href="http://gd.189.cn/TS/cx/xiangdan_chaxun.htm?cssid=sy-kscx-xdcx"},function(){log("wait phone fail")}):location.href.indexOf("gd.189.cn/TS/cx/xiangdan_chaxun.htm?cssid=sy-kscx-xdcx")!=-1&&waitDomAvailable(".get_sms_code",function(e,o){t.setProgress(40),i(function(){})},function(){log("wait phone fail")});var h=[],m=0,x=-1,v=-1,S=-1,w=-1,_=-1,y=-1,b=-1,O=[],k=[],T={},I={};window.countdown=60})},{}]},{},[1]);
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+"use strict";
+
+log("****************Debug model *******************");
+dSpider("telecom_gd", function (session, env, $) {
+    log("current page: " + location.href);
+
+    if (location.href.indexOf("gd.189.cn/TS/login.htm") != -1) {
+        session.setStartUrl();
+        //        session.showProgress(false);
+        return;
+    } else if (location.href.indexOf("SSOLoginForCommNoPage") != -1) {
+        console.log("SSOLoginForCommNoPage");
+        return;
+    } else if (location.href.indexOf("http://gd.189.cn/TS/index.htm") != -1 || location.href.indexOf("gd.189.cn/TS/?SESSIONID=") != -1) {
+
+        session.showProgress();
+        session.setProgressMax(100);
+        session.autoLoadImg(false);
+        session.setProgress(0);
+        var thxd = session.get("thxd");
+        if (!thxd) {
+            thxd = {};
+        }
+        var userInfo = thxd["user_info"];
+        if (!userInfo) {
+            userInfo = {};
+        }
+        if (!userInfo["name"]) {
+            var timeout = 10000;
+            var t = setInterval(function () {
+                timeout -= 10;
+                var ob = $("#user_name");
+                if (ob[0] && ob.text() != "--") {
+                    session.setProgress(10);
+                    clearInterval(t);
+                    userInfo["name"] = ob.text();
+                    console.log(JSON.stringify(userInfo));
+                    thxd["user_info"] = userInfo;
+                    session.set("thxd", thxd);
+                    location.href = "http://gd.189.cn/transaction/taocanapply1.jsp?operCode=ChangeCustInfoNew";
+                } else if (timeout == 0) {
+                    session.setProgress(10);
+                    clearInterval(t);
+                    location.href = "http://gd.189.cn/transaction/taocanapply1.jsp?operCode=ChangeCustInfoNew";
+                }
+            }, 10);
+        } else {
+            session.setProgress(10);
+            location.href = "http://gd.189.cn/transaction/taocanapply1.jsp?operCode=ChangeCustInfoNew";
+        }
+    } else if (location.href.indexOf("gd.189.cn/OperationInitAction2.do?OperCode=ChangeCustInfoNew") != -1) {
+
+        waitDomAvailable("#cust_name_id", function (dom, timeSpan) {
+            session.setProgress(20);
+            log("wait cust_name_id success");
+            var thxd = session.get("thxd");
+            if (!thxd) {
+                thxd = {};
+            }
+            var userInfo = thxd["user_info"];
+            if (!userInfo) {
+                userInfo = {};
+            }
+            if (!userInfo["name"]) {
+                userInfo["name"] = $("#cust_name_id").val();
+            }
+
+            userInfo["idcard_no"] = $("#id_num_id").val();
+            userInfo["contactNum"] = $("#moblie_id").val();
+            var address = $("#post_addr_id").val();
+            if (address.length == 0) {
+                address = $("#id_addr_id").val();
+            }
+            userInfo["household_address"] = address;
+
+            thxd["user_info"] = userInfo;
+            session.set("thxd", thxd);
+
+            location.href = "http://gd.189.cn/TS/cx/puk_chaxun.htm?cssid=wdwt-xgcx-puk_pincx";
+            console.log(JSON.stringify(userInfo));
+        }, function () {
+            session.setProgress(20);
+            log("wait cust_name_id fail");
+            location.href = "http://gd.189.cn/TS/cx/puk_chaxun.htm?cssid=wdwt-xgcx-puk_pincx";
+        });
+    } else if (location.href.indexOf("gd.189.cn/TS/cx/puk_chaxun.htm?cssid=wdwt-xgcx-puk_pincx") != -1) {
+
+        waitDomAvailable("#phone", function (dom, timeSpan) {
+            session.setProgress(30);
+            log("wait custName success");
+            var thxd = session.get("thxd");
+            if (!thxd) {
+                thxd = {};
+            }
+            var userInfo = thxd["user_info"];
+            if (!userInfo) {
+                userInfo = {};
+            }
+
+            userInfo["mobile"] = $("#phone").text();
+
+            thxd["user_info"] = userInfo;
+            session.set("thxd", thxd);
+            console.log(JSON.stringify(userInfo));
+            //                location.href="http://gd.189.cn/TS/wode-wangting-sec.htm?cssid=sy-dh-top-wdwt";
+            location.href = "http://gd.189.cn/TS/cx/xiangdan_chaxun.htm?cssid=sy-kscx-xdcx";
+        }, function () {
+            session.setProgress(30);
+            log("wait phone fail");
+            location.href = "http://gd.189.cn/TS/cx/xiangdan_chaxun.htm?cssid=sy-kscx-xdcx";
+        });
+    } else if (location.href.indexOf("gd.189.cn/TS/cx/xiangdan_chaxun.htm?cssid=sy-kscx-xdcx") != -1) {
+        waitDomAvailable(".get_sms_code", function (dom, timeSpan) {
+            session.setProgress(40);
+            getLoginUserType(function () {
+                // showMask(true);
+            });
+        }, function () {
+            log("wait get_sms_code fail");
+            setXd([]);
+        });
+    }
+
+    var months = [];
+    var curMonthIndex = 0;
+    var phoneIndex = -1;
+    var dateIndex = -1;
+    var durationIndex = -1;
+    var feeIndex = -1;
+    var callTypeIndex = -1;
+    var locationIndex = -1;
+    var commuTypeIndex = -1;
+
+    var details = [];
+    var datas = [];
+    var param = {};
+
+    var loginUser = {};
+
+    function loadXd() {
+
+        $.each($(".rq_list").find("li"), function () {
+            var month = {};
+            month["month"] = $(this).attr("data-month");
+            month["start"] = $(this).attr("data-start");
+            month["end"] = $(this).attr("data-end");
+            months.push(month);
+        });
+        console.log(JSON.stringify(months));
+        curMonthIndex = 0;
+
+        param = { "d.d01": "", "d.d02": "", "d.d03": "", "d.d04": "", "d.d05": "20", "d.d06": "1", "d.d07": "", "d.d08": "1" };
+        param["d.d06"] = 1;
+        param["d.d01"] = "call";
+        // param["d.d02"]=$(".rq_list_on").attr("data-month");
+        // param["d.d03"]=$(".rq_list_on").attr("data-start");
+        // param["d.d04"]=$(".rq_list_on").attr("data-end");
+        param["d.d02"] = months[curMonthIndex].month;
+        param["d.d03"] = months[curMonthIndex].start;
+        param["d.d04"] = months[curMonthIndex].end;
+        var SearchVerifyCode = $("#input_code").val().trim();
+        param["d.d07"] = SearchVerifyCode;
+
+        loadXdByMonth();
+    }
+
+    function loadXdByMonth() {
+        $.ajax({
+            url: "/J/J10009.j?a.c=0&a.u=user&a.p=pass&a.s=ECSS",
+            type: 'get',
+            dataType: "json",
+            data: param,
+            beforeSend: function beforeSend() {
+                console.log("beforeSend");
+                console.log(param);
+            },
+            success: function success(result) {
+                console.log(param);
+                console.log(result);
+                if (result && result.b && result.b.c === "00") {
+                    //查询成功
+                    switch (result.r.code) {
+                        case "000":
+                        case "009":
+                            result = result.r || result;
+                            var current_page = result.r06;
+                            var total_page = result.r05;
+                            current_page == 1 && $.each(result.r02, function (i) {
+                                if (this.indexOf("通话类型") != -1) {
+                                    commuTypeIndex = i;
+                                } else if (this.indexOf("号码") != -1) {
+                                    phoneIndex = i;
+                                } else if (this.indexOf("日期") != -1) {
+                                    dateIndex = i;
+                                } else if (this.indexOf("时长") != -1) {
+                                    durationIndex = i;
+                                } else if (this.indexOf("费用") != -1) {
+                                    feeIndex = i;
+                                } else if (this.indexOf("呼叫类型") != -1) {
+                                    callTypeIndex = i;
+                                } else if (this.indexOf("通话地") != -1) {
+                                    locationIndex = i;
+                                }
+                            });
+                            $.each(result.r03, function () {
+                                var data = {};
+                                $.each(this, function (i) {
+                                    var s = this + "";
+                                    if (i == commuTypeIndex) {
+                                        data["remoteType"] = s;
+                                    } else if (i == phoneIndex) {
+                                        data["otherNo"] = s;
+                                    } else if (i == dateIndex) {
+                                        data["callBeginTime"] = s;
+                                    } else if (i == durationIndex) {
+                                        data["callTime"] = s;
+                                    } else if (i == feeIndex) {
+                                        data["callFee"] = s;
+                                    } else if (i == callTypeIndex) {
+                                        data["callType"] = s;
+                                    } else if (i == locationIndex) {
+                                        data["callAddress"] = s;
+                                    }
+                                });
+                                datas.push(data);
+                            });
+
+                            if (total_page > current_page) {
+                                param["d.d06"] = parseInt(param["d.d06"]) + 1;
+                                session.setProgress(45 + 55 / months.length * (curMonthIndex + current_page / total_page));
+                                loadXdByMonth();
+                            } else {
+                                console.log("load success:" + months[curMonthIndex].month);
+                                var detail = {};
+                                detail["calldate"] = months[curMonthIndex].month;
+                                detail["cid"] = parseInt(new Date().getTime() / 1000).toString();
+                                detail["data"] = datas;
+                                detail["status"] = 4;
+                                details.push(detail);
+                                // console.log(JSON.stringify(datas)||'<tr><td class="empty">'+(result.msg||"暂无数据")+'</td></tr>');
+                                datas = [];
+                                if (curMonthIndex < months.length - 1) {
+                                    session.setProgress(45 + 55 * (curMonthIndex + 1) / months.length);
+                                    curMonthIndex++;
+                                    param["d.d02"] = months[curMonthIndex].month;
+                                    param["d.d03"] = months[curMonthIndex].start;
+                                    param["d.d04"] = months[curMonthIndex].end;
+                                    param["d.d06"] = 1;
+                                    console.log("curMonthIndex:" + curMonthIndex + "|" + months[curMonthIndex].month);
+                                    loadXdByMonth();
+                                } else {
+                                    console.log("details");
+                                    console.log(JSON.stringify(details));
+                                    setXd(details);
+                                }
+                            }
+                            break;
+                        case "001":
+                            //未登录
+                            sessionStorage.setItem("gd_TS_login_url", location.pathname);
+                            setTimeout(function () {
+                                location.href = "https://gd.189.cn/TS/login.htm?redir=" + encodeURIComponent(location.pathname + location.search);
+                            }, 1500);
+                        default:
+                            //其它
+                            console.log(result.r.msg);
+                            if (result.r.msg.indexOf("验证码") != -1) {
+                                alert(result.r.msg);
+                                showMask(true);
+                            } else {
+                                //                                alert(result.r.msg);
+                                //                                location.href="https://gd.189.cn/TS/login.htm?redir="+encodeURIComponent(location.pathname+location.search);
+                                setXd([]);
+                            }
+                    }
+                } else {
+                    alert("清单查询初始化，请重试！");
+                    console.log("load fail:" + months[curMonthIndex].month);
+                    var detail = {};
+                    detail["calldate"] = months[curMonthIndex].month;
+                    detail["cid"] = parseInt(new Date().getTime() / 1000).toString();
+                    detail["data"] = datas;
+                    if (datas.length > 0) {
+                        detail["status"] = 5;
+                    } else {
+                        detail["status"] = 2;
+                    }
+                    details.push(detail);
+                    // console.log(JSON.stringify(datas)||'<tr><td class="empty">'+(result.msg||"暂无数据")+'</td></tr>');
+                    datas = [];
+                    if (curMonthIndex < months.length - 1) {
+                        session.setProgress(45 + 55 * (curMonthIndex + 1) / months.length);
+                        curMonthIndex++;
+                        param["d.d02"] = months[curMonthIndex].month;
+                        param["d.d03"] = months[curMonthIndex].start;
+                        param["d.d04"] = months[curMonthIndex].end;
+                        param["d.d06"] = 1;
+                        console.log("curMonthIndex:" + curMonthIndex + "|" + months[curMonthIndex].month);
+                        loadXdByMonth();
+                    } else {
+                        console.log("details");
+                        console.log(JSON.stringify(details));
+                        setXd(details);
+                    }
+                }
+            },
+            error: function error(err, textStatus) {
+                console.log("ajax请求失败!readyState:" + err.readyState + ",textStatus:" + textStatus);
+                alert("清单查询初始化，请重试！");
+
+                console.log("load error:" + months[curMonthIndex].month);
+                var detail = {};
+                detail["calldate"] = months[curMonthIndex].month;
+                detail["cid"] = parseInt(new Date().getTime() / 1000).toString();
+                detail["data"] = datas;
+                if (datas.length > 0) {
+                    detail["status"] = 5;
+                } else {
+                    detail["status"] = 2;
+                }
+                details.push(detail);
+                // console.log(JSON.stringify(datas)||'<tr><td class="empty">'+(result.msg||"暂无数据")+'</td></tr>');
+                datas = [];
+                if (curMonthIndex < months.length - 1) {
+                    session.setProgress(45 + 55 * (curMonthIndex + 1) / months.length);
+                    curMonthIndex++;
+                    param["d.d02"] = months[curMonthIndex].month;
+                    param["d.d03"] = months[curMonthIndex].start;
+                    param["d.d04"] = months[curMonthIndex].end;
+                    param["d.d06"] = 1;
+                    console.log("curMonthIndex:" + curMonthIndex + "|" + months[curMonthIndex].month);
+                    loadXdByMonth();
+                } else {
+                    console.log("details");
+                    console.log(JSON.stringify(details));
+                    setXd(details);
+                }
+            },
+            complete: function complete() {
+                console.log("complete");
+            }
+        });
+    }
+
+    function setXd(xd) {
+        var thxd = session.get("thxd");
+        if (!thxd) {
+            thxd = {};
+        }
+        thxd["month_status"] = xd;
+        session.set("thxd", thxd);
+
+        session.setProgress(100);
+
+        log("爬取完毕----------" + JSON.stringify(thxd));
+        session.upload(JSON.stringify(thxd));
+        session.finish();
+    }
+
+    function getLoginUserType(callback) {
+        $.ajax({
+            url: "/J/J10036.j?a.c=0&a.u=user&a.p=pass&a.s=ECSS",
+            type: 'get',
+            dataType: "json",
+            data: {},
+            beforeSend: function beforeSend() {},
+            success: function success(result) {
+                if (result && result.b && result.b.c === "00") {
+                    //查询成功
+                    switch (result.r.code) {
+                        case "000":
+                            var r = result.r,
+                                _numStr;
+                            loginUser.account = r.r03 || r.r02; //当前号码
+                            loginUser.currNumBusiType = r.r05 || r.r04; //当前号码业务类型
+                            loginUser.payType = r.r07; //付费类型
+                            loginUser.latnId = r.r14; //区号
+                            session.setProgress(45);
+                            // callback();
+                            console.log(JSON.stringify(loginUser));
+                            // getSmsCode(loginUser.latnId,loginUser.account);
+                            //                            showMask(true);
+                            xdInit();
+                            break;
+                        case "001": //未登录
+                        default:
+                            //其它
+                            setXd([]);
+                            showErr(result.r.msg);
+                    }
+                } else {
+                    setXd([]);
+                    console.log("详单查询初始化失败，请重试！");
+                }
+            },
+            error: function error(err, textStatus) {
+                setXd([]);
+                console.log("ajax请求失败!readyState:" + err.readyState + ",textStatus:" + textStatus);
+            },
+            complete: function complete() {}
+        });
+    }
+
+    /**
+     * 获得短信验证码
+     * @param lantId
+     * @param phone
+     */
+    function getSmsCode() {
+        console.log("getSmsCode:" + loginUser.latnId + "|" + loginUser.account);
+        $.ajax({
+            url: "/J/J20009.j?a.c=0&a.u=user&a.p=pass&a.s=ECSS",
+            type: 'post',
+            dataType: "json",
+            data: { "d.d01": loginUser.latnId, "d.d02": loginUser.account, "d.d03": "CDMA" },
+            success: function success(result) {
+                if (result && result.b && result.b.c === "00") {
+                    //查询成功
+                    var r = result.r;
+                    if (r.code === "000") {
+                        settime();
+                        console.log("短信验证码已经发送，请查收！");
+                        alert("短信验证码已经发送，请查收！");
+                    } else {
+                        console.log(msg);
+                        alert(msg);
+                    }
+                } else {
+                    console.log("短信验证码已经发送失败，请重试！");
+                    alert("短信验证码已经发送失败，请重试！");
+                }
+            },
+            error: function error(err, textStatus) {
+                console.log("ajax请求失败!readyState:" + err.readyState + ",textStatus:" + textStatus);
+                alert("短信验证码已经发送失败，请重试！");
+            }
+        });
+    }
+
+    function showMask(isShow) {
+
+        if (!isShow) {
+            session.showProgress();
+        } else {
+            session.showProgress(false);
+        }
+
+        if (isShow) {
+            if ($('#maskDiv').length == 0) {
+                var maskDiv = $('<div id="maskDiv" style="opacity: 1;position: absolute;top: 0;left: 0;background-color: white;width: 100%;height: 100%;z-index: 10000"></div>'); //创建一个父div
+                $("body").append(maskDiv);
+                var button = $($('<li class="input-row" style="display:-webkit-box;display: -webkit-flex"><span class="lf" style="display: block;width: 90px;height: 50px;line-height: 50px;margin-left: 15px;text-align: left;color: #3c3c3c;font-size: 18px">验证码</span><div style="-webkit-box-flex: 1;-webkit-flex: 1;flex: 1;display: -webkit-box;display: -webkit-flex;height: 50px"><p style="-webkit-box-flex: 1;-webkit-flex: 1;flex: 1;display: -webkit-box;display: -webkit-flex;height: 50px;"><input id="inputSms" style="width: 100%;height: 50px;border: none;font-size: 18px" placeholder="验证码"></p><span id="sendSmsBtn" style="display: block;width: 100px;height: 30px;line-height: 30px;background: #fe6246;color:white;font-size: 14px;margin-top: 10px;margin-right: 15px;text-align: center;border-radius: 6px">发送验证码</span></div></li><li style="display:-webkit-box;display: -webkit-flex;margin-top: 20px;margin-left: 15px;margin-right: 15px"><div style="-webkit-box-flex: 1;-webkit-flex: 1;flex: 1;display: -webkit-box;display: -webkit-flex;height: 50px"><span id="certificateBtn" style="width:100%;height:50px;line-height:50px;background:#fe6246;font-size:20px;color:white;text-align: center;border-radius: 6px">确定</span></div></li>'));
+                $("#maskDiv").append(button);
+                $('#sendSmsBtn').click(getSmsCode);
+                $('#certificateBtn').click(certificateBtnAction);
+            } else {
+                $('#maskDiv').show();
+            }
+        } else {
+            if ($('#maskDiv').length != 0) {
+                $('#maskDiv').hide();
+            }
+        }
+    }
+
+    function certificateBtnAction() {
+        console.log('certificateBtnAction');
+
+        if (!/^\d{6}$/.test($('#inputSms').val())) {
+            alert('请输入6位短信验证码！');
+            return;
+        }
+
+        showMask(false);
+
+        $("#input_code").val($('#inputSms').val());
+
+        loadXd();
+        // verify_second_sms($('#inputSms').val());
+    }
+
+    window.countdown = 60;
+    function settime() {
+        console.log("time:" + window.countdown);
+        var obj = $('#sendSmsBtn')[0];
+        if (window.countdown == 0) {
+            obj.removeAttribute("disabled");
+            $('#sendSmsBtn').text("发送验证码");
+            window.countdown = 60;
+            return;
+        } else {
+            window.xd_pwd = $('#inputPwd').val();
+            obj.setAttribute("disabled", true);
+            $('#sendSmsBtn').text("重新发送(" + window.countdown + ")");
+            window.countdown--;
+        }
+        setTimeout(function () {
+            settime();
+        }, 1000);
+    }
+
+    function xdInit() {
+        $.ajax({
+            url: "/J/J10008.j?a.c=0&a.u=user&a.p=pass&a.s=ECSS",
+            type: 'get',
+            dataType: "json",
+            beforeSend: function beforeSend() {},
+            success: function success(result) {
+                if (result && result.b && result.b.c === "00") {
+                    //查询成功
+                    switch (result.r.code) {
+                        case "000":
+                            showMask(true);
+                            break;
+                        case "001": //未登录
+                        default:
+                            //其它
+                            if (confirm(result.r.msg)) {
+                                setXd([]);
+                            } else {
+                                setXd([]);
+                            }
+                        //                            location.href="https://gd.189.cn/TS/login.htm?";
+                    }
+                } else if (result && result.b && result.b.v && result.b.v == "999") {
+                    if (confirm(result.b.m)) {
+                        setXd([]);
+                    } else {
+                        setXd([]);
+                    }
+                    //                    location.href="https://gd.189.cn/TS/login.htm?";
+                } else {
+                    if (confirm("详单查询初始化失败，请重试！")) {
+                        setXd([]);
+                    } else {
+                        setXd([]);
+                    }
+                    //                    location.href="https://gd.189.cn/TS/login.htm?";
+                }
+            },
+            error: function error(err, textStatus) {
+                console.log("ajax请求失败!readyState:" + err.readyState + ",textStatus:" + textStatus);
+                if (confirm("详单查询初始化失败，请重试！")) {
+                    setXd([]);
+                } else {
+                    setXd([]);
+                }
+                //                location.href="https://gd.189.cn/TS/login.htm?";
+            },
+            complete: function complete() {}
+        });
+    }
+});
+},{}]},{},[1])
 //# sourceMappingURL=sources_maps/telecom_gd.js.map

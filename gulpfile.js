@@ -47,7 +47,7 @@ function js(type) {
 
 function hint(fileName) {
     gulp.task("hint:" + fileName, function () {
-        var stream = gulp.src("./spider/"+fileName+"*")
+        var stream = gulp.src("./spider/"+fileName+".js")
             .pipe(jshint())
             .pipe(jshint.reporter("jshint-stylish"))
             .pipe(babel({
