@@ -74,10 +74,10 @@ gulp hint:jd
 gulp 或 npm run build
 ```
 
-如果在构建之后进行压缩：
+如果要在构建之后进行压缩混淆：
 
 ```
 gulp js:r 或 npm run production
 ```
 
-构建后的代码会保存在spider-release目录下
+构建后的代码会保存在spider-release目录下。
