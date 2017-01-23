@@ -84,6 +84,9 @@ DataSession.prototype = {
     hideLoading: function () {
 
     },
+    setStartUrl:function(){
+       this.set('__loginUrl',location.href);
+    },
     finish: function (errmsg, content, code,stack) {
         var that=this;
         DataSession.getExtraData(function (d) {

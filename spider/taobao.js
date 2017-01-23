@@ -13,6 +13,10 @@ dSpider("taobao", 60*10 , function(session,env,$){
         location="https://h5.m.taobao.com/mlapp/mytaobao.html";
     }
 
+    if($("div.submit>button").text().indexOf("登 录") != -1){
+        session.setStartUrl();
+    }
+
     if (window.location.pathname.indexOf("mlapp/mytaobao") != -1) {
         //taobaoState    0:爬账单  1:爬地址   2:爬个人信息   3:结束
         var count = session.get("taobaoState");

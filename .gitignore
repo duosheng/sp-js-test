@@ -1,5 +1,7 @@
 /node_modules
 /vendor
 /.idea
+/spider/.DS_Store
 upload.py
+.DS_Store
 

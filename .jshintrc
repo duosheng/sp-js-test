@@ -1,0 +1,9 @@
+{
+  "undef": true,
+  "unused": true,
+  "globals": {
+    "dSpider": true,
+    "log":true,
+    "window":true
+  }
+}
