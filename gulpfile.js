@@ -6,7 +6,6 @@ var uglify = require('gulp-uglify');
 var sourcemaps = require('gulp-sourcemaps');
 var browserify = require('gulp-browserify');
 var jshint= require('gulp-jshint')
-var minimist = require('minimist');
 js()
 js(":r")
 gulp.task("default",["js"])
