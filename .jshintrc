@@ -10,6 +10,10 @@
     "alert":true,
     "confirm":true,
     "prompt":true,
-    "JSON":true
+    "JSON":true,
+    "setInterval":true,
+    "clearInterval":true,
+    "waitDomAvailable":true,
+    "setTimeout":true
   }
 }

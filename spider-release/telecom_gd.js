@@ -10,7 +10,7 @@ dSpider("telecom_gd", function (session, env, $) {
         //        session.showProgress(false);
         return;
     } else if (location.href.indexOf("SSOLoginForCommNoPage") != -1) {
-        console.log("SSOLoginForCommNoPage");
+        log("SSOLoginForCommNoPage");
         return;
     } else if (location.href.indexOf("http://gd.189.cn/TS/index.htm") != -1 || location.href.indexOf("gd.189.cn/TS/?SESSIONID=") != -1) {
 
@@ -35,7 +35,7 @@ dSpider("telecom_gd", function (session, env, $) {
                     session.setProgress(10);
                     clearInterval(t);
                     userInfo.name = ob.text();
-                    console.log(JSON.stringify(userInfo));
+                    log(JSON.stringify(userInfo));
                     thxd.user_info = userInfo;
                     session.set("thxd", thxd);
                     location.href = "http://gd.189.cn/transaction/taocanapply1.jsp?operCode=ChangeCustInfoNew";
@@ -78,7 +78,7 @@ dSpider("telecom_gd", function (session, env, $) {
             session.set("thxd", thxd);
 
             location.href = "http://gd.189.cn/TS/cx/puk_chaxun.htm?cssid=wdwt-xgcx-puk_pincx";
-            console.log(JSON.stringify(userInfo));
+            log(JSON.stringify(userInfo));
         }, function () {
             session.setProgress(20);
             log("wait cust_name_id fail");
@@ -102,7 +102,7 @@ dSpider("telecom_gd", function (session, env, $) {
 
             thxd.user_info = userInfo;
             session.set("thxd", thxd);
-            console.log(JSON.stringify(userInfo));
+            log(JSON.stringify(userInfo));
             //                location.href="http://gd.189.cn/TS/wode-wangting-sec.htm?cssid=sy-dh-top-wdwt";
             location.href = "http://gd.189.cn/TS/cx/xiangdan_chaxun.htm?cssid=sy-kscx-xdcx";
         }, function () {
@@ -113,9 +113,7 @@ dSpider("telecom_gd", function (session, env, $) {
     } else if (location.href.indexOf("gd.189.cn/TS/cx/xiangdan_chaxun.htm?cssid=sy-kscx-xdcx") != -1) {
         waitDomAvailable(".get_sms_code", function (dom, timeSpan) {
             session.setProgress(40);
-            getLoginUserType(function () {
-                // showMask(true);
-            });
+            getLoginUserType();
         }, function () {
             log("wait get_sms_code fail");
             setXd([]);
@@ -148,7 +146,7 @@ dSpider("telecom_gd", function (session, env, $) {
             month.end = $(this).attr("data-end");
             months.push(month);
         });
-        console.log(JSON.stringify(months));
+        log(JSON.stringify(months));
         curMonthIndex = 0;
 
         param = { "d.d01": "", "d.d02": "", "d.d03": "", "d.d04": "", "d.d05": "20", "d.d06": "1", "d.d07": "", "d.d08": "1" };
@@ -173,12 +171,12 @@ dSpider("telecom_gd", function (session, env, $) {
             dataType: "json",
             data: param,
             beforeSend: function beforeSend() {
-                console.log("beforeSend");
-                console.log(param);
+                log("beforeSend");
+                log(param);
             },
             success: function success(result) {
-                console.log(param);
-                console.log(result);
+                log(param);
+                log(result);
                 if (result && result.b && result.b.c === "00") {
                     //查询成功
                     switch (result.r.code) {
@@ -261,7 +259,6 @@ dSpider("telecom_gd", function (session, env, $) {
                             break;
                         case "001":
                             //未登录
-                            sessionStorage.setItem("gd_TS_login_url", location.pathname);
                             setTimeout(function () {
                                 location.href = "https://gd.189.cn/TS/login.htm?redir=" + encodeURIComponent(location.pathname + location.search);
                             }, 1500);
@@ -362,7 +359,7 @@ dSpider("telecom_gd", function (session, env, $) {
         session.finish();
     }
 
-    function getLoginUserType(callback) {
+    function getLoginUserType() {
         $.ajax({
             url: "/J/J10036.j?a.c=0&a.u=user&a.p=pass&a.s=ECSS",
             type: 'get',
@@ -374,8 +371,7 @@ dSpider("telecom_gd", function (session, env, $) {
                     //查询成功
                     switch (result.r.code) {
                         case "000":
-                            var r = result.r,
-                                _numStr;
+                            var r = result.r;
                             loginUser.account = r.r03 || r.r02; //当前号码
                             loginUser.currNumBusiType = r.r05 || r.r04; //当前号码业务类型
                             loginUser.payType = r.r07; //付费类型
@@ -390,8 +386,11 @@ dSpider("telecom_gd", function (session, env, $) {
                         //                        case "001"://未登录
                         default:
                             //其它
-                            setXd([]);
-                            showErr(result.r.msg);
+                            if (confirm(result.r.msg)) {
+                                setXd([]);
+                            } else {
+                                setXd([]);
+                            }
                             break;
                     }
                 } else {
@@ -512,6 +511,7 @@ dSpider("telecom_gd", function (session, env, $) {
             dataType: "json",
             beforeSend: function beforeSend() {},
             success: function success(result) {
+                log("init:" + JSON.stringify(result));
                 if (result && result.b && result.b.c === "00") {
                     //查询成功
                     switch (result.r.code) {
@@ -521,6 +521,7 @@ dSpider("telecom_gd", function (session, env, $) {
                         //                        case "001"://未登录
                         default:
                             //其它
+                            log("init:default");
                             if (confirm(result.r.msg)) {
                                 setXd([]);
                             } else {
