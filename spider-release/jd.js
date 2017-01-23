@@ -181,7 +181,7 @@ dSpider("jd", function (session, env, $) {
     function logout() {
 
         //alert("爬取订单总计:" + session.get(infokey).order_info.order_detail.length);
-        location.href = "https://passport.m.jd.com/user/logout.action?sid=" + session.get("sid");
+        //location.href = "https://passport.m.jd.com/user/logout.action?sid="+session.get("sid");
         session.setProgress(100);
         session.upload(session.get(infokey));
         session.finish();
