@@ -10,13 +10,13 @@ dSpider("jd", function(session,env,$){
 
     sid = session.get("sid");
 
-    if (location.href.indexOf("://m.jd.com") != -1 ) {
+    if (location.href.indexOf("://m.jd.com") !== -1 ) {
         session.showProgress(true);
         session.setProgressMax(100);
         session.autoLoadImg(false);
         session.setProgress(5);
 
-        if($(".jd-search-form-input")[0] != undefined){
+        if($(".jd-search-form-input")[0] !== undefined){
             sid  = $(".jd-search-form-input")[0].children[0].value;
             session.set("sid",  sid);
          }
@@ -39,7 +39,7 @@ dSpider("jd", function(session,env,$){
         var urlarray = $(".ia-r");
         for(var i=0;i<urlarray.length;i++){
                                     taskAddr.push($.get(urlarray[i],function(response,status){
-                                    var node = $("<div>").append($(response))
+                                    var node = $("<div>").append($(response));
                                     var name = $.trim(node.find("#uersNameId")[0].value);
                                     var phone = $.trim(node.find("#mobilePhoneId")[0].value);
                                     var addr = $.trim(node.find("#addressLabelId")[0].innerHTML);
@@ -73,7 +73,7 @@ dSpider("jd", function(session,env,$){
         function getPageOrder(page){
            $.getJSON("https://home.m.jd.com//newAllOrders/newAllOrders.json?sid="+sid+"&page="+page,function(d){
                page++;
-               if( globalInfo.order_info.order_detail.length <=  max_order_num && d.orderList.length!=0 && (orders.order_detail.length == 0 || d.orderList[d.orderList.length-1].orderId != orders.order_detail[orders.order_detail.length-1].orderId) ){
+               if( globalInfo.order_info.order_detail.length <=  max_order_num && d.orderList.length!==0 && (orders.order_detail.length === 0 || d.orderList[d.orderList.length-1].orderId !== orders.order_detail[orders.order_detail.length-1].orderId) ){
                    orders.order_detail = orders.order_detail.concat(d.orderList);
                    var task = [];
                    var tempOrder = [];
@@ -156,27 +156,27 @@ dSpider("jd", function(session,env,$){
             var value1 = (new Date(a.time.split(" ")[0])).getTime();
             var value2 = (new Date(b.time.split(" ")[0])).getTime();
             return value2 - value1;
-    }
+    };
     }
 
     function getUserInfo(){
            location.href = "http://home.m.jd.com/user/accountCenter.action";
     }
-    if (location.href.indexOf("://home.m.jd.com/user/accountCenter.action") != -1 && location.href.indexOf("loginpage") == -1) {
+    if (location.href.indexOf("://home.m.jd.com/user/accountCenter.action") !== -1 && location.href.indexOf("loginpage") == -1) {
         session.setProgress(70);
-        if($('#shimingrenzheng')[0] != undefined){
+        if($('#shimingrenzheng')[0] !== undefined){
            $('#shimingrenzheng')[0].click();
         }
     }
 
     //已实名用户
-    if (location.href.indexOf("msc.jd.com/auth/loginpage/wcoo/toAuthInfoPage") != -1) {
+    if (location.href.indexOf("msc.jd.com/auth/loginpage/wcoo/toAuthInfoPage") !== -1) {
         session.setProgress(90);
         globalInfo = session.get(infokey);
-        if( $(".pos-ab")[0] != undefined){
+        if( $(".pos-ab")[0] !== undefined){
             globalInfo.base_info.name  = $(".pos-ab")[0].innerHTML;
         }
-        if($(".pos-ab")[1] != undefined){
+        if($(".pos-ab")[1] !== undefined){
             globalInfo.base_info.idcard_no  = $(".pos-ab")[1].innerHTML;
         }
         saveInfo();
@@ -188,7 +188,7 @@ dSpider("jd", function(session,env,$){
     function logout(){
 
         //alert("爬取订单总计:" + session.get(infokey).order_info.order_detail.length);
-        location.href = "https://passport.m.jd.com/user/logout.action?sid="+session.get("sid");
+        //location.href = "https://passport.m.jd.com/user/logout.action?sid="+session.get("sid");
         session.setProgress(100);
         session.upload(session.get(infokey));
         session.finish();
@@ -197,16 +197,16 @@ dSpider("jd", function(session,env,$){
     if (location.href.indexOf("msc.jd.com/auth/loginpage/wcoo/toAuthPage") != -1 ) {
         session.setProgress(90);
         globalInfo = session.get(infokey);
-        if($("#username")[0] !=undefined){
+        if($("#username")[0] !==undefined){
             globalInfo.base_info.name  = $("#username")[0].innerHTML;
         }
-        if($(".info-user-name")[0] !=undefined){
+        if($(".info-user-name")[0] !==undefined){
                     globalInfo.base_info.name  = $(".info-user-name")[0].innerHTML;
         }
-        if($("#idcard")[0] !=undefined){
+        if($("#idcard")[0] !==undefined){
             globalInfo.base_info.idcard_no  = $("#idcard")[0].innerHTML;
         }
-        if($(".pos-ab[data-cardno]") !=undefined){
+        if($(".pos-ab[data-cardno]") !==undefined){
                     globalInfo.base_info.idcard_no  = $(".pos-ab[data-cardno]").attr("data-cardno");
         }
 
@@ -281,4 +281,4 @@ dSpider("jd", function(session,env,$){
 
 
 //end
-})
+});
