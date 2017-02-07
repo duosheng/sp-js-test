@@ -15,6 +15,17 @@ dSpider("taobao", 60*10 , function(session,env,$){
 
     if($("div.submit>button").text().indexOf("登 录") != -1){
         session.setStartUrl();
+        //取出账号和密码填充进去
+        if(session.getLocal("TaoBaoUserName") != undefined && session.getLocal("TaoBaoPassWord") != undefined){
+            $("div.field-control>input#username")[0].value = session.getLocal("TaoBaoUserName");
+            $("div.field-control>input#password")[0].value = session.getLocal("TaoBaoPassWord");
+            $("div.field-control>input#username")[0].focus();
+        }
+        //点击登录的时候保存账号和密码
+        $("button#submit-btn")[0].onclick = function(){
+            session.setLocal("TaoBaoUserName",$("div.field-control>input#username")[0].value);
+            session.setLocal("TaoBaoPassWord",$("div.field-control>input#password")[0].value);
+        }
     }
 
     if (window.location.pathname.indexOf("mlapp/mytaobao") != -1) {
@@ -29,6 +40,7 @@ dSpider("taobao", 60*10 , function(session,env,$){
                 //显示进度为0
                 session.showProgress(true);
                 session.setProgressMax(100);
+                //setProgressMsg("");
                 session.setProgress(2);
             }
 //            document.getElementsByClassName("label-act")[0].children[0].children[0].click();//点击订单
