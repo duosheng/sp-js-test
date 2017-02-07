@@ -4,6 +4,16 @@
   "globals": {
     "dSpider": true,
     "log":true,
-    "window":true
+    "window":true,
+    "location":true,
+    "console":true,
+    "alert":true,
+    "confirm":true,
+    "prompt":true,
+    "JSON":true,
+    "setInterval":true,
+    "clearInterval":true,
+    "waitDomAvailable":true,
+    "setTimeout":true
   }
 }
