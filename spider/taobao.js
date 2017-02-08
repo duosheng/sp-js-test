@@ -1,8 +1,8 @@
 
 dSpider("taobao", 60*10 , function(session,env,$){
     //禁止加载图片
-    session.autoLoadImg(false)
-    log(location.href)
+    session.autoLoadImg(false);
+    log(location.href);
     alert = function(){};
     //遇到错误页面继续爬取未完成的模块
     if(location.pathname.indexOf("mtb/mtb.htm")!=-1){
@@ -15,6 +15,17 @@ dSpider("taobao", 60*10 , function(session,env,$){
 
     if($("div.submit>button").text().indexOf("登 录") != -1){
         session.setStartUrl();
+        //取出账号和密码填充进去
+        if(session.getLocal("TaoBaoUserName") != undefined && session.getLocal("TaoBaoPassWord") != undefined){
+            $("div.field-control>input#username")[0].value = session.getLocal("TaoBaoUserName");
+            $("div.field-control>input#password")[0].value = session.getLocal("TaoBaoPassWord");
+            $("div.field-control>input#username")[0].focus();
+        }
+        //点击登录的时候保存账号和密码
+        $("button#submit-btn")[0].onclick = function(){
+            session.setLocal("TaoBaoUserName",$("div.field-control>input#username")[0].value);
+            session.setLocal("TaoBaoPassWord",$("div.field-control>input#password")[0].value);
+        }
     }
 
     if (window.location.pathname.indexOf("mlapp/mytaobao") != -1) {
@@ -29,6 +40,7 @@ dSpider("taobao", 60*10 , function(session,env,$){
                 //显示进度为0
                 session.showProgress(true);
                 session.setProgressMax(100);
+                //setProgressMsg("");
                 session.setProgress(2);
             }
 //            document.getElementsByClassName("label-act")[0].children[0].children[0].click();//点击订单
@@ -68,7 +80,7 @@ dSpider("taobao", 60*10 , function(session,env,$){
                             for(var tol = 0 ; tol < tempOllLength ; tol ++){
                                 orderListArray[tol] = ($($(".order-list>li")[tol]).children().eq(0)).attr("class").toString().split(" ")[1].substring(0,16);
                             }
-                            session.set("orderIdList",orderListArray)//保存订单的id
+                            session.set("orderIdList",orderListArray);//保存订单的id
                             log("加载完成");
                             clearInterval(myInterval);
                             //进入订单
@@ -127,7 +139,7 @@ dSpider("taobao", 60*10 , function(session,env,$){
                         //拿到position后开始爬取
                         var oip = session.get("OrderItemPosition");
                         session.set("OrderItemPosition",oip+1);
-                        location = "https://h5.m.taobao.com/mlapp/olist.html"
+                        location = "https://h5.m.taobao.com/mlapp/olist.html";
                     }
             }
             //特殊订单的处理----------------------保险
@@ -166,7 +178,7 @@ dSpider("taobao", 60*10 , function(session,env,$){
                         //更新position
                         session.set("OrderItemPosition",tempOipn+1);
                         //跳转到列表页
-                        location = "https://h5.m.taobao.com/mlapp/olist.html"
+                        location = "https://h5.m.taobao.com/mlapp/olist.html";
                         log("--------------------------爬取保险end----------------------------");
                     }
                     setTimeout(getBxOrderDetail,100);
@@ -207,18 +219,18 @@ dSpider("taobao", 60*10 , function(session,env,$){
                         //更新position
                         session.set("OrderItemPosition",tempOipn+1);
                         //跳转到列表页
-                        location = "https://h5.m.taobao.com/mlapp/olist.html"
+                        location = "https://h5.m.taobao.com/mlapp/olist.html";
                         log("--------------------------爬取飞机票end----------------------------");
                     }
                     setTimeout(getFJPOrderDetail,100);
                 }
             }
             //-----------------------------------------位置类型订单的处理
-            if (window.location.pathname.indexOf("mlapp/olist") == -1//当前页面不是订单列表
-                &&window.location.pathname.indexOf("mymovie/pages") == -1//当前页面不是电影票订单
-                &&window.location.pathname.indexOf("bx/orderdetail") == -1//当前页面不是保险订单
-                &&window.location.pathname.indexOf("trip/flight") == -1//当前页面不是飞机票订单
-                &&window.location.pathname.indexOf("mlapp/odetail") == -1//当前页面不是淘宝订单
+            if (window.location.pathname.indexOf("mlapp/olist") == -1&&//当前页面不是订单列表
+                window.location.pathname.indexOf("mymovie/pages") == -1&&//当前页面不是电影票订单
+                window.location.pathname.indexOf("bx/orderdetail") == -1&&//当前页面不是保险订单
+                window.location.pathname.indexOf("trip/flight") == -1&&//当前页面不是飞机票订单
+                window.location.pathname.indexOf("mlapp/odetail") == -1//当前页面不是淘宝订单
                 ) {
                     var oa = session.get("orderArray");
                     if(oa == undefined){
@@ -230,7 +242,7 @@ dSpider("taobao", 60*10 , function(session,env,$){
                         //拿到position后开始爬取
                         var oip = session.get("OrderItemPosition");
                         session.set("OrderItemPosition",oip+1);
-                        location = "https://h5.m.taobao.com/mlapp/olist.html"
+                        location = "https://h5.m.taobao.com/mlapp/olist.html";
                     }
             }
 
@@ -243,8 +255,6 @@ dSpider("taobao", 60*10 , function(session,env,$){
                 function getOrderDetail() {
                     //当前订单需要爬取的数据的对象
                     var tbOrderDetailInfo = {};
-                    //存放多个商品的数组
-                    var totalProductArray = [];
                     //创建订单详情的列表
                     var orderInfoList = [];
                     //拿到页面列表中所有的div
@@ -315,7 +325,7 @@ dSpider("taobao", 60*10 , function(session,env,$){
                                                             //商品数量
                                                             var productNumber = $(priceInfoArray[pia]).text();
                                                             if (productNumber.indexOf("x") != -1) {
-                                                                productNumber = productNumber.substring(productNumber.indexOf("x") + 1, productNumber.length)
+                                                                productNumber = productNumber.substring(productNumber.indexOf("x") + 1, productNumber.length);
                                                             }
                                                             myProductInfo.number = productNumber;
                                                         }
@@ -337,7 +347,7 @@ dSpider("taobao", 60*10 , function(session,env,$){
                                     if ($(cc[cci]).text().indexOf("实付款") != -1) {
                                         var totalPrice = $(cc[cci + 1]).text();
                                         if (totalPrice.indexOf("￥") != -1) {
-                                            totalPrice = totalPrice.substring(totalPrice.indexOf("￥") + 1, totalPrice.length)
+                                            totalPrice = totalPrice.substring(totalPrice.indexOf("￥") + 1, totalPrice.length);
                                         }
                                         tbOrderDetailInfo.total = totalPrice;
                                         tbOrderDetailInfo.products = [];
@@ -349,17 +359,15 @@ dSpider("taobao", 60*10 , function(session,env,$){
                                                 myproducts.number = orderInfoList[oil].number;
                                                 tbOrderDetailInfo.products.push(myproducts);
                                             }
-                                            totalProductArray.push(tbOrderDetailInfo);
                                         } else if (orderInfoList.length == 1) {//此订单中只有一个商品
                                             var myproducts = {};
                                             myproducts.name = orderInfoList[0].name;
                                             myproducts.price = orderInfoList[0].price;
                                             myproducts.number = orderInfoList[0].number;
                                             tbOrderDetailInfo.products.push(myproducts);
-                                            totalProductArray.push(tbOrderDetailInfo);
                                         }
                                         //存放数据
-                                        currentOrderData.push(totalProductArray);
+                                        currentOrderData.push(tbOrderDetailInfo);
                                         //保存数据
                                         session.set("orderArray",currentOrderData);
                                         //更新position
@@ -403,7 +411,7 @@ dSpider("taobao", 60*10 , function(session,env,$){
                 }
                 function closeOrderDetail(){
 //                    $("div.back").click();//订单详情页的返回
-                    location = "https://h5.m.taobao.com/mlapp/olist.html"
+                    location = "https://h5.m.taobao.com/mlapp/olist.html";
                 }
             }
         }
@@ -451,7 +459,7 @@ dSpider("taobao", 60*10 , function(session,env,$){
                             session.set("taobaoState",2);
                             session.setProgress(85);
                             //爬取个人信息
-                            location.href = "https://i.taobao.com/user/baseInfoSet.htm"
+                            location.href = "https://i.taobao.com/user/baseInfoSet.htm";
                         }
                     }else {
                         //dQuery("tbody>tr>td").map(function(){return dQuery(this).find("a")[0] }) 找出当前元素中的第一个子元素a
@@ -470,7 +478,7 @@ dSpider("taobao", 60*10 , function(session,env,$){
                         location.href = modifyUrlArray[0];
                     }
                 }else{
-                    location.href="https://member1.taobao.com/member/fresh/deliver_address.htm"
+                    location.href="https://member1.taobao.com/member/fresh/deliver_address.htm";
                 }
             }
         }
@@ -567,4 +575,4 @@ dSpider("taobao", 60*10 , function(session,env,$){
         session.upload(data);
         session.finish();
     }
-})
+});
