@@ -623,4 +623,3 @@ dSpider("taobao", 60 * 10, function (session, env, $) {
     }
 });
 },{}]},{},[1])
-//# sourceMappingURL=sources_maps/taobao.js.map

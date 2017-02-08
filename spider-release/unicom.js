@@ -44,12 +44,12 @@ dSpider("unicom", 60 * 5, function (session, env, $) {
                 $('#pageNew').html(msg);
                 //保存数据
                 var data = session.get("curMonthData");
-                data["totalCount"] = totalrow;
+                data["totalCount"] = window.totalrow;
                 data["status"] = 4;
                 session.set("curMonthData", data);
 
                 //是否需要加载更多
-                if (endrow < totalrow) {
+                if (window.endrow < window.totalrow) {
                     loadMore();
                 } else {
                     var thxd = session.get("thxd");
@@ -88,15 +88,15 @@ dSpider("unicom", 60 * 5, function (session, env, $) {
     function loadMore() {
         log("加载更多...");
         var _this = $(this);
-        var beginrow = endrow;
-        endrow = beginrow + perrow;
-        if (endrow > totalrow) {
-            endrow = totalrow;
+        var beginrow = window.endrow;
+        window.endrow = window.beginrow + window.perrow;
+        if (window.endrow > window.totalrow) {
+            window.endrow = window.totalrow;
         }
         _this.html('<img src="http://img.client.10010.com/mobileService/view/client/images/loading.gif" width="16">');
-        var href = '/mobileService/view/client/query/xdcx/thxd_more_list.jsp?1=1&t=' + getrandom();
-        var params = '&beginrow=' + beginrow + '&endrow=' + endrow + '&pagenum=' + (pagenum + 1);
-        $('.moredetail' + pagenum).load(href + params, function (msg) {
+        var href = '/mobileService/view/client/query/xdcx/thxd_more_list.jsp?1=1&t=' + window.getrandom();
+        var params = '&beginrow=' + beginrow + '&endrow=' + window.endrow + '&pagenum=' + (window.pagenum + 1);
+        $('.moredetail' + window.pagenum).load(href + params, function (msg) {
             parseThxd(msg);
             var thxd = session.get("thxd");
             if (!thxd) {
@@ -215,4 +215,3 @@ dSpider("unicom", 60 * 5, function (session, env, $) {
     }
 });
 },{}]},{},[1])
-//# sourceMappingURL=sources_maps/unicom.js.map

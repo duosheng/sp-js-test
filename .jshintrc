@@ -3,6 +3,17 @@
   "unused": true,
   "globals": {
     "dSpider": true,
-    "log":true
+    "log":true,
+    "window":true,
+    "location":true,
+    "console":true,
+    "alert":true,
+    "confirm":true,
+    "prompt":true,
+    "JSON":true,
+    "setInterval":true,
+    "clearInterval":true,
+    "waitDomAvailable":true,
+    "setTimeout":true
   }
 }
