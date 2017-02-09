@@ -408,9 +408,9 @@ dSpider("mobile",function(session,env,$) {
         inputPwd.css({
                      'position': 'absolute',
                      'left': titleRightFloat + 'rem',
-                     'top': '0rem',
-                     'height': '.5rem',
-                     'line-height':'.5rem',
+                     'top': '.1rem',
+                     'height': '.3rem',
+                     'line-height':'.3rem',
                      'width': webViewWidthFloat - titleRightFloat - leftGapFloat + 'rem',
                      'font-size': '.15rem',
                      'background-color': 'white',
@@ -441,9 +441,9 @@ dSpider("mobile",function(session,env,$) {
         inputSms.css({
                      'position': 'absolute',
                      'left': titleRightFloat + 'rem',
-                     'top': '.51rem',
-                     'height': '.49rem',
-                     'line-height':'.49rem',
+                     'top': '.61rem',
+                     'height': '.29rem',
+                     'line-height':'.29rem',
                      'width': inputSmsWidth + 'rem',
                      'font-size': '.15rem',
                      'background-color': 'white',
@@ -454,19 +454,39 @@ dSpider("mobile",function(session,env,$) {
         //发送短信
         var smssendwidthFloat = 194. / 750. * webViewWidthFloat;
         var smssendwidth = smssendwidthFloat + 'rem';
-        var input = $('<input type="button" id="sendSmsBtn" value="获取短信"/>');
+        var input = $('<input type="button" id="sendSmsBtn" value="获取验证码"/>');
         input.click(settime);
-        input.css({
-                  'position': 'absolute',
-                  'border-radius':'0.025rem',
-                  'left': webViewWidthFloat - leftGapFloat - smssendwidthFloat + 'rem',
-                  'top': ((.50 - .28) / 2 + .5) + 'rem',
-                  'height': '.28rem',
-                  'width': smssendwidth,
-                  'font-size': '.13rem',
-                  'color': 'white',
-                  'background-color':"#bcc0c9",
-                  });
+        var cssEnable = {
+        'position': 'absolute',
+        'border-radius':'0.025rem',
+        'border-style':'solid',
+        'border-color':'#5a7bd0',
+        'border-width':'0.01rem',
+        'left': webViewWidthFloat - leftGapFloat - smssendwidthFloat + 'rem',
+        'top': ((.50 - .28) / 2 + .5) + 'rem',
+        'height': '.28rem',
+        'width': smssendwidth,
+        'font-size': '.13rem',
+        'background-color':"white",
+        'color': '#5a7bd0',
+        };
+        
+        var cssDisable = {
+        'position': 'absolute',
+        'border-radius':'0.025rem',
+        'border-style':'none',
+        'left': webViewWidthFloat - leftGapFloat - smssendwidthFloat + 'rem',
+        'top': ((.50 - .28) / 2 + .5) + 'rem',
+        'height': '.28rem',
+        'width': smssendwidth,
+        'font-size': '.13rem',
+        'background-color':"#bcc0c9",
+        'color': 'white',
+        };
+        
+        input[0].cssEnable = cssEnable;
+        input[0].cssDisable = cssDisable;
+        input.css(cssEnable);
         cellBackgroundDiv.append(input);
         
         //错误提示
@@ -542,15 +562,19 @@ dSpider("mobile",function(session,env,$) {
         function settime() {
         
         var obj = $('#sendSmsBtn')[0];
+        if (window.countdown == 60) {
+        $('#sendSmsBtn').css(obj.cssDisable);
+        }
         if (window.countdown == 0) {
         obj.removeAttribute("disabled");
+        $('#sendSmsBtn').css(obj.cssEnable);
         obj.value = "获取短信验证码";
         window.countdown = 60;
         return;
         } else {
         window.xd_pwd = $('#inputPwd').val();
         obj.setAttribute("disabled", true);
-        obj.value = "重新发送(" + window.countdown + ")";
+        obj.value = "重新发送(" + window.countdown + "s)";
         window.countdown--;
         }
         setTimeout(function () {
