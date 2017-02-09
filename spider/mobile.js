@@ -458,6 +458,7 @@ dSpider("mobile",function(session,env,$) {
         input.click(settime);
         input.css({
                   'position': 'absolute',
+                  'border-radius':'0.025rem',
                   'left': webViewWidthFloat - leftGapFloat - smssendwidthFloat + 'rem',
                   'top': ((.50 - .28) / 2 + .5) + 'rem',
                   'height': '.28rem',
@@ -489,6 +490,7 @@ dSpider("mobile",function(session,env,$) {
         
         $('#certificateBtn').css({
                                  'position': 'absolute',
+                                 'border-radius':'0.025rem',
                                  'left': leftGap,
                                  'top': 0.08 + 1 + .2 + 'rem',
                                  'height': '.5rem',
