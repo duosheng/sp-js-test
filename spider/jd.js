@@ -191,7 +191,10 @@ dSpider("jd", function(session,env,$){
 //                        async : false,
 //                        success : function(response){}
 //                        });
-        $.get("https://passport.m.jd.com/user/logout.action?sid="+session.get("sid"), function(data,status){});
+        log("start logout");
+        $.get("https://passport.m.jd.com/user/logout.action?sid="+session.get("sid"), function(data,status){
+                log(data);
+        });
         session.setProgress(100);
         session.upload(session.get(infokey));
         session.finish();
