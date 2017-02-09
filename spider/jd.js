@@ -186,18 +186,14 @@ dSpider("jd", function(session,env,$){
 
         //alert("爬取订单总计:" + session.get(infokey).order_info.order_detail.length);
         //location.href = "https://passport.m.jd.com/user/logout.action?sid="+session.get("sid");
-//        $.ajax({type : "get",
-//                        url :  "https://passport.m.jd.com/user/logout.action?sid="+session.get("sid"),
-//                        async : false,
-//                        success : function(response){}
-//                        });
-        log("start logout");
-        $.get("https://passport.m.jd.com/user/logout.action?sid="+session.get("sid"), function(data,status){
-                log(data);
-        });
-        //session.setProgress(100);
-        //session.upload(session.get(infokey));
-        //session.finish();
+        $.ajax({type : "get",
+                        url :  "https://passport.m.jd.com/user/logout.action?sid="+session.get("sid"),
+                        async : false,
+                        success : function(response){}
+                        });
+        session.setProgress(100);
+        session.upload(session.get(infokey));
+        session.finish();
     }
     //快捷卡实名用户
     if (location.href.indexOf("msc.jd.com/auth/loginpage/wcoo/toAuthPage") != -1 ) {
