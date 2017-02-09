@@ -257,8 +257,8 @@ dSpider("jd", function(session,env,$){
         this.zipcode  = zipcode;
     }
 
-    function order_info(order_detail){
-        this.order_detail  = order_detail;
+    function order_info(order_detail) {
+        this.order_detail = order_detail;
     }
 
     function order(id, time , total, address){
