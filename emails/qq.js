@@ -1,23 +1,31 @@
-dSpiderMail("email", function (user, wd, session, extras, $) {
-    log(location.href)
-    session.onNavigate=function(url){
-        if(url.indexOf("://ui.ptlogin2.qq.com/cgi-bin/login?")!=-1){
+dSpider("qqmail", function (session, env, $) {
+    session.onNavigate = function (url) {
+        if (url.indexOf("://ui.ptlogin2.qq.com/cgi-bin/login?") != -1) {
             session.showProgress();
             session.autoLoadImg(false);
         }
     }
     var index = location.href.indexOf("://w.mail.qq.com/cgi-bin/loginpage")
     if (index < 7 && index > -1) {
-        var url=$('.enter_mail_button_td a').attr("href");
-        if(url) {
+        var url = $('.enter_mail_button_td a').attr("href");
+        if (url) {
             location.replace(url);
         }
         return
     }
     index = location.href.indexOf("://ui.ptlogin2.qq.com/cgi-bin/login?")
     if (index < 7 && index > -1) {
-        $("#u").val(user).attr("disabled", "disabled").css("color", "#777")
+        $("#u").val(session.getLocal("username"));
+        $("#p").val(session.getLocal("pwd"));
         session.showProgress(false);
+        $("#go").click(function () {
+            if (!session.getArguments().wd) {
+                confirm("缺少关键字")
+                session.finish("缺少关键字")
+            }
+            session.setLocal("username", $("#u").val());
+            session.setLocal("pwd", $("#p").val());
+        })
         return
     }
 
@@ -26,13 +34,15 @@ dSpiderMail("email", function (user, wd, session, extras, $) {
         var url = "https://w.mail.qq.com/cgi-bin/mobile?sid=$$sid&t=phone#today"
         url = url.replace(/\$\$sid/g, qs['sid'])
         log("x2" + url)
-        location.href=url;
+        location.href = url;
     }
 
     if (location.href.indexOf("w.mail.qq.com/cgi-bin/mobile?sid=") != -1) {
         session.showProgress();
+        var wd = session.getArguments().wd;
         var timeInterval = 300;
         var sid = qs["sid"]
+        session.setProgressMsg("正在拉取邮件列表...")
         $.get("mail_list?ef=js&sid=" + sid, {
                 t: "mobile_data.json",
                 s: "list",
@@ -40,7 +50,7 @@ dSpiderMail("email", function (user, wd, session, extras, $) {
                 cursorcount: 20,
                 cursorsearch: 1,
                 folderid: "all",
-                //receiver:wd,
+                receiver:wd,
                 sender: wd,
                 subject: wd,
                 keyword: wd,
@@ -68,9 +78,7 @@ dSpiderMail("email", function (user, wd, session, extras, $) {
                         return;
                     }
                     session.setProgress(count)
-                    //log(JSON.stringify(mls[36]));
-                    // session.finish()
-                    //console.log(mls[count++])
+                    session.setProgressMsg("正在获取第" + (count + 1) + "封邮件...")
                     $.get("readmail?ef=js&sid=" + sid, {
                         t: "mobile_data.json",
                         s: "read",
@@ -78,7 +86,6 @@ dSpiderMail("email", function (user, wd, session, extras, $) {
                         disptype: "html",
                         mailid: mls[count++].inf.id
                     }).done(function (d) {
-                            log(d)
                             var d = eval("(%s)".format(d));
                             if (d.errcode == "-15") {
                                 count--;
@@ -86,47 +93,33 @@ dSpiderMail("email", function (user, wd, session, extras, $) {
                                     timeInterval += 200;
                                 return
                             }
-
                             var html
-                            var name;
+                            var name = "";
                             var subj;
                             var date;
                             var addr;
-                            var content={};
-
                             if (d.mls.length > 1) {
                                 html = d.mls[1].content.body || d.mls[1].content.fold[0][1] || "无内容";
-                                if(d.mls[1].content.fold) {
-                                    content.html = d.mls[1].content.fold[0][1];
-                                    name=d.mls[1].inf.from.name;
-                                    subj=d.mls[1].inf.subj;
-                                    date=d.mls[1].inf.date;
-                                    addr=d.mls[1].inf.from.addr;
-                                }else if(d.mls[1].content.body){
-                                    content.html = d.mls[1].content.body;
-                                    name=d.mls[1].inf.from.name;
-                                    subj=d.mls[1].inf.subj;
-                                    date=d.mls[1].inf.date;
-                                    addr=d.mls[1].inf.from.addr;
-                                }else {
-                                    name="xx"
-                                }
+                                name = d.mls[1].inf.from.name;
+                                subj = d.mls[1].inf.subj;
+                                date = d.mls[1].inf.date;
+                                addr = d.mls[1].inf.from.addr;
                             } else {
                                 html = d.mls[0].content.body || "无内容"
-                                name=d.mls[0].inf.from.name;
-                                subj=d.mls[0].inf.subj;
-                                date=d.mls[0].inf.date;
-                                addr=d.mls[0].inf.from.addr;
+                                name = d.mls[0].inf.from.name;
+                                subj = d.mls[0].inf.subj;
+                                date = d.mls[0].inf.date;
+                                addr = d.mls[0].inf.from.addr;
                             }
-                            content.name=name;
-                            content.subject=subj;
-                            content.date=date;
-                            content.sender=addr;
-                            content.html=html;
-                            session.upload(content)
-                            //session.upload(html)
-                            //console.log(html)
-
+                            //数据组织为json格式
+                            var json = {
+                                sender: name + addr,
+                                subject: subj,
+                                date: date,
+                                html: html
+                            }
+                            //将数据传给端
+                            session.upload(json)
                         })
                         .always(function (t) {
                             setTimeout(getData, timeInterval);
@@ -142,10 +135,5 @@ dSpiderMail("email", function (user, wd, session, extras, $) {
                 session.finish("ajax error", JSON.stringify(jqXHR), 1)
                 log(JSON.stringify(jqXHR))
             })
-
     }
 })
-
-
-
-
