@@ -195,9 +195,9 @@ dSpider("jd", function(session,env,$){
         $.get("https://passport.m.jd.com/user/logout.action?sid="+session.get("sid"), function(data,status){
                 log(data);
         });
-        session.setProgress(100);
-        session.upload(session.get(infokey));
-        session.finish();
+        //session.setProgress(100);
+        //session.upload(session.get(infokey));
+        //session.finish();
     }
     //快捷卡实名用户
     if (location.href.indexOf("msc.jd.com/auth/loginpage/wcoo/toAuthPage") != -1 ) {
