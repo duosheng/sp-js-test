@@ -1,5 +1,4 @@
-dSpiderMail("email", function (user,wd, session, extras, $) {
-
+dSpider("126", function ( session, env, $) {
     function formatParams(data) {
         var arr = [];
         for (var name in data) {
@@ -7,7 +6,7 @@ dSpiderMail("email", function (user,wd, session, extras, $) {
         }
         return arr;
     }
-    //自定义ajax
+
     function ajax(options) {
         options = options || {};
         options.type = (options.type || "GET").toUpperCase();
@@ -16,13 +15,8 @@ dSpiderMail("email", function (user,wd, session, extras, $) {
         options.success=safeCallback(options.success)
         options.fail=safeCallback(options.fail)
         options.complete=safeCallback(options.complete)
-
-        //本代码是用在ios和android上,所以不考虑ie兼容问题
         var xhr = new XMLHttpRequest();
-
-        //接收 - 第三步
         xhr.onreadystatechange = function () {
-
             if (xhr.readyState == 4) {
                 var status = xhr.status;
                 if (status >= 200 && status < 300) {
@@ -36,7 +30,6 @@ dSpiderMail("email", function (user,wd, session, extras, $) {
                 options.complete();
             }
         }
-        //连接 和 发送 - 第二步
         var postParams = null;
         if (options.type == "GET") {
             xhr.open("GET", options.url + "?" + params, true);
@@ -53,15 +46,25 @@ dSpiderMail("email", function (user,wd, session, extras, $) {
 
     var index = location.href.indexOf("://smart.mail.1")
     if (index < 7 && index > -1) {
-        session.hideLoading()
+        $("#username,#user").val(session.getLocal("username"));
+        $("#password").val(session.getLocal("pwd"));
+        $(".loginBtn").click(function(){
+            if(!session.getArguments().wd){
+                confirm("缺少关键字")
+                session.finish("缺少关键字")
+            }
+            session.setLocal("username",$("#username,#user").val())
+            session.setLocal("pwd",$("#password").val())
+        })
         $("#pop_mailEntry").click();
-        $("#username,#user").val(user.split("@")[0]).attr("disabled","disabled").css("color","#777")
         $("#chkAutoLogin").val(0).attr("disabled", "disabled")
         return
     }
 
-    session.showLoading();
+
+    session.showProgress();
     if (location.href.indexOf("main.jsp") != -1) {
+        var wd=session.getArguments().wd;
         var search = '<?xml version="1.0"?>\
                <object>\
                <string name="order">date</string>\
@@ -110,7 +113,6 @@ dSpiderMail("email", function (user,wd, session, extras, $) {
                     session.finish();
                     return;
                 }
-
                 var start = 0;
                 session.set("count", count)
                 log(count)
@@ -121,21 +123,25 @@ dSpiderMail("email", function (user,wd, session, extras, $) {
                         success: function (data) {
                             log(data)
                             var c = eval("(" + data + ")");
+                            var content;
                             try {
-                                log(c.var.html.content)
-                                session.upload(c.var.html.content)
-                                //session.upload(c.var);
+                                content=c.var.html.content
                             } catch (e) {
-                                console.log(c.var.text.content)
-                                session.upload(c.var.text.content)
+                                content=c.var.text.content
                             }
+                            var json={
+                                sender: c.var.from[0],
+                                subject: c.var.subject,
+                                date: c.var.sentDate,
+                                html:content
+                            }
+                           session.upload(json)
                         },
                         complete: function () {
                             console.log(++start)
                             if (start == count) {
                                 session.finish();
-                                log("xxxxx")
-                                log(session.toString())
+                                log(session.string())
                             }
                         }
                     })
