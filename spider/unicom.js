@@ -138,28 +138,57 @@ dSpider("unicom", 60*5, function(session,env,$){
         session.showProgress();
 
         //计算月份信息
-        var date = new Date();
-        var curMonth = date.getMonth() + 1;
-        var curYear = date.getFullYear();
+        //var date = new Date();
+        //var curMonth = date.getMonth() + 1;
+        //var curYear = date.getFullYear();
+        var curMonth, curYear;
+
+        var ul = $(".month_list");
+        if (ul) {
+        	if (ul.has("li")) {
+        		var li = ul.find("li.active:eq(0)");
+        		var month = li.find("p:eq(0)").text();
+        		month = month.replace("月", "");
+        		month = month.trim();
+        		try {
+        			curMonth = parseInt(month);
+        		} catch (e) {
+       				log("月份获取失败...");
+        		}
+        		var year = li.find("p:eq(1)").text();
+        		year = year.trim();
+        		try {
+        			curYear = parseInt(year);
+        		} catch (e) {
+       				log("年获取失败...");
+        		}
+        	};
+        };
         var monthArr = []
-        for (var i = 0; i < 6; i++) {
-            var month = curMonth - i;
-            var year = curYear;
-            if (month < 1) {
-                month += 12;
-                year -= 1;
-            }
-            if (month < 10) {
-                month = "0" + month;
-            }
-            monthArr.push({ "year": year, "month": month });
+        var max = 0;
+        if (curMonth && curYear) {
+        	for (var i = 0; i < 6; i++) {
+	            var month = curMonth - i;
+	            var year = curYear;
+	            if (month < 1) {
+	                month += 12;
+	                year -= 1;
+	            }
+	            if (month < 10) {
+	                month = "0" + month;
+	            }
+	            monthArr.push({ "year": year, "month": month });
+	        }
+	        max = monthArr.length + 1;
+	        log("开始爬取....." + JSON.stringify(monthArr));
+        } else {
+        	log("没有通话时间，可能刚开卡..");
         }
-        var max = monthArr.length + 1;
         //设置月份信息
         session.set("months", monthArr);
         session.set("max", max);
         session.setProgressMax(max);
-        log("开始爬取....." + JSON.stringify(monthArr));
+
         spide();
     } else if(window.location.href.indexOf('mobileService/siteMap.htm') != -1){//服务界面，获取个人信息跳转
         var infoTag = "";
