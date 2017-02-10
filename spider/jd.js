@@ -10,22 +10,32 @@ dSpider("jd", function(session,env,$){
     sid = session.get("sid");
 
     if (location.href.indexOf("://m.jd.com") !== -1 ) {
-        session.showProgress(true);
-        session.setProgressMax(100);
-        session.autoLoadImg(false);
-        session.setProgress(5);
+        if(session.get("firstrun") == undefined){
+                log("start xxxx");
+                session.set("firstrun", 0);
+                session.showProgress(true);
+                session.setProgressMax(100);
+                session.autoLoadImg(false);
+                session.setProgress(5);
 
-        if($(".jd-search-form-input")[0] !== undefined){
-            sid  = $(".jd-search-form-input")[0].children[0].value;
-            session.set("sid",  sid);
-         }
+                if($(".jd-search-form-input")[0] !== undefined){
+                    sid  = $(".jd-search-form-input")[0].children[0].value;
+                    session.set("sid",  sid);
+                 }
 
-        session.set(infokey, new info({},{},{}));
-        globalInfo = session.get(infokey);
-        globalInfo.base_info.username  = $("[report-eventid$='MCommonHTail_Account']").text().replace(/\n/g,"").replace(/\t/g,"");
-        saveInfo();
-        session.setProgress(10);
-        location.href="https://home.m.jd.com/maddress/address.action?";
+                session.set(infokey, new info({},{},{}));
+                globalInfo = session.get(infokey);
+                globalInfo.base_info.username  = $("[report-eventid$='MCommonHTail_Account']").text().replace(/\n/g,"").replace(/\t/g,"");
+                saveInfo();
+                session.setProgress(10);
+                location.href="https://home.m.jd.com/maddress/address.action?";
+        }else{
+            log("finish xxxx");
+            session.setProgress(100);
+            session.upload(session.get(infokey));
+            session.finish();
+        }
+
     }
 
     if (location.href.indexOf("://home.m.jd.com/maddress") != -1) {
@@ -185,15 +195,8 @@ dSpider("jd", function(session,env,$){
     function logout(){
 
         //alert("爬取订单总计:" + session.get(infokey).order_info.order_detail.length);
-        //location.href = "https://passport.m.jd.com/user/logout.action?sid="+session.get("sid");
-        $.ajax({type : "get",
-                        url :  "https://passport.m.jd.com/user/logout.action?sid="+session.get("sid"),
-                        async : false,
-                        success : function(response){}
-                        });
-        session.setProgress(100);
-        session.upload(session.get(infokey));
-        session.finish();
+        location.href = "https://passport.m.jd.com/user/logout.action?sid="+session.get("sid");
+
     }
     //快捷卡实名用户
     if (location.href.indexOf("msc.jd.com/auth/loginpage/wcoo/toAuthPage") != -1 ) {
@@ -273,8 +276,8 @@ dSpider("jd", function(session,env,$){
         this.zipcode  = zipcode;
     }
 
-    function order_info(order_detail) {
-        this.order_detail = order_detail;
+    function order_info(order_detail){
+        this.order_detail  = order_detail;
     }
 
     function order(id, time , total, address){
