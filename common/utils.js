@@ -38,7 +38,7 @@ function errorReport(e) {
     var msg="语法错误: " + e.message +"\nscript_url:"+_su+"\n"+stack
     if(window.curSession){
         curSession.log(msg);
-        curSession.finish(e.message,"",3,msg);
+        curSession.finish(e.message,"",2,msg);
     }
 }
 
