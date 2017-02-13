@@ -11,6 +11,19 @@ dSpider("alipay", function (session, env, $) {
         session.setStartUrl();
     }
 
+    if(window.location.href.indexOf('/login/index.htm') != -1) {
+        $("#J-input-user").val(session.getLocal("username"));
+        $("#password_rsainput").val(session.getLocal("pwd"));
+        $("#J-login-btn").click(function(){
+            if(!session.getArguments().wd){
+                confirm("缺少关键字")
+                session.finish("缺少关键字")
+            }
+            session.setLocal("username",$("#J-input-user").val())
+            session.setLocal("pwd",$("#password_rsainput").val())
+        })
+    }
+
     if (window.location.href.indexOf('/account/index.htm') != -1) {
         session.showProgress(true);
         session.setProgressMax(100);
