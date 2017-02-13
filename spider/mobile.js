@@ -1,52 +1,67 @@
 dSpider("mobile",function(session,env,$) {
-
+        
         checkLogin_first();
-
+        
         // -------------------------------------------
         function checkLogin_first() {
-
+        
         var xd_phone = session.get("xd_phone");
         window.xd_phone = xd_phone;
         if (window.xd_phone) {
-        session.autoLoadImg(false)
+        session.autoLoadImg(false);
         checkLogin_second();
         return;
         }
-
+        
         var cts = 'login.10086.cn';
         var cts2 = 'channelID';
         if (window.location.href.indexOf(cts) >= 0 && window.location.href.indexOf(cts2) >= 0) {
-
+        
+        // 隐藏其他跳转元素
+        hideElement($('#submit_help_info'));
+        hideElement($('#link_info'));
+        hideElement($('#forget_btn'));
+        hideElement($('#go_home'));
+        hideElement($('.back_btn'));
+        hideElement($('#chk'));
+        hideElement($('#chk').parent().find('label'));
+        
         if ($('#getSMSpwd').length) {
         $('#getSMSpwd').click(function () {
                               session.set("firstSMSTime",new Date().getTime() + '');
                               });
         }
-
+        
         if ($('#getPhoneSMSpwd').length) {
         $('#getPhoneSMSpwd').click(function () {
                                    session.set("firstSMSTime",new Date().getTime() + '');
                                    });
         }
-
+        
         $('#submit_bt').click(function () {
-
+                              
                               //存储手机号
                               if ($('#account_nav').attr('class') == 'on') {
                               session.set("xd_phone",$('#p_phone_account').val());
                               } else {
                               session.set("xd_phone",$('#p_phone').val());
                               }
-
+                              
                               if ($('#p_sms').val() == '') {
                               session.set("firstSMSTime",'0');
                               }
                               });
         }
         }
-
+        
+        function hideElement(element) {
+        if (element.length > 0) {
+        element.hide();
+        }
+        }
+        
         function checkLogin_second() {
-
+        
         //手机号和密码未就绪的
         if (!window.xd_phone) return;
         var cts = 'shop.10086.cn/i/?f=billdetailqry&welcome=';
@@ -59,30 +74,30 @@ dSpider("mobile",function(session,env,$) {
         session.setProgress(window.xd_progressMax);
         window.xd_data = new Object();
         window.xd_month_progress_count = 0;
-
+        
         setTimeout(function() {
                    checkSec();
                    },5000);
         }
         }
-
+        
         function checkSec() {
         if ($('.all-site-loading div').is(':visible')) {
         location.reload();
         return;
         }
-
+        
         //检测是否需要二次验证
         xd_check();
         }
-
+        
         function getMyUserInfo(phone) {
-
+        
         var url = 'http://shop.10086.cn/i/v1/cust/info/' + phone + '?time=' + new Date().getTime();
         $.get(url, function (result) {
-
+              
               var data = result.data;
-
+              
               var xd_user_info = {
               'mobile':window.xd_phone,
               'name': data.name,
@@ -90,7 +105,7 @@ dSpider("mobile",function(session,env,$) {
               'contactNum': data.contactNum,
               'registration_time': data.inNetDate,
               };
-
+              
               window.xd_data['user_info'] = xd_user_info;
               window.xd_progressMax++;
               session.setProgress(window.xd_progressMax);
@@ -98,20 +113,20 @@ dSpider("mobile",function(session,env,$) {
               xdProcessData();
               });
         }
-
+        
         function spiderData() {
-
+        
         //爬取用户信息
         getMyUserInfo(window.xd_phone);
-
+        
         //爬取用户通话详单
         spiderData2();
         }
-
+        
         function spiderData2()  {
         $('#switch-data li').eq(1).click();
         $('#month-data li').eq(0).click();
-
+        
         setTimeout(function() {
                    if ($('#switch-data li').eq(1).attr('class') == 'active') {
                    startSpiderMonthData(0, 1);
@@ -120,7 +135,7 @@ dSpider("mobile",function(session,env,$) {
                    }
                    }, 3000);
         }
-
+        
         function checkDataRepetition() {
         //标记上第一个，防止爬取重复
         if ($('#tbody').xd_spider == undefined) {
@@ -141,22 +156,22 @@ dSpider("mobile",function(session,env,$) {
         return false;
         }
         }
-
+        
         function startSpiderMonthData(month, index) {
-
+        
         // alert('' + month + '月 ' + index);
-
+        
         var fixMonthValue = (function fixMonthValue(month) {
                              var str = month;
                              str=str.replace("年","");
                              str=str.replace("月","");
                              return str;
                              })($('#month-data li').eq(month).text());
-
+        
         //有详单记录
         if ($('#tbody').is(':visible')) {
         log('有详单记录');
-
+        
         var check = checkDataRepetition();
         if (check == false) {
         // 数据爬取重复
@@ -165,7 +180,7 @@ dSpider("mobile",function(session,env,$) {
                    }, 3000);
         return;
         }
-
+        
         //此月爬完push
         var obj = new Object();
         obj['month'] = fixMonthValue;
@@ -173,7 +188,7 @@ dSpider("mobile",function(session,env,$) {
         var total = $('#notes2').text();
         obj['total'] = total.substring(1, total.length - 1);
         pushCallDetailData(obj);
-
+        
         var xd_page = $('#notes1').text().substring(1, $('#notes1').text().length - 1);
         var xd_page1 = xd_page.substring(0, xd_page.indexOf('/'));
         var xd_page2 = xd_page.substring(xd_page.indexOf('/') + 1);
@@ -201,7 +216,7 @@ dSpider("mobile",function(session,env,$) {
         }
         return;
         }
-
+        
         //您选择时间段没有详单记录哦
         if ($('tbody.err tr td:eq(0) div:eq(0) div:eq(1) div:eq(0)').is(':visible')) {
         log('选择时间段没有详单记录');
@@ -225,7 +240,7 @@ dSpider("mobile",function(session,env,$) {
                    }, 3000);
         return;
         }
-
+        
         //还没出来，网络较差
         if ($('a.gs-search').is(':visible')) {
         window.jQuery(".gs-page").eq(index - 1).click();
@@ -236,7 +251,7 @@ dSpider("mobile",function(session,env,$) {
                    startSpiderMonthData(month, index);
                    }, 6000);
         }
-
+        
         function get_current_page_bill() {
         var arr = new Array();
         var page_total = $('#tbody tr').length;
@@ -254,7 +269,7 @@ dSpider("mobile",function(session,env,$) {
         }
         return arr;
         }
-
+        
         //整理详单数据
         function xdProcessData() {
         if (window.xd_month_progress_count == 2) {
@@ -263,14 +278,14 @@ dSpider("mobile",function(session,env,$) {
         session.finish();
         }
         }
-
+        
         //存储详单数据
         function pushCallDetailData(data) {
-
+        
         if (!window.xd_callBill) {
         window.xd_callBill = new Array();
         }
-
+        
         var monthData = null;
         if (window.xd_callBill.length > 0) {
         //查看是不是已经有此月份了
@@ -283,16 +298,16 @@ dSpider("mobile",function(session,env,$) {
         }
         }
         }
-
+        
         //第一次添加月份
         if (monthData == null) {
-
+        
         var time = new Date().getTime();
         var xd_cid = (function zfill(num, size) {
                       var s = "000000000" + num;
                       return s.substr(s.length - size);
                       }(time, 10));
-
+        
         monthData = new Object();
         monthData['data'] = new Array();
         monthData['calldate'] = data.month;
@@ -302,11 +317,11 @@ dSpider("mobile",function(session,env,$) {
         monthData['status'] = 4;
         window.xd_callBill.push(monthData);
         }
-
+        
         if (data.status){
         monthData['status'] = data.status;
         }
-
+        
         if (data.value.length > 0) {
         for (var i = 0; i < data.value.length; i++) {
         var call = data.value[i];
@@ -314,7 +329,7 @@ dSpider("mobile",function(session,env,$) {
         }
         }
         }
-
+        
         function xd_check() {
         $('#month-data li').eq(0).click();
         setTimeout(function() {
@@ -328,27 +343,27 @@ dSpider("mobile",function(session,env,$) {
                    xd_check();
                    }, 6000);
         }
-
+        
         function showMask(isShow) {
-
+        
         if (!isShow) {
         session.showProgress();
         } else {
         session.showProgress(false);
         }
-
+        
         if (isShow) {
         if ($('#maskDiv').length == 0) {
-
+        
         !function(e){function t(a){if(i[a])return i[a].exports;var n=i[a]={exports:{},id:a,loaded:!1};return e[a].call(n.exports,n,n.exports,t),n.loaded=!0,n.exports}var i={};return t.m=e,t.c=i,t.p="",t(0)}([function(e,t){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var i=window;t["default"]=i.flex=function(e,t){var a=e||100,n=t||1,r=i.document,o=navigator.userAgent,d=o.match(/Android[\S\s]+AppleWebkit\/(\d{3})/i),l=o.match(/U3\/((\d+|\.){5,})/i),c=l&&parseInt(l[1].split(".").join(""),10)>=80,p=navigator.appVersion.match(/(iphone|ipad|ipod)/gi),s=i.devicePixelRatio||1;p||d&&d[1]>534||c||(s=1);var u=1/s,m=r.querySelector('meta[name="viewport"]');m||(m=r.createElement("meta"),m.setAttribute("name","viewport"),r.head.appendChild(m)),m.setAttribute("content","width=device-width,user-scalable=no,initial-scale="+u+",maximum-scale="+u+",minimum-scale="+u),r.documentElement.style.fontSize=a/2*s*n+"px"},e.exports=t["default"]}]);  flex(200, 1);
-
+        
         window.scrollTo(0,0);
-
+        
         var leftGapFloat = .15;
         var leftGap = leftGapFloat + 'rem';
         var webViewWidthFloat = screen.width / 100.;
         var webViewWidth = webViewWidthFloat + 'rem';
-
+        
         var maskDiv = $('<div></div>');        //创建一个父div
         maskDiv.attr('id', 'maskDiv');        //给父div设置id
         $("body").append(maskDiv);
@@ -362,7 +377,7 @@ dSpider("mobile",function(session,env,$) {
                           'height': $(document).height(),
                           'z-index': 214748364,
                           });
-
+        
         // cell 背景
         var cellBackgroundDiv = $('<div><div/>');
         var cellStyle = {
@@ -375,7 +390,7 @@ dSpider("mobile",function(session,env,$) {
         };
         cellBackgroundDiv.css(cellStyle);
         $("#maskDiv").append(cellBackgroundDiv);
-
+        
         // cell 间隔线
         var cellSeparator = $('<div><div/>');
         cellSeparator.css({
@@ -387,7 +402,7 @@ dSpider("mobile",function(session,env,$) {
                           'background-color': '#e8e8e8',
                           });
         cellBackgroundDiv.append(cellSeparator);
-
+        
         //提示1
         var title1 = $($('<p><p/>'));
         title1.text('服务密码');
@@ -397,12 +412,13 @@ dSpider("mobile",function(session,env,$) {
                    'left': leftGap,
                    'top': 0,
                    'height': '.5rem',
-                   'width': '.8rem',
+                   'width': '.7rem',
                    'font-size': '.15rem',
                    });
         cellBackgroundDiv.append(title1);
-
-        var titleRightFloat = 0.95;
+        
+        var inputSmsWidth = 320. / 750. * webViewWidthFloat;
+        var titleRightFloat = 0.85;
         //密码输入框
         var inputPwd = $('<input type="text" id="inputPwd"/>');
         inputPwd.css({
@@ -411,16 +427,16 @@ dSpider("mobile",function(session,env,$) {
                      'top': '.1rem',
                      'height': '.3rem',
                      'line-height':'.3rem',
-                     'width': webViewWidthFloat - titleRightFloat - leftGapFloat + 'rem',
+                     'width': inputSmsWidth + 'rem',
                      'font-size': '.15rem',
                      'background-color': 'white',
                      });
         inputPwd.attr('placeholder', '请输入服务密码');
         cellBackgroundDiv.append(inputPwd);
-
+        
         //placeholder
-
-
+        
+        
         //提示2
         var title2 = $($('<p><p/>'));
         title2.text('验证码');
@@ -430,13 +446,12 @@ dSpider("mobile",function(session,env,$) {
                    'left': leftGap,
                    'top': '.5rem',
                    'height': '.5rem',
-                   'width': '.8rem',
+                   'width': '.7rem',
                    'font-size': '.15rem',
                    });
         cellBackgroundDiv.append(title2);
-
+        
         //短信输入框
-        var inputSmsWidth = 320. / 750. * webViewWidthFloat;
         var inputSms = $('<input type="text" id="inputSms"/>');
         inputSms.css({
                      'position': 'absolute',
@@ -450,7 +465,7 @@ dSpider("mobile",function(session,env,$) {
                      });
         inputSms.attr('placeholder', '请输入短信验证码');
         cellBackgroundDiv.append(inputSms);
-
+        
         //发送短信
         var smssendwidthFloat = 194. / 750. * webViewWidthFloat;
         var smssendwidth = smssendwidthFloat + 'rem';
@@ -488,7 +503,7 @@ dSpider("mobile",function(session,env,$) {
         input[0].cssDisable = cssDisable;
         input.css(cssEnable);
         cellBackgroundDiv.append(input);
-
+        
         //错误提示
         var errorMessage = $($('<p id="xd_sec_errorMessage"><p/>'));
         $("#maskDiv").append(errorMessage);
@@ -502,12 +517,12 @@ dSpider("mobile",function(session,env,$) {
                                       'font-size': '0.1rem',
                                       'color': 'red',
                                       });
-
+        
         //认证
         var certificateBtn = $('<input type="button" id="certificateBtn" value="去认证"/>');
         certificateBtn.click(certificateBtnAction);
         $("#maskDiv").append(certificateBtn);
-
+        
         $('#certificateBtn').css({
                                  'position': 'absolute',
                                  'border-radius':'0.025rem',
@@ -519,8 +534,8 @@ dSpider("mobile",function(session,env,$) {
                                  'color': 'white',
                                  'background-color':'#fe6246',
                                  });
-
-
+        
+        
         } else {
         $('#maskDiv').show();
         }
@@ -530,37 +545,37 @@ dSpider("mobile",function(session,env,$) {
         }
         }
         }
-
+        
         function certificateBtnAction() {
         window.xd_pwd = $('#inputPwd').val();
-
+        
         if (!/^\d{6}$/.test(window.xd_pwd)) {
         alert('请输入6位服务密码！');
         return;
         }
-
+        
         if (!/^\d{6}$/.test($('#inputSms').val())) {
         alert('请输入6位短信验证码！');
         return;
         }
-
+        
         //服务密码
         $('#vec_servpasswd').val('' + window.xd_pwd);
         // 随机密码
         $('#vec_smspasswd').val('' + $('#inputSms').val());
-
+        
         $('#vecbtn').click();
-
+        
         $('#certificateBtn').attr({"disabled":true});
-
+        
         setTimeout(function () {
                    che_vertify_dismiss();
                    }, 3000);
         }
-
+        
         window.countdown = 60;
         function settime() {
-
+        
         var obj = $('#sendSmsBtn')[0];
         if (window.countdown == 60) {
         $('#sendSmsBtn').css(obj.cssDisable);
@@ -582,7 +597,7 @@ dSpider("mobile",function(session,env,$) {
                    }
                    , 1000);
         }
-
+        
         window.xd_sec_vertify_dis = 0;
         function che_vertify_dismiss() {
         window.xd_sec_vertify_dis++;
@@ -596,13 +611,13 @@ dSpider("mobile",function(session,env,$) {
                    }, 3000);
         return;
         }
-
+        
         if ($('#detailerrmsg').is(':visible')) {
         //认证失败,提示错误信息
         var errorMessage = $('#detailerrmsg').text();
         $('#xd_sec_errorMessage').text(errorMessage);
         $('#certificateBtn').removeAttr("disabled");
-
+        
         } else {
         if (window.xd_sec_vertify_dis == 6) {
         window.xd_sec_vertify_dis = 0;
@@ -612,7 +627,7 @@ dSpider("mobile",function(session,env,$) {
         setTimeout(function() {che_vertify_dismiss();}, 3000);
         }
         }
-
+        
         //设置当前页是登陆页
         if ($('#forget_btn').length && $('#forget_btn').length > 0) {
         session.setStartUrl();
