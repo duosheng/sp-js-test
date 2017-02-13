@@ -50,8 +50,7 @@ dSpider("unicom", 60*5, function(session,env,$){
                     loadMore();
                 } else {
                     var thxd = session.get("thxd");
-                    if(!thxd) {
-                        thxd = {};
+                    if(!thxd["month_status"]) {
                         thxd["month_status"] = [];
                     }
                     thxd["month_status"].push(data);
@@ -68,8 +67,7 @@ dSpider("unicom", 60*5, function(session,env,$){
                 data["status"] = 2;
                 data["data"] = [];
                 var thxd = session.get("thxd");
-                if(!thxd) {
-                    thxd = {};
+                if(!thxd["month_status"]) {
                     thxd["month_status"] = [];
                 }
                 thxd["month_status"].push(data);
@@ -96,8 +94,7 @@ dSpider("unicom", 60*5, function(session,env,$){
         $('.moredetail' + window.pagenum).load(href + params, function(msg) {
             parseThxd(msg);
             var thxd = session.get("thxd");
-            if(!thxd) {
-                thxd = {};
+            if(!thxd["month_status"]) {
                 thxd["month_status"] = [];
             }
             thxd["month_status"].push(session.get("curMonthData"));
@@ -188,6 +185,10 @@ dSpider("unicom", 60*5, function(session,env,$){
         session.set("months", monthArr);
         session.set("max", max);
         session.setProgressMax(max);
+        var thxd = session.get("thxd");
+        if (!thxd) {
+            session.set("thxd", {});
+        };
 
         spide();
     } else if(window.location.href.indexOf('mobileService/siteMap.htm') != -1){//服务界面，获取个人信息跳转
