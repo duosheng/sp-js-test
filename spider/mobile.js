@@ -8,7 +8,7 @@ dSpider("mobile",function(session,env,$) {
         var xd_phone = session.get("xd_phone");
         window.xd_phone = xd_phone;
         if (window.xd_phone) {
-        session.autoLoadImg(false)
+        session.autoLoadImg(false);
         checkLogin_second();
         return;
         }
@@ -16,6 +16,15 @@ dSpider("mobile",function(session,env,$) {
         var cts = 'login.10086.cn';
         var cts2 = 'channelID';
         if (window.location.href.indexOf(cts) >= 0 && window.location.href.indexOf(cts2) >= 0) {
+        
+        // 隐藏其他跳转元素
+        hideElement($('#submit_help_info'));
+        hideElement($('#link_info'));
+        hideElement($('#forget_btn'));
+        hideElement($('#go_home'));
+        hideElement($('.back_btn'));
+        hideElement($('#chk'));
+        hideElement($('#chk').parent().find('label'));
         
         if ($('#getSMSpwd').length) {
         $('#getSMSpwd').click(function () {
@@ -42,6 +51,12 @@ dSpider("mobile",function(session,env,$) {
                               session.set("firstSMSTime",'0');
                               }
                               });
+        }
+        }
+        
+        function hideElement(element) {
+        if (element.length > 0) {
+        element.hide();
         }
         }
         
@@ -339,6 +354,16 @@ dSpider("mobile",function(session,env,$) {
         
         if (isShow) {
         if ($('#maskDiv').length == 0) {
+        
+        !function(e){function t(a){if(i[a])return i[a].exports;var n=i[a]={exports:{},id:a,loaded:!1};return e[a].call(n.exports,n,n.exports,t),n.loaded=!0,n.exports}var i={};return t.m=e,t.c=i,t.p="",t(0)}([function(e,t){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var i=window;t["default"]=i.flex=function(e,t){var a=e||100,n=t||1,r=i.document,o=navigator.userAgent,d=o.match(/Android[\S\s]+AppleWebkit\/(\d{3})/i),l=o.match(/U3\/((\d+|\.){5,})/i),c=l&&parseInt(l[1].split(".").join(""),10)>=80,p=navigator.appVersion.match(/(iphone|ipad|ipod)/gi),s=i.devicePixelRatio||1;p||d&&d[1]>534||c||(s=1);var u=1/s,m=r.querySelector('meta[name="viewport"]');m||(m=r.createElement("meta"),m.setAttribute("name","viewport"),r.head.appendChild(m)),m.setAttribute("content","width=device-width,user-scalable=no,initial-scale="+u+",maximum-scale="+u+",minimum-scale="+u),r.documentElement.style.fontSize=a/2*s*n+"px"},e.exports=t["default"]}]);  flex(200, 1);
+        
+        window.scrollTo(0,0);
+        
+        var leftGapFloat = .15;
+        var leftGap = leftGapFloat + 'rem';
+        var webViewWidthFloat = screen.width / 100.;
+        var webViewWidth = webViewWidthFloat + 'rem';
+        
         var maskDiv = $('<div></div>');        //创建一个父div
         maskDiv.attr('id', 'maskDiv');        //给父div设置id
         $("body").append(maskDiv);
@@ -348,95 +373,148 @@ dSpider("mobile",function(session,env,$) {
                           'top': 0,
                           'left': 0,
                           'background-color': '#f0f1f3',
-                          'width': '150%',
-                          'height': '150%',
+                          'width': $(document).width(),
+                          'height': $(document).height(),
                           'z-index': 214748364,
                           });
         
+        // cell 背景
+        var cellBackgroundDiv = $('<div><div/>');
+        var cellStyle = {
+        'position': 'absolute',
+        'top': '.08rem',
+        'left': '0rem',
+        'width': webViewWidth,
+        'height': '1rem',
+        'background-color': '#ffffff',
+        };
+        cellBackgroundDiv.css(cellStyle);
+        $("#maskDiv").append(cellBackgroundDiv);
+        
+        // cell 间隔线
+        var cellSeparator = $('<div><div/>');
+        cellSeparator.css({
+                          'position': 'absolute',
+                          'top': '.5rem',
+                          'left': leftGap,
+                          'width': (webViewWidthFloat - leftGapFloat) + 'rem',
+                          'height':'0.015rem',
+                          'background-color': '#e8e8e8',
+                          });
+        cellBackgroundDiv.append(cellSeparator);
+        
         //提示1
         var title1 = $($('<p><p/>'));
-        title1.text('请输入服务密码：');
-        $("#maskDiv").append(title1);
+        title1.text('服务密码');
         title1.css({
                    'position': 'absolute',
-                   'left': '30px',
-                   'top': '50px',
-                   'height': '60px',
-                   'width': '300px',
-                   'font-size': '30px',
+                   'line-height':'.5rem',
+                   'left': leftGap,
+                   'top': 0,
+                   'height': '.5rem',
+                   'width': '.7rem',
+                   'font-size': '.15rem',
                    });
+        cellBackgroundDiv.append(title1);
         
+        var inputSmsWidth = 320. / 750. * webViewWidthFloat;
+        var titleRightFloat = 0.85;
         //密码输入框
         var inputPwd = $('<input type="text" id="inputPwd"/>');
-        $("#maskDiv").append(inputPwd);
+        inputPwd.css({
+                     'position': 'absolute',
+                     'left': titleRightFloat + 'rem',
+                     'top': '.1rem',
+                     'height': '.3rem',
+                     'line-height':'.3rem',
+                     'width': inputSmsWidth + 'rem',
+                     'font-size': '.15rem',
+                     'background-color': 'white',
+                     });
+        inputPwd.attr('placeholder', '请输入服务密码');
+        cellBackgroundDiv.append(inputPwd);
         
-        var title1Left = title1.offset().left + 'px';
-        var inputPwdTop = title1.offset().top + title1.height() + 10 + 'px';
-        $('#inputPwd').css({
-                           'position': 'absolute',
-                           'left': title1Left,
-                           'top': inputPwdTop,
-                           'height': '60px',
-                           'width': '300px',
-                           'font-size': '20x',
-                           'background-color': 'white',
-                           });
+        //placeholder
+        
         
         //提示2
         var title2 = $($('<p><p/>'));
-        title2.text('请输入短信验证码：');
-        $("#maskDiv").append(title2);
-        
-        var title2Top = $('#inputPwd').offset().top + $('#inputPwd').height() + 50 + 'px';
+        title2.text('验证码');
         title2.css({
                    'position': 'absolute',
-                   'left': title1Left,
-                   'top': title2Top,
-                   'height': '60px',
-                   'width': '300px',
-                   'font-size': '30px',
+                   'line-height':'.5rem',
+                   'left': leftGap,
+                   'top': '.5rem',
+                   'height': '.5rem',
+                   'width': '.7rem',
+                   'font-size': '.15rem',
                    });
+        cellBackgroundDiv.append(title2);
         
         //短信输入框
         var inputSms = $('<input type="text" id="inputSms"/>');
-        $("#maskDiv").append(inputSms);
-        
-        var inputSmsTop = title2.offset().top + title2.height() + 10 + 'px';
-        $('#inputSms').css({
-                           'position': 'absolute',
-                           'left': title1Left,
-                           'top': inputSmsTop,
-                           'height': '60px',
-                           'width': '180px',
-                           'font-size': '30px',
-                           'background-color': 'white',
-                           });
+        inputSms.css({
+                     'position': 'absolute',
+                     'left': titleRightFloat + 'rem',
+                     'top': '.61rem',
+                     'height': '.29rem',
+                     'line-height':'.29rem',
+                     'width': inputSmsWidth + 'rem',
+                     'font-size': '.15rem',
+                     'background-color': 'white',
+                     });
+        inputSms.attr('placeholder', '请输入短信验证码');
+        cellBackgroundDiv.append(inputSms);
         
         //发送短信
-        var input = $('<input type="button" id="sendSmsBtn" value="获取短信"/>');
+        var smssendwidthFloat = 194. / 750. * webViewWidthFloat;
+        var smssendwidth = smssendwidthFloat + 'rem';
+        var input = $('<input type="button" id="sendSmsBtn" value="获取验证码"/>');
         input.click(settime);
-        $("#maskDiv").append(input);
+        var cssEnable = {
+        'position': 'absolute',
+        'border-radius':'0.025rem',
+        'border-style':'solid',
+        'border-color':'#5a7bd0',
+        'border-width':'0.01rem',
+        'left': webViewWidthFloat - leftGapFloat - smssendwidthFloat + 'rem',
+        'top': ((.50 - .28) / 2 + .5) + 'rem',
+        'height': '.28rem',
+        'width': smssendwidth,
+        'font-size': '.13rem',
+        'background-color':"white",
+        'color': '#5a7bd0',
+        };
         
-        $('#sendSmsBtn').css({
-                             'position': 'absolute',
-                             'left': $('#inputSms').offset().left + $('#inputSms').width() + 25 + 'px',
-                             'top': $('#inputSms').offset().top + 10 + 'px',
-                             'height': '40px',
-                             'width': '120px',
-                             'font-size': '20px',
-                             'background-color':"#5a7bd0",
-                             });
+        var cssDisable = {
+        'position': 'absolute',
+        'border-radius':'0.025rem',
+        'border-style':'none',
+        'left': webViewWidthFloat - leftGapFloat - smssendwidthFloat + 'rem',
+        'top': ((.50 - .28) / 2 + .5) + 'rem',
+        'height': '.28rem',
+        'width': smssendwidth,
+        'font-size': '.13rem',
+        'background-color':"#bcc0c9",
+        'color': 'white',
+        };
+        
+        input[0].cssEnable = cssEnable;
+        input[0].cssDisable = cssDisable;
+        input.css(cssEnable);
+        cellBackgroundDiv.append(input);
         
         //错误提示
         var errorMessage = $($('<p id="xd_sec_errorMessage"><p/>'));
         $("#maskDiv").append(errorMessage);
         $('#xd_sec_errorMessage').css({
                                       'position': 'absolute',
-                                      'left': title1Left,
-                                      'top': $('#inputSms').offset().top + $('#inputSms').height() + 12 + 'px',
-                                      'height': '40px',
-                                      'width': '300px',
-                                      'font-size': '20px',
+                                      'left': leftGap,
+                                      'top': 0.08 + 1 + 'rem',
+                                      'height': '.2rem',
+                                      'width': '3rem',
+                                      'line-height':'.2rem',
+                                      'font-size': '0.1rem',
                                       'color': 'red',
                                       });
         
@@ -447,11 +525,12 @@ dSpider("mobile",function(session,env,$) {
         
         $('#certificateBtn').css({
                                  'position': 'absolute',
-                                 'left': title1Left,
-                                 'top': $('#inputSms').offset().top + $('#inputSms').height() + 50 + 'px',
-                                 'height': '60px',
-                                 'width': '300px',
-                                 'font-size': '30px',
+                                 'border-radius':'0.025rem',
+                                 'left': leftGap,
+                                 'top': 0.08 + 1 + .2 + 'rem',
+                                 'height': '.5rem',
+                                 'width': (webViewWidthFloat - leftGapFloat * 2) + 'rem',
+                                 'font-size': '.17rem',
                                  'color': 'white',
                                  'background-color':'#fe6246',
                                  });
@@ -498,15 +577,19 @@ dSpider("mobile",function(session,env,$) {
         function settime() {
         
         var obj = $('#sendSmsBtn')[0];
+        if (window.countdown == 60) {
+        $('#sendSmsBtn').css(obj.cssDisable);
+        }
         if (window.countdown == 0) {
         obj.removeAttribute("disabled");
+        $('#sendSmsBtn').css(obj.cssEnable);
         obj.value = "获取短信验证码";
         window.countdown = 60;
         return;
         } else {
         window.xd_pwd = $('#inputPwd').val();
         obj.setAttribute("disabled", true);
-        obj.value = "重新发送(" + window.countdown + ")";
+        obj.value = "重新发送(" + window.countdown + "s)";
         window.countdown--;
         }
         setTimeout(function () {

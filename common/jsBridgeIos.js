@@ -38,6 +38,12 @@ DataSession.getExtraData = function (f) {
     })
 }
 
+DataSession.getArguments= function (f) {
+    log("getArguments called")
+    callHandler("getArguments", null, function (data) {
+        f && f(data)
+    })
+}
 DataSession.prototype = {
     _save: function () {
         callHandler("set", {"sessionKey": this.key, "value": JSON.stringify(this.data)})
@@ -84,6 +90,7 @@ DataSession.prototype = {
     hideLoading: function () {
 
     },
+
     setStartUrl:function(){
        this.set('__loginUrl',location.href);
     },
@@ -95,8 +102,8 @@ DataSession.prototype = {
                 var ob = {
                     url: location.href,
                     msg: errmsg,
-                    args:that._args
-                   // content: content||document.documentElement.outerHTML ,
+                    args:this.getArguments&&this.getArguments(),
+                    content: content||document.documentElement.outerHTML
                 }
                 stack&&(ob.stack=stack);
                 ret.result = code || 2;
