@@ -1,4 +1,4 @@
-dSpider("alipay", 60, function (session, env, $) {
+dSpider("alipay", function (session, env, $) {
     log("current page url: " + location.href);
     var monthArray = [];
     var uploadMonArray = []; //上传的月份数据
