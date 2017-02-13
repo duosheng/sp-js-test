@@ -130,6 +130,7 @@ dSpider("unicom", 60*5, function(session,env,$){
 
     if(window.location.href.indexOf("/uac.10010.com/oauth2/new_auth") != -1) {
         session.showProgress(false);
+        session.setStartUrl();
     } if(window.location.href.indexOf('query/getPhoneByDetailTip.htm') != -1){
         //显示loading
         session.showProgress();
@@ -142,44 +143,44 @@ dSpider("unicom", 60*5, function(session,env,$){
 
         var ul = $(".month_list");
         if (ul) {
-        	if (ul.has("li")) {
-        		var li = ul.find("li.active:eq(0)");
-        		var month = li.find("p:eq(0)").text();
-        		month = month.replace("月", "");
-        		month = month.trim();
-        		try {
-        			curMonth = parseInt(month);
-        		} catch (e) {
-       				log("月份获取失败...");
-        		}
-        		var year = li.find("p:eq(1)").text();
-        		year = year.trim();
-        		try {
-        			curYear = parseInt(year);
-        		} catch (e) {
-       				log("年获取失败...");
-        		}
-        	};
+            if (ul.has("li")) {
+                var li = ul.find("li.active:eq(0)");
+                var month = li.find("p:eq(0)").text();
+                month = month.replace("月", "");
+                month = month.trim();
+                try {
+                    curMonth = parseInt(month);
+                } catch (e) {
+                    log("月份获取失败...");
+                }
+                var year = li.find("p:eq(1)").text();
+                year = year.trim();
+                try {
+                    curYear = parseInt(year);
+                } catch (e) {
+                    log("年获取失败...");
+                }
+            };
         };
         var monthArr = []
         var max = 0;
         if (curMonth && curYear) {
-        	for (var i = 0; i < 6; i++) {
-	            var month = curMonth - i;
-	            var year = curYear;
-	            if (month < 1) {
-	                month += 12;
-	                year -= 1;
-	            }
-	            if (month < 10) {
-	                month = "0" + month;
-	            }
-	            monthArr.push({ "year": year, "month": month });
-	        }
-	        max = monthArr.length + 1;
-	        log("开始爬取....." + JSON.stringify(monthArr));
+            for (var i = 0; i < 6; i++) {
+                var month = curMonth - i;
+                var year = curYear;
+                if (month < 1) {
+                    month += 12;
+                    year -= 1;
+                }
+                if (month < 10) {
+                    month = "0" + month;
+                }
+                monthArr.push({ "year": year, "month": month });
+            }
+            max = monthArr.length + 1;
+            log("开始爬取....." + JSON.stringify(monthArr));
         } else {
-        	log("没有通话时间，可能刚开卡..");
+            log("没有通话时间，可能刚开卡..");
         }
         //设置月份信息
         session.set("months", monthArr);
@@ -238,9 +239,13 @@ dSpider("unicom", 60*5, function(session,env,$){
         log("爬取用户信息结束-----" + JSON.stringify(userInfo));
         var thxd = session.get("thxd");
         thxd["user_info"] = userInfo;
-        var len = thxd["month_status"].length;
-        for(var i = 0; i < len; i ++) {
-            thxd["month_status"][i]["mobile"] = userInfo["mobile"];
+        if (thxd["month_status"]) {
+            var len = thxd["month_status"].length;
+            if (len > 0) {
+                for(var i = 0; i < len; i ++) {
+                    thxd["month_status"][i]["mobile"] = userInfo["mobile"];
+                }
+            }
         }
         endSpide(thxd);
     }
