@@ -1,4 +1,4 @@
-dSpider("alipay", function (session, env, $) {
+dSpider("alipay", 60, function (session, env, $) {
     log("current page url: " + location.href);
     var monthArray = [];
     var uploadMonArray = []; //上传的月份数据
@@ -9,20 +9,23 @@ dSpider("alipay", function (session, env, $) {
     // 增加判断当前页面是否是登录页
     if ($("#J-loginMethod-tabs").length && $("#J-loginMethod-tabs").length > 0) {
         session.setStartUrl();
-        $("#J-input-user").val(session.getLocal("username"));
-        $("#password_rsainput").val(session.getLocal("pwd"));
-        $("#J-login-btn").click(function(){
-            if(!session.getArguments().wd){
-                confirm("缺少关键字")
-                session.finish("缺少关键字")
-            }
-            session.setLocal("username",$("#J-input-user").val())
-            session.setLocal("pwd",$("#password_rsainput").val())
-        })
     }
 
+    //填充用户名密码
+    if (window.location.href.indexOf('/login/index.htm') != -1) { 
+        if (session.getLocal("username") != undefined  && session.getLocal("pwd") != undefined) {
+            $("#J-input-user").val(session.getLocal("username"));
+            $("#password_rsainput").val(session.getLocal("pwd"));
+        }
+        
+        $("#J-login-btn")[0].onclick = function(){
+            session.setLocal("username",$("#J-input-user").val());
+            session.setLocal("pwd",$("#password_rsainput").val());
+        };
+    }
+
+    //用户信息页面
     if (window.location.href.indexOf('/account/index.htm') != -1) {
-        document.activeElement.blur();
         session.showProgress(true);
         session.setProgressMax(100);
         session.setProgress(0);
