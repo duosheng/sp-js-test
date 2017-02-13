@@ -8,6 +8,7 @@ dSpider("alipay", function (session, env, $) {
 
     // 增加判断当前页面是否是登录页
     if ($("#J-loginMethod-tabs").length && $("#J-loginMethod-tabs").length > 0) {
+        session.setStartUrl();
         $("#J-input-user").val(session.getLocal("username"));
         $("#password_rsainput").val(session.getLocal("pwd"));
         $("#J-login-btn").click(function(){
@@ -18,10 +19,10 @@ dSpider("alipay", function (session, env, $) {
             session.setLocal("username",$("#J-input-user").val())
             session.setLocal("pwd",$("#password_rsainput").val())
         })
-        session.setStartUrl();
     }
 
     if (window.location.href.indexOf('/account/index.htm') != -1) {
+        document.activeElement.blur();
         session.showProgress(true);
         session.setProgressMax(100);
         session.setProgress(0);
