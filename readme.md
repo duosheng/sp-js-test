@@ -50,7 +50,13 @@
 
 ### 使用
 
-首先安装构建依赖，进入工程根目录下，执行：
+首先安装构建工具gulp:
+
+```
+npm install gulp -g
+```
+
+安装构建依赖，进入工程根目录下，执行：
 
 ```javascript
 npm install
