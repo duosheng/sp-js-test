@@ -3,7 +3,7 @@ dSpider("jd", function(session,env,$){
     var infokey = "infokey";
     var sid = session.get("sid");
     var max_order_num = 30;
-    var max_order_date = 1000;
+    var max_order_date = 100;
     var globalInfo;
 
     // 登录页 缓存用户名密码
