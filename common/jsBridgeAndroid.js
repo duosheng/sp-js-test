@@ -10,8 +10,7 @@ DataSession.getExtraData = function (f) {
 }
 
 DataSession.getArguments= function (f) {
-    log("getArguments called")
-    return f(callHandler("getArguments"))
+    return f(_xy.getArguments())
 }
 
 DataSession.prototype = {
