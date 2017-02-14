@@ -1,2 +1,640 @@
-!function t(e,i,n){function o(d,r){if(!i[d]){if(!e[d]){var a="function"==typeof require&&require;if(!r&&a)return a(d,!0);if(s)return s(d,!0);throw new Error("Cannot find module '"+d+"'")}var l=i[d]={exports:{}};e[d][0].call(l.exports,function(t){var i=e[d][1][t];return o(i?i:t)},l,l.exports,t,e,i,n)}return i[d].exports}for(var s="function"==typeof require&&require,d=0;d<n.length;d++)o(n[d]);return o}({1:[function(t,e,i){"use strict";dSpider("mobile",function(t,e,i){function n(){var e=t.get("xd_phone");if(window.xd_phone=e,window.xd_phone)return t.autoLoadImg(!1),void o();var n="login.10086.cn",s="channelID";window.location.href.indexOf(n)>=0&&window.location.href.indexOf(s)>=0&&(i("#getSMSpwd").length&&i("#getSMSpwd").click(function(){t.set("firstSMSTime",(new Date).getTime()+"")}),i("#getPhoneSMSpwd").length&&i("#getPhoneSMSpwd").click(function(){t.set("firstSMSTime",(new Date).getTime()+"")}),i("#submit_bt").click(function(){"on"==i("#account_nav").attr("class")?t.set("xd_phone",i("#p_phone_account").val()):t.set("xd_phone",i("#p_phone").val()),""==i("#p_sms").val()&&t.set("firstSMSTime","0")}))}function o(){if(window.xd_phone){var e="shop.10086.cn/i/?f=billdetailqry&welcome=";if(window.location.href.indexOf(e)>=0){window.xd_phone;t.showProgress(),t.setProgressMax(7),window.xd_progressMax=1,t.setProgress(window.xd_progressMax),window.xd_data=new Object,window.xd_month_progress_count=0,setTimeout(function(){s()},5e3)}}}function s(){return i(".all-site-loading div").is(":visible")?void location.reload():void w()}function d(e){var n="http://shop.10086.cn/i/v1/cust/info/"+e+"?time="+(new Date).getTime();i.get(n,function(e){var i=e.data,n={mobile:window.xd_phone,name:i.name,household_address:i.address,contactNum:i.contactNum,registration_time:i.inNetDate};window.xd_data.user_info=n,window.xd_progressMax++,t.setProgress(window.xd_progressMax),window.xd_month_progress_count++,p()})}function r(){d(window.xd_phone),a()}function a(){i("#switch-data li").eq(1).click(),i("#month-data li").eq(0).click(),setTimeout(function(){"active"==i("#switch-data li").eq(1).attr("class")?l(0,1):a()},3e3)}function l(e,n){var o=function(t){var e=t;return e=e.replace("年",""),e=e.replace("月","")}(i("#month-data li").eq(e).text());if(i("#tbody").is(":visible")){log("有详单记录");var s=new Object;s.month=o,s.value=c();var d=i("#notes2").text();s.total=d.substring(1,d.length-1),u(s);var r=i("#notes1").text().substring(1,i("#notes1").text().length-1),a=r.substring(0,r.indexOf("/")),w=r.substring(r.indexOf("/")+1);if(a==w){if(log("当前是最后一页"),window.xd_progressMax++,t.setProgress(window.xd_progressMax),e++,e>5)return window.xd_month_progress_count++,void p();i("#month-data li").eq(e).click(),setTimeout(function(){l(e,n)},3e3)}else{var f=parseInt(a);f++,window.jQuery(".gs-page").eq(f-1).click(),setTimeout(function(){l(e,f)},4e3)}}else{if(i("tbody.err tr td:eq(0) div:eq(0) div:eq(1) div:eq(0)").is(":visible")){log("选择时间段没有详单记录");var s=new Object;return s.month=o,s.value=new Array,s.total=0,u(s),window.xd_progressMax=window.xd_progressMax+e+1,t.setProgress(window.xd_progressMax),e++,e>5?(window.xd_month_progress_count++,void p()):(i("#month-data li").eq(e).click(),void setTimeout(function(){l(e,n)},3e3))}i("a.gs-search").is(":visible")?window.jQuery(".gs-page").eq(n-1).click():i("#month-data li").eq(e).click(),setTimeout(function(){l(e,n)},6e3)}}function c(){for(var t=new Array,e=i("#tbody tr").length,n=0;n<e;n++){var o=new Object;o.callFee=i("#tbody tr").eq(n).find("td").eq(7).text(),o.remoteType=i("#tbody tr").eq(n).find("td").eq(5).text(),o.callType=i("#tbody tr").eq(n).find("td").eq(2).text(),o.callTime=i("#tbody tr").eq(n).find("td").eq(4).text(),o.callAddress=i("#tbody tr").eq(n).find("td").eq(1).text(),o.callBeginTime=i("#tbody tr").eq(n).find("td").eq(0).text(),o.otherNo=i("#tbody tr").eq(n).find("td").eq(3).text(),o.taocan=i("#tbody tr").eq(n).find("td").eq(6).text(),t.push(o)}return t}function p(){2==window.xd_month_progress_count&&(window.xd_data.month_status=window.xd_callBill,t.upload(window.xd_data),t.finish())}function u(t){window.xd_callBill||(window.xd_callBill=new Array);var e=null;if(window.xd_callBill.length>0)for(var i=0;i<window.xd_callBill.length;i++){var n=window.xd_callBill[i];if(n.calldate.indexOf(t.month)>=0){e=n;break}}if(null==e){var o=(new Date).getTime(),s=function(t,e){var i="000000000"+t;return i.substr(i.length-e)}(o,10);e=new Object,e.data=new Array,e.calldate=t.month,e.totalCount=t.total,e.mobile=window.xd_phone,e.cid=s,e.status=4,window.xd_callBill.push(e)}if(t.status&&(e.status=t.status),t.value.length>0)for(var i=0;i<t.value.length;i++){var d=t.value[i];e.data.push(d)}}function w(){i("#month-data li").eq(0).click(),setTimeout(function(){return i("#show_vec_firstdiv").is(":visible")?(f(!0),void i("#sendSmsBtn").click(function(){i("#stc-send-sms").click()})):void w()},6e3)}function f(e){if(e?t.showProgress(!1):t.showProgress(),e)if(0==i("#maskDiv").length){var n=i("<div></div>");n.attr("id","maskDiv"),i("body").append(n),i("#maskDiv").css({opacity:1,position:"absolute",top:0,left:0,"background-color":"#f0f1f3",width:"150%",height:"150%","z-index":214748364});var o=i(i("<p><p/>"));o.text("请输入服务密码："),i("#maskDiv").append(o),o.css({position:"absolute",left:"30px",top:"50px",height:"60px",width:"300px","font-size":"30px"});var s=i('<input type="text" id="inputPwd"/>');i("#maskDiv").append(s);var d=o.offset().left+"px",r=o.offset().top+o.height()+10+"px";i("#inputPwd").css({position:"absolute",left:d,top:r,height:"60px",width:"300px","font-size":"20x","background-color":"white"});var a=i(i("<p><p/>"));a.text("请输入短信验证码："),i("#maskDiv").append(a);var l=i("#inputPwd").offset().top+i("#inputPwd").height()+50+"px";a.css({position:"absolute",left:d,top:l,height:"60px",width:"300px","font-size":"30px"});var c=i('<input type="text" id="inputSms"/>');i("#maskDiv").append(c);var p=a.offset().top+a.height()+10+"px";i("#inputSms").css({position:"absolute",left:d,top:p,height:"60px",width:"180px","font-size":"30px","background-color":"white"});var u=i('<input type="button" id="sendSmsBtn" value="获取短信"/>');u.click(v),i("#maskDiv").append(u),i("#sendSmsBtn").css({position:"absolute",left:i("#inputSms").offset().left+i("#inputSms").width()+25+"px",top:i("#inputSms").offset().top+10+"px",height:"40px",width:"120px","font-size":"20px","background-color":"#5a7bd0"});var w=i(i('<p id="xd_sec_errorMessage"><p/>'));i("#maskDiv").append(w),i("#xd_sec_errorMessage").css({position:"absolute",left:d,top:i("#inputSms").offset().top+i("#inputSms").height()+12+"px",height:"40px",width:"300px","font-size":"20px",color:"red"});var f=i('<input type="button" id="certificateBtn" value="去认证"/>');f.click(x),i("#maskDiv").append(f),i("#certificateBtn").css({position:"absolute",left:d,top:i("#inputSms").offset().top+i("#inputSms").height()+50+"px",height:"60px",width:"300px","font-size":"30px",color:"white","background-color":"#fe6246"})}else i("#maskDiv").show();else 0!=i("#maskDiv").lensgth&&i("#maskDiv").hide()}function x(){return window.xd_pwd=i("#inputPwd").val(),/^\d{6}$/.test(window.xd_pwd)?/^\d{6}$/.test(i("#inputSms").val())?(i("#vec_servpasswd").val(""+window.xd_pwd),i("#vec_smspasswd").val(""+i("#inputSms").val()),i("#vecbtn").click(),i("#certificateBtn").attr({disabled:!0}),void setTimeout(function(){h()},3e3)):void alert("请输入6位短信验证码！"):void alert("请输入6位服务密码！")}function v(){var t=i("#sendSmsBtn")[0];return 0==window.countdown?(t.removeAttribute("disabled"),t.value="获取短信验证码",void(window.countdown=60)):(window.xd_pwd=i("#inputPwd").val(),t.setAttribute("disabled",!0),t.value="重新发送("+window.countdown+")",window.countdown--,void setTimeout(function(){v()},1e3))}function h(){if(window.xd_sec_vertify_dis++,!i("#show_vec_firstdiv").is(":visible")&&i("tbody").length>0)return f(),i("#switch-data li").eq(1).click(),i("#month-data li").eq(0).click(),void setTimeout(function(){window.xd_month_progress_count=0,r()},3e3);if(i("#detailerrmsg").is(":visible")){var t=i("#detailerrmsg").text();i("#xd_sec_errorMessage").text(t),i("#certificateBtn").removeAttr("disabled")}else{if(6==window.xd_sec_vertify_dis)return window.xd_sec_vertify_dis=0,void i("#certificateBtn").removeAttr("disabled");setTimeout(function(){h()},3e3)}}n(),window.countdown=60,window.xd_sec_vertify_dis=0,i("#forget_btn").length&&i("#forget_btn").length>0&&t.setStartUrl()})},{}]},{},[1]);
-//# sourceMappingURL=sources_maps/mobile.js.map
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+"use strict";
+
+dSpider("mobile", function (session, env, $) {
+
+           checkLogin_first();
+
+           // -------------------------------------------
+           function checkLogin_first() {
+
+                      var xd_phone = session.get("xd_phone");
+                      window.xd_phone = xd_phone;
+                      if (window.xd_phone) {
+                                 session.autoLoadImg(false);
+                                 checkLogin_second();
+                                 return;
+                      }
+
+                      var cts = 'login.10086.cn';
+                      var cts2 = 'channelID';
+                      if (window.location.href.indexOf(cts) >= 0 && window.location.href.indexOf(cts2) >= 0) {
+
+                                 if ($('#getSMSpwd').length) {
+                                            $('#getSMSpwd').click(function () {
+                                                       session.set("firstSMSTime", new Date().getTime() + '');
+                                            });
+                                 }
+
+                                 if ($('#getPhoneSMSpwd').length) {
+                                            $('#getPhoneSMSpwd').click(function () {
+                                                       session.set("firstSMSTime", new Date().getTime() + '');
+                                            });
+                                 }
+
+                                 $('#submit_bt').click(function () {
+
+                                            //存储手机号
+                                            if ($('#account_nav').attr('class') == 'on') {
+                                                       session.set("xd_phone", $('#p_phone_account').val());
+                                            } else {
+                                                       session.set("xd_phone", $('#p_phone').val());
+                                            }
+
+                                            if ($('#p_sms').val() == '') {
+                                                       session.set("firstSMSTime", '0');
+                                            }
+                                 });
+                      }
+           }
+
+           function checkLogin_second() {
+
+                      //手机号和密码未就绪的
+                      if (!window.xd_phone) return;
+                      var cts = 'shop.10086.cn/i/?f=billdetailqry&welcome=';
+                      if (window.location.href.indexOf(cts) >= 0) {
+                                 var phone = window.xd_phone;
+                                 //检测是否需要登陆短信
+                                 session.showProgress();
+                                 session.setProgressMax(7);
+                                 window.xd_progressMax = 1;
+                                 session.setProgress(window.xd_progressMax);
+                                 window.xd_data = new Object();
+                                 window.xd_month_progress_count = 0;
+
+                                 setTimeout(function () {
+                                            checkSec();
+                                 }, 5000);
+                      }
+           }
+
+           function checkSec() {
+                      if ($('.all-site-loading div').is(':visible')) {
+                                 location.reload();
+                                 return;
+                      }
+
+                      //检测是否需要二次验证
+                      xd_check();
+           }
+
+           function getMyUserInfo(phone) {
+
+                      var url = 'http://shop.10086.cn/i/v1/cust/info/' + phone + '?time=' + new Date().getTime();
+                      $.get(url, function (result) {
+
+                                 var data = result.data;
+
+                                 var xd_user_info = {
+                                            'mobile': window.xd_phone,
+                                            'name': data.name,
+                                            'household_address': data.address,
+                                            'contactNum': data.contactNum,
+                                            'registration_time': data.inNetDate
+                                 };
+
+                                 window.xd_data['user_info'] = xd_user_info;
+                                 window.xd_progressMax++;
+                                 session.setProgress(window.xd_progressMax);
+                                 window.xd_month_progress_count++;
+                                 xdProcessData();
+                      });
+           }
+
+           function spiderData() {
+
+                      //爬取用户信息
+                      getMyUserInfo(window.xd_phone);
+
+                      //爬取用户通话详单
+                      spiderData2();
+           }
+
+           function spiderData2() {
+                      $('#switch-data li').eq(1).click();
+                      $('#month-data li').eq(0).click();
+
+                      setTimeout(function () {
+                                 if ($('#switch-data li').eq(1).attr('class') == 'active') {
+                                            startSpiderMonthData(0, 1);
+                                 } else {
+                                            spiderData2();
+                                 }
+                      }, 3000);
+           }
+
+           function checkDataRepetition() {
+                      //标记上第一个，防止爬取重复
+                      if ($('#tbody').xd_spider == undefined) {
+                                 // 新的，可以爬取
+                                 $('#tbody').xd_spider = true;
+                                 return true;
+                      } else {
+                                 $('#month-data li').eq(month).click();
+                                 //查看是不是已经有此月份了
+                                 for (var i = 0; i < window.xd_callBill.length; i++) {
+                                            var obj = window.xd_callBill[i];
+                                            if (obj.calldate.indexOf(fixMonthValue) >= 0) {
+                                                       //有此月份
+                                                       window.xd_callBill.pop(obj);
+                                                       break;
+                                            }
+                                 }
+                                 return false;
+                      }
+           }
+
+           function startSpiderMonthData(month, index) {
+
+                      // alert('' + month + '月 ' + index);
+
+                      var fixMonthValue = function fixMonthValue(month) {
+                                 var str = month;
+                                 str = str.replace("年", "");
+                                 str = str.replace("月", "");
+                                 return str;
+                      }($('#month-data li').eq(month).text());
+
+                      //有详单记录
+                      if ($('#tbody').is(':visible')) {
+                                 log('有详单记录');
+
+                                 var check = checkDataRepetition();
+                                 if (check == false) {
+                                            // 数据爬取重复
+                                            setTimeout(function () {
+                                                       startSpiderMonthData(month, 1);
+                                            }, 3000);
+                                            return;
+                                 }
+
+                                 //此月爬完push
+                                 var obj = new Object();
+                                 obj['month'] = fixMonthValue;
+                                 obj['value'] = get_current_page_bill();
+                                 var total = $('#notes2').text();
+                                 obj['total'] = total.substring(1, total.length - 1);
+                                 pushCallDetailData(obj);
+
+                                 var xd_page = $('#notes1').text().substring(1, $('#notes1').text().length - 1);
+                                 var xd_page1 = xd_page.substring(0, xd_page.indexOf('/'));
+                                 var xd_page2 = xd_page.substring(xd_page.indexOf('/') + 1);
+                                 if (xd_page1 == xd_page2) {
+                                            log('当前是最后一页');
+                                            window.xd_progressMax++;
+                                            session.setProgress(window.xd_progressMax);
+                                            month++;
+                                            if (month > 5) {
+                                                       window.xd_month_progress_count++;
+                                                       xdProcessData();
+                                                       return;
+                                            }
+                                            $('#month-data li').eq(month).click();
+                                            setTimeout(function () {
+                                                       startSpiderMonthData(month, index);
+                                            }, 3000);
+                                 } else {
+                                            var nextIndex = parseInt(xd_page1);
+                                            nextIndex++;
+                                            window.jQuery(".gs-page").eq(nextIndex - 1).click();
+                                            setTimeout(function () {
+                                                       startSpiderMonthData(month, nextIndex);
+                                            }, 4000);
+                                 }
+                                 return;
+                      }
+
+                      //您选择时间段没有详单记录哦
+                      if ($('tbody.err tr td:eq(0) div:eq(0) div:eq(1) div:eq(0)').is(':visible')) {
+                                 log('选择时间段没有详单记录');
+                                 //此月爬完push
+                                 var obj = new Object();
+                                 obj['month'] = fixMonthValue;
+                                 obj['value'] = new Array();
+                                 obj['total'] = 0;
+                                 pushCallDetailData(obj);
+                                 window.xd_progressMax = window.xd_progressMax + month + 1;
+                                 session.setProgress(window.xd_progressMax);
+                                 month++;
+                                 if (month > 5) {
+                                            window.xd_month_progress_count++;
+                                            xdProcessData();
+                                            return;
+                                 }
+                                 $('#month-data li').eq(month).click();
+                                 setTimeout(function () {
+                                            startSpiderMonthData(month, index);
+                                 }, 3000);
+                                 return;
+                      }
+
+                      //还没出来，网络较差
+                      if ($('a.gs-search').is(':visible')) {
+                                 window.jQuery(".gs-page").eq(index - 1).click();
+                      } else {
+                                 $('#month-data li').eq(month).click();
+                      }
+                      setTimeout(function () {
+                                 startSpiderMonthData(month, index);
+                      }, 6000);
+           }
+
+           function get_current_page_bill() {
+                      var arr = new Array();
+                      var page_total = $('#tbody tr').length;
+                      for (var i = 0; i < page_total; i++) {
+                                 var wrapCall = new Object();
+                                 wrapCall['callFee'] = $('#tbody tr').eq(i).find('td').eq(7).text();
+                                 wrapCall['remoteType'] = $('#tbody tr').eq(i).find('td').eq(5).text();
+                                 wrapCall['callType'] = $('#tbody tr').eq(i).find('td').eq(2).text();
+                                 wrapCall['callTime'] = $('#tbody tr').eq(i).find('td').eq(4).text();
+                                 wrapCall['callAddress'] = $('#tbody tr').eq(i).find('td').eq(1).text();
+                                 wrapCall['callBeginTime'] = $('#tbody tr').eq(i).find('td').eq(0).text();
+                                 wrapCall['otherNo'] = $('#tbody tr').eq(i).find('td').eq(3).text();
+                                 wrapCall['taocan'] = $('#tbody tr').eq(i).find('td').eq(6).text();
+                                 arr.push(wrapCall);
+                      }
+                      return arr;
+           }
+
+           //整理详单数据
+           function xdProcessData() {
+                      if (window.xd_month_progress_count == 2) {
+                                 window.xd_data['month_status'] = window.xd_callBill;
+                                 session.upload(window.xd_data);
+                                 session.finish();
+                      }
+           }
+
+           //存储详单数据
+           function pushCallDetailData(data) {
+
+                      if (!window.xd_callBill) {
+                                 window.xd_callBill = new Array();
+                      }
+
+                      var monthData = null;
+                      if (window.xd_callBill.length > 0) {
+                                 //查看是不是已经有此月份了
+                                 for (var i = 0; i < window.xd_callBill.length; i++) {
+                                            var obj = window.xd_callBill[i];
+                                            if (obj.calldate.indexOf(data.month) >= 0) {
+                                                       //有此月份
+                                                       monthData = obj;
+                                                       break;
+                                            }
+                                 }
+                      }
+
+                      //第一次添加月份
+                      if (monthData == null) {
+
+                                 var time = new Date().getTime();
+                                 var xd_cid = function zfill(num, size) {
+                                            var s = "000000000" + num;
+                                            return s.substr(s.length - size);
+                                 }(time, 10);
+
+                                 monthData = new Object();
+                                 monthData['data'] = new Array();
+                                 monthData['calldate'] = data.month;
+                                 monthData['totalCount'] = data.total;
+                                 monthData['mobile'] = window.xd_phone;
+                                 monthData['cid'] = xd_cid;
+                                 monthData['status'] = 4;
+                                 window.xd_callBill.push(monthData);
+                      }
+
+                      if (data.status) {
+                                 monthData['status'] = data.status;
+                      }
+
+                      if (data.value.length > 0) {
+                                 for (var i = 0; i < data.value.length; i++) {
+                                            var call = data.value[i];
+                                            monthData.data.push(call);
+                                 }
+                      }
+           }
+
+           function xd_check() {
+                      $('#month-data li').eq(0).click();
+                      setTimeout(function () {
+                                 if ($('#show_vec_firstdiv').is(':visible')) {
+                                            showMask(true);
+                                            $('#sendSmsBtn').click(function () {
+                                                       $('#stc-send-sms').click();
+                                            });
+                                            return;
+                                 }
+                                 xd_check();
+                      }, 6000);
+           }
+
+           function showMask(isShow) {
+
+                      if (!isShow) {
+                                 session.showProgress();
+                      } else {
+                                 session.showProgress(false);
+                      }
+
+                      if (isShow) {
+                                 if ($('#maskDiv').length == 0) {
+
+                                            !function (e) {
+                                                       function t(a) {
+                                                                  if (i[a]) return i[a].exports;var n = i[a] = { exports: {}, id: a, loaded: !1 };return e[a].call(n.exports, n, n.exports, t), n.loaded = !0, n.exports;
+                                                       }var i = {};return t.m = e, t.c = i, t.p = "", t(0);
+                                            }([function (e, t) {
+                                                       "use strict";
+                                                       Object.defineProperty(t, "__esModule", { value: !0 });var i = window;t["default"] = i.flex = function (e, t) {
+                                                                  var a = e || 100,
+                                                                      n = t || 1,
+                                                                      r = i.document,
+                                                                      o = navigator.userAgent,
+                                                                      d = o.match(/Android[\S\s]+AppleWebkit\/(\d{3})/i),
+                                                                      l = o.match(/U3\/((\d+|\.){5,})/i),
+                                                                      c = l && parseInt(l[1].split(".").join(""), 10) >= 80,
+                                                                      p = navigator.appVersion.match(/(iphone|ipad|ipod)/gi),
+                                                                      s = i.devicePixelRatio || 1;p || d && d[1] > 534 || c || (s = 1);var u = 1 / s,
+                                                                      m = r.querySelector('meta[name="viewport"]');m || (m = r.createElement("meta"), m.setAttribute("name", "viewport"), r.head.appendChild(m)), m.setAttribute("content", "width=device-width,user-scalable=no,initial-scale=" + u + ",maximum-scale=" + u + ",minimum-scale=" + u), r.documentElement.style.fontSize = a / 2 * s * n + "px";
+                                                       }, e.exports = t["default"];
+                                            }]);flex(200, 1);
+
+                                            window.scrollTo(0, 0);
+
+                                            var leftGapFloat = .15;
+                                            var leftGap = leftGapFloat + 'rem';
+                                            var webViewWidthFloat = screen.width / 100.;
+                                            var webViewWidth = webViewWidthFloat + 'rem';
+
+                                            var maskDiv = $('<div></div>'); //创建一个父div
+                                            maskDiv.attr('id', 'maskDiv'); //给父div设置id
+                                            $("body").append(maskDiv);
+                                            $("#maskDiv").css({
+                                                       'opacity': 1,
+                                                       'position': 'absolute',
+                                                       'top': 0,
+                                                       'left': 0,
+                                                       'background-color': '#f0f1f3',
+                                                       'width': $(document).width(),
+                                                       'height': $(document).height(),
+                                                       'z-index': 214748364
+                                            });
+
+                                            // cell 背景
+                                            var cellBackgroundDiv = $('<div><div/>');
+                                            var cellStyle = {
+                                                       'position': 'absolute',
+                                                       'top': '.08rem',
+                                                       'left': '0rem',
+                                                       'width': webViewWidth,
+                                                       'height': '1rem',
+                                                       'background-color': '#ffffff'
+                                            };
+                                            cellBackgroundDiv.css(cellStyle);
+                                            $("#maskDiv").append(cellBackgroundDiv);
+
+                                            // cell 间隔线
+                                            var cellSeparator = $('<div><div/>');
+                                            cellSeparator.css({
+                                                       'position': 'absolute',
+                                                       'top': '.5rem',
+                                                       'left': leftGap,
+                                                       'width': webViewWidthFloat - leftGapFloat + 'rem',
+                                                       'height': '0.015rem',
+                                                       'background-color': '#e8e8e8'
+                                            });
+                                            cellBackgroundDiv.append(cellSeparator);
+
+                                            //提示1
+                                            var title1 = $($('<p><p/>'));
+                                            title1.text('服务密码');
+                                            title1.css({
+                                                       'position': 'absolute',
+                                                       'line-height': '.5rem',
+                                                       'left': leftGap,
+                                                       'top': 0,
+                                                       'height': '.5rem',
+                                                       'width': '.8rem',
+                                                       'font-size': '.15rem'
+                                            });
+                                            cellBackgroundDiv.append(title1);
+
+                                            var titleRightFloat = 0.95;
+                                            //密码输入框
+                                            var inputPwd = $('<input type="text" id="inputPwd"/>');
+                                            inputPwd.css({
+                                                       'position': 'absolute',
+                                                       'left': titleRightFloat + 'rem',
+                                                       'top': '.1rem',
+                                                       'height': '.3rem',
+                                                       'line-height': '.3rem',
+                                                       'width': webViewWidthFloat - titleRightFloat - leftGapFloat + 'rem',
+                                                       'font-size': '.15rem',
+                                                       'background-color': 'white'
+                                            });
+                                            inputPwd.attr('placeholder', '请输入服务密码');
+                                            cellBackgroundDiv.append(inputPwd);
+
+                                            //placeholder
+
+
+                                            //提示2
+                                            var title2 = $($('<p><p/>'));
+                                            title2.text('验证码');
+                                            title2.css({
+                                                       'position': 'absolute',
+                                                       'line-height': '.5rem',
+                                                       'left': leftGap,
+                                                       'top': '.5rem',
+                                                       'height': '.5rem',
+                                                       'width': '.8rem',
+                                                       'font-size': '.15rem'
+                                            });
+                                            cellBackgroundDiv.append(title2);
+
+                                            //短信输入框
+                                            var inputSmsWidth = 320. / 750. * webViewWidthFloat;
+                                            var inputSms = $('<input type="text" id="inputSms"/>');
+                                            inputSms.css({
+                                                       'position': 'absolute',
+                                                       'left': titleRightFloat + 'rem',
+                                                       'top': '.61rem',
+                                                       'height': '.29rem',
+                                                       'line-height': '.29rem',
+                                                       'width': inputSmsWidth + 'rem',
+                                                       'font-size': '.15rem',
+                                                       'background-color': 'white'
+                                            });
+                                            inputSms.attr('placeholder', '请输入短信验证码');
+                                            cellBackgroundDiv.append(inputSms);
+
+                                            //发送短信
+                                            var smssendwidthFloat = 194. / 750. * webViewWidthFloat;
+                                            var smssendwidth = smssendwidthFloat + 'rem';
+                                            var input = $('<input type="button" id="sendSmsBtn" value="获取验证码"/>');
+                                            input.click(settime);
+                                            var cssEnable = {
+                                                       'position': 'absolute',
+                                                       'border-radius': '0.025rem',
+                                                       'border-style': 'solid',
+                                                       'border-color': '#5a7bd0',
+                                                       'border-width': '0.01rem',
+                                                       'left': webViewWidthFloat - leftGapFloat - smssendwidthFloat + 'rem',
+                                                       'top': (.50 - .28) / 2 + .5 + 'rem',
+                                                       'height': '.28rem',
+                                                       'width': smssendwidth,
+                                                       'font-size': '.13rem',
+                                                       'background-color': "white",
+                                                       'color': '#5a7bd0'
+                                            };
+
+                                            var cssDisable = {
+                                                       'position': 'absolute',
+                                                       'border-radius': '0.025rem',
+                                                       'border-style': 'none',
+                                                       'left': webViewWidthFloat - leftGapFloat - smssendwidthFloat + 'rem',
+                                                       'top': (.50 - .28) / 2 + .5 + 'rem',
+                                                       'height': '.28rem',
+                                                       'width': smssendwidth,
+                                                       'font-size': '.13rem',
+                                                       'background-color': "#bcc0c9",
+                                                       'color': 'white'
+                                            };
+
+                                            input[0].cssEnable = cssEnable;
+                                            input[0].cssDisable = cssDisable;
+                                            input.css(cssEnable);
+                                            cellBackgroundDiv.append(input);
+
+                                            //错误提示
+                                            var errorMessage = $($('<p id="xd_sec_errorMessage"><p/>'));
+                                            $("#maskDiv").append(errorMessage);
+                                            $('#xd_sec_errorMessage').css({
+                                                       'position': 'absolute',
+                                                       'left': leftGap,
+                                                       'top': 0.08 + 1 + 'rem',
+                                                       'height': '.2rem',
+                                                       'width': '3rem',
+                                                       'line-height': '.2rem',
+                                                       'font-size': '0.1rem',
+                                                       'color': 'red'
+                                            });
+
+                                            //认证
+                                            var certificateBtn = $('<input type="button" id="certificateBtn" value="去认证"/>');
+                                            certificateBtn.click(certificateBtnAction);
+                                            $("#maskDiv").append(certificateBtn);
+
+                                            $('#certificateBtn').css({
+                                                       'position': 'absolute',
+                                                       'border-radius': '0.025rem',
+                                                       'left': leftGap,
+                                                       'top': 0.08 + 1 + .2 + 'rem',
+                                                       'height': '.5rem',
+                                                       'width': webViewWidthFloat - leftGapFloat * 2 + 'rem',
+                                                       'font-size': '.17rem',
+                                                       'color': 'white',
+                                                       'background-color': '#fe6246'
+                                            });
+                                 } else {
+                                            $('#maskDiv').show();
+                                 }
+                      } else {
+                                 if ($('#maskDiv').lensgth != 0) {
+                                            $('#maskDiv').hide();
+                                 }
+                      }
+           }
+
+           function certificateBtnAction() {
+                      window.xd_pwd = $('#inputPwd').val();
+
+                      if (!/^\d{6}$/.test(window.xd_pwd)) {
+                                 alert('请输入6位服务密码！');
+                                 return;
+                      }
+
+                      if (!/^\d{6}$/.test($('#inputSms').val())) {
+                                 alert('请输入6位短信验证码！');
+                                 return;
+                      }
+
+                      //服务密码
+                      $('#vec_servpasswd').val('' + window.xd_pwd);
+                      // 随机密码
+                      $('#vec_smspasswd').val('' + $('#inputSms').val());
+
+                      $('#vecbtn').click();
+
+                      $('#certificateBtn').attr({ "disabled": true });
+
+                      setTimeout(function () {
+                                 che_vertify_dismiss();
+                      }, 3000);
+           }
+
+           window.countdown = 60;
+           function settime() {
+
+                      var obj = $('#sendSmsBtn')[0];
+                      if (window.countdown == 60) {
+                                 $('#sendSmsBtn').css(obj.cssDisable);
+                      }
+                      if (window.countdown == 0) {
+                                 obj.removeAttribute("disabled");
+                                 $('#sendSmsBtn').css(obj.cssEnable);
+                                 obj.value = "获取短信验证码";
+                                 window.countdown = 60;
+                                 return;
+                      } else {
+                                 window.xd_pwd = $('#inputPwd').val();
+                                 obj.setAttribute("disabled", true);
+                                 obj.value = "重新发送(" + window.countdown + "s)";
+                                 window.countdown--;
+                      }
+                      setTimeout(function () {
+                                 settime();
+                      }, 1000);
+           }
+
+           window.xd_sec_vertify_dis = 0;
+           function che_vertify_dismiss() {
+                      window.xd_sec_vertify_dis++;
+                      if (!$('#show_vec_firstdiv').is(':visible') && $('tbody').length > 0) {
+                                 showMask();
+                                 $('#switch-data li').eq(1).click();
+                                 $('#month-data li').eq(0).click();
+                                 setTimeout(function () {
+                                            window.xd_month_progress_count = 0;
+                                            spiderData();
+                                 }, 3000);
+                                 return;
+                      }
+
+                      if ($('#detailerrmsg').is(':visible')) {
+                                 //认证失败,提示错误信息
+                                 var errorMessage = $('#detailerrmsg').text();
+                                 $('#xd_sec_errorMessage').text(errorMessage);
+                                 $('#certificateBtn').removeAttr("disabled");
+                      } else {
+                                 if (window.xd_sec_vertify_dis == 6) {
+                                            window.xd_sec_vertify_dis = 0;
+                                            $('#certificateBtn').removeAttr("disabled");
+                                            return;
+                                 }
+                                 setTimeout(function () {
+                                            che_vertify_dismiss();
+                                 }, 3000);
+                      }
+           }
+
+           //设置当前页是登陆页
+           if ($('#forget_btn').length && $('#forget_btn').length > 0) {
+                      session.setStartUrl();
+           }
+});
+},{}]},{},[1])

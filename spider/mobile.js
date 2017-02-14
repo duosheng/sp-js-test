@@ -8,7 +8,7 @@ dSpider("mobile",function(session,env,$) {
         var xd_phone = session.get("xd_phone");
         window.xd_phone = xd_phone;
         if (window.xd_phone) {
-        session.autoLoadImg(false)
+        session.autoLoadImg(false);
         checkLogin_second();
         return;
         }
@@ -16,6 +16,15 @@ dSpider("mobile",function(session,env,$) {
         var cts = 'login.10086.cn';
         var cts2 = 'channelID';
         if (window.location.href.indexOf(cts) >= 0 && window.location.href.indexOf(cts2) >= 0) {
+        
+        // 隐藏其他跳转元素
+        hideElement($('#submit_help_info'));
+        hideElement($('#link_info'));
+        hideElement($('#forget_btn'));
+        hideElement($('#go_home'));
+        hideElement($('.back_btn'));
+        hideElement($('#chk'));
+        hideElement($('#chk').parent().find('label'));
         
         if ($('#getSMSpwd').length) {
         $('#getSMSpwd').click(function () {
@@ -42,6 +51,12 @@ dSpider("mobile",function(session,env,$) {
                               session.set("firstSMSTime",'0');
                               }
                               });
+        }
+        }
+        
+        function hideElement(element) {
+        if (element.length > 0) {
+        element.hide();
         }
         }
         
@@ -397,12 +412,13 @@ dSpider("mobile",function(session,env,$) {
                    'left': leftGap,
                    'top': 0,
                    'height': '.5rem',
-                   'width': '.8rem',
+                   'width': '.7rem',
                    'font-size': '.15rem',
                    });
         cellBackgroundDiv.append(title1);
         
-        var titleRightFloat = 0.95;
+        var inputSmsWidth = 320. / 750. * webViewWidthFloat;
+        var titleRightFloat = 0.85;
         //密码输入框
         var inputPwd = $('<input type="text" id="inputPwd"/>');
         inputPwd.css({
@@ -411,7 +427,7 @@ dSpider("mobile",function(session,env,$) {
                      'top': '.1rem',
                      'height': '.3rem',
                      'line-height':'.3rem',
-                     'width': webViewWidthFloat - titleRightFloat - leftGapFloat + 'rem',
+                     'width': inputSmsWidth + 'rem',
                      'font-size': '.15rem',
                      'background-color': 'white',
                      });
@@ -430,13 +446,12 @@ dSpider("mobile",function(session,env,$) {
                    'left': leftGap,
                    'top': '.5rem',
                    'height': '.5rem',
-                   'width': '.8rem',
+                   'width': '.7rem',
                    'font-size': '.15rem',
                    });
         cellBackgroundDiv.append(title2);
         
         //短信输入框
-        var inputSmsWidth = 320. / 750. * webViewWidthFloat;
         var inputSms = $('<input type="text" id="inputSms"/>');
         inputSms.css({
                      'position': 'absolute',

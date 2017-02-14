@@ -5,7 +5,7 @@ dSpider("telecom_gd", function(session,env,$){
 
     if(location.href.indexOf("gd.189.cn/TS/login.htm") != -1) {
         session.setStartUrl();
-//        session.showProgress(false);
+        session.showProgress(false);
         return;
     } else if(location.href.indexOf("SSOLoginForCommNoPage") != -1) {
         log("SSOLoginForCommNoPage");
@@ -519,7 +519,6 @@ dSpider("telecom_gd", function(session,env,$){
             beforeSend:function(){
             },
             success:function(result){
-                log("init:" + JSON.stringify(result));
                 if(result&&result.b&&result.b.c==="00"){//查询成功
                     switch(result.r.code){
                         case "000":
@@ -527,7 +526,6 @@ dSpider("telecom_gd", function(session,env,$){
                             break;
 //                        case "001"://未登录
                         default://其它
-                            log("init:default");
                             if(confirm(result.r.msg)) {
                                 setXd([]);
                             } else {

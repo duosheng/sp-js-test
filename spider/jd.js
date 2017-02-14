@@ -1,7 +1,7 @@
 
 dSpider("jd", function(session,env,$){
 
-    var infokey = "infokey";
+    var infokey = "infokey"
     var sid = "";
     var max_order_num = 30;
     var max_order_date = 100;

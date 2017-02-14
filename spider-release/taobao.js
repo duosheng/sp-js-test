@@ -17,6 +17,17 @@ dSpider("taobao", 60 * 10, function (session, env, $) {
 
     if ($("div.submit>button").text().indexOf("登 录") != -1) {
         session.setStartUrl();
+        //取出账号和密码填充进去
+        if (session.getLocal("TaoBaoUserName") != undefined && session.getLocal("TaoBaoPassWord") != undefined) {
+            $("div.field-control>input#username")[0].value = session.getLocal("TaoBaoUserName");
+            $("div.field-control>input#password")[0].value = session.getLocal("TaoBaoPassWord");
+            $("div.field-control>input#username")[0].focus();
+        }
+        //点击登录的时候保存账号和密码
+        $("button#submit-btn")[0].onclick = function () {
+            session.setLocal("TaoBaoUserName", $("div.field-control>input#username")[0].value);
+            session.setLocal("TaoBaoPassWord", $("div.field-control>input#password")[0].value);
+        };
     }
 
     if (window.location.pathname.indexOf("mlapp/mytaobao") != -1) {
@@ -29,6 +40,7 @@ dSpider("taobao", 60 * 10, function (session, env, $) {
                 //显示进度为0
                 session.showProgress(true);
                 session.setProgressMax(100);
+                //setProgressMsg("");
                 session.setProgress(2);
             }
             //            document.getElementsByClassName("label-act")[0].children[0].children[0].click();//点击订单
@@ -256,11 +268,11 @@ dSpider("taobao", 60 * 10, function (session, env, $) {
                 }
             }
             //-----------------------------------------位置类型订单的处理
-            if (window.location.pathname.indexOf("mlapp/olist") == -1 //当前页面不是订单列表
-            && window.location.pathname.indexOf("mymovie/pages") == -1 //当前页面不是电影票订单
-            && window.location.pathname.indexOf("bx/orderdetail") == -1 //当前页面不是保险订单
-            && window.location.pathname.indexOf("trip/flight") == -1 //当前页面不是飞机票订单
-            && window.location.pathname.indexOf("mlapp/odetail") == -1 //当前页面不是淘宝订单
+            if (window.location.pathname.indexOf("mlapp/olist") == -1 && //当前页面不是订单列表
+            window.location.pathname.indexOf("mymovie/pages") == -1 && //当前页面不是电影票订单
+            window.location.pathname.indexOf("bx/orderdetail") == -1 && //当前页面不是保险订单
+            window.location.pathname.indexOf("trip/flight") == -1 && //当前页面不是飞机票订单
+            window.location.pathname.indexOf("mlapp/odetail") == -1 //当前页面不是淘宝订单
             ) {
                     oa = session.get("orderArray");
 
@@ -284,8 +296,6 @@ dSpider("taobao", 60 * 10, function (session, env, $) {
                     var getOrderDetail = function getOrderDetail() {
                         //当前订单需要爬取的数据的对象
                         var tbOrderDetailInfo = {};
-                        //存放多个商品的数组
-                        var totalProductArray = [];
                         //创建订单详情的列表
                         var orderInfoList = [];
                         //拿到页面列表中所有的div
@@ -394,7 +404,6 @@ dSpider("taobao", 60 * 10, function (session, env, $) {
                                                     myproducts.number = orderInfoList[oil].number;
                                                     tbOrderDetailInfo.products.push(myproducts);
                                                 }
-                                                totalProductArray.push(tbOrderDetailInfo);
                                             } else if (orderInfoList.length == 1) {
                                                 //此订单中只有一个商品
                                                 var myproducts = {};
@@ -402,10 +411,9 @@ dSpider("taobao", 60 * 10, function (session, env, $) {
                                                 myproducts.price = orderInfoList[0].price;
                                                 myproducts.number = orderInfoList[0].number;
                                                 tbOrderDetailInfo.products.push(myproducts);
-                                                totalProductArray.push(tbOrderDetailInfo);
                                             }
                                             //存放数据
-                                            currentOrderData.push(totalProductArray);
+                                            currentOrderData.push(tbOrderDetailInfo);
                                             //保存数据
                                             session.set("orderArray", currentOrderData);
                                             //更新position
