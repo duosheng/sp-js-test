@@ -129,8 +129,39 @@ dSpider("unicom", 60*5, function(session,env,$){
     }
 
     if(window.location.href.indexOf("/uac.10010.com/oauth2/new_auth") != -1) {
-        session.showProgress(false);
+        var footer = $("div.footer:eq(0)");
+        if (footer) {
+            footer.css("visibility", "hidden");
+        }
+        var header = $("div.header");
+        if(header) {
+            header.css("display", "none");
+        }
+        var passFind = $("div.interval2:eq(0)");
+        if(passFind) {
+            passFind.css("visibility", "hidden");
+        }
+        var loginBtn = $("a#login1:eq(0)");
+        if(loginBtn) {
+            loginBtn.click(function(){
+                var unameInput = $("input#userName:eq(0)");
+                if(unameInput) {
+                    var userName = unameInput.val();
+                    session.setLocal("userName", userName);
+                }
+                var passInput = $("input#userPwd:eq(0)");
+                if(passInput) {
+                    var pass = passInput.val();
+                    session.setLocal("password", pass);
+                }
+            });
+        }
+
+        $("input#userName:eq(0)").val(session.getLocal("userName"));
+        $("input#userPwd:eq(0)").val(session.getLocal("password"));
+
         session.setStartUrl();
+        session.showProgress(false);
     } if(window.location.href.indexOf('query/getPhoneByDetailTip.htm') != -1){
         //显示loading
         session.showProgress();
