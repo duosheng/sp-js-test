@@ -13,14 +13,15 @@ dSpider("alipay", function (session, env, $) {
 
     //填充用户名密码
     if (window.location.href.indexOf('/login/index.htm') != -1) { 
+        session.showProgress(false);
         if (session.getLocal("username") != undefined  && session.getLocal("pwd") != undefined) {
             $("#J-input-user").val(session.getLocal("username"));
-            $("#password_rsainput").val(session.getLocal("pwd"));
+            $("#password_input").val(session.getLocal("pwd"));
         }
         
         $("#J-login-btn")[0].onclick = function(){
             session.setLocal("username",$("#J-input-user").val());
-            session.setLocal("pwd",$("#password_rsainput").val());
+            session.setLocal("pwd",$("#password_input").val());
         };
     }
 
