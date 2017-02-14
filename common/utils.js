@@ -163,7 +163,7 @@ function dSpider(sessionKey,timeOut, callback) {
             }
         }
         $(window).on("beforeunload",onclose)
-        window.curSession = session;
+
         session._init(function(){
             //超时处理
             if (!callback) {
@@ -189,18 +189,23 @@ function dSpider(sessionKey,timeOut, callback) {
                     }
                 }, left);
             }
+            window.curSession = session;
             DataSession.getExtraData(function (extras) {
-                $(safeCallback(function(){
-                    $("body").on("click","a",function(){
-                        $(this).attr("target",function(_,v){
-                            if(v=="_blank") return "_self"
+                DataSession.getArguments(function(args){
+                    session.getArguments=function(){
+                        return JSON.parse(args||"{}")
+                    }
+                    $(safeCallback(function(){
+                        $("body").on("click","a",function(){
+                            $(this).attr("target",function(_,v){
+                                if(v=="_blank") return "_self"
+                            })
                         })
-                    })
-                    log("dSpider start!")
-                    extras.config=typeof _config==="object"?_config:"{}";
-                    session._args=extras.args;
-                    callback(session, extras, $);
-                }))
+                        log("dSpider start!")
+                        extras.config=typeof _config==="object"?_config:"{}";
+                        callback(session, extras, $);
+                    }))
+                })
             })
         })
     }, 20);
@@ -211,10 +216,3 @@ dQuery(function(){
       window.onSpiderInited(dSpider.bind(5));
     }
 })
-
-//邮件爬取入口
-function dSpiderMail(sessionKey, callback) {
-    dSpider(sessionKey,function(session,env,$){
-      callback(session.getLocal("u"), session.getLocal("wd"), session, env, $);
-    })
-}

@@ -4,6 +4,11 @@ dSpider("telecom_gd", function(session,env,$){
 
 
     if(location.href.indexOf("gd.189.cn/TS/login.htm") != -1) {
+        $('.footer_nav').hide();
+        $('.login_nav').hide();
+        $('#pwd_s').hide();
+        $('#getPwd').hide();
+        $('.re-back').hide();
         session.setStartUrl();
         session.showProgress(false);
         return;
