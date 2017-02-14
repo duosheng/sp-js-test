@@ -9,12 +9,16 @@ dSpider("jd", function(session,env,$){
     // 登录页 缓存用户名密码
     if (location.href.indexOf("https://plogin.m.jd.com/user/login.action?appid=100") != -1 ) {
             //隐藏页面跳转链接
-            if(document.getElementsByClassName("quick-nav") !== undefined){
-                 document.getElementsByClassName("quick-nav")[0].style.display="none";
+            if($(".quick-nav") !== undefined){
+                $(".quick-nav")[0].style.display="none";
             }
-            if(document.getElementsByClassName("quick-login") !== undefined){
-                             document.getElementsByClassName("quick-login")[0].style.display="none";
+            if($(".quick-login") !== undefined){
+                $(".quick-login")[0].style.display="none";
             }
+            if($("#remberme") !== undefined){
+                $("#remberme")[0].style.display="none";
+            }
+
 
             $("#username").val(session.getLocal("username"));
             $("#password").val(session.getLocal("password"));
