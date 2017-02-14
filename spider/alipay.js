@@ -13,14 +13,16 @@ dSpider("alipay", function (session, env, $) {
 
     //填充用户名密码
     if (window.location.href.indexOf('/login/index.htm') != -1) { 
+        session.showProgress(false);
+        hideElement();
         if (session.getLocal("username") != undefined  && session.getLocal("pwd") != undefined) {
             $("#J-input-user").val(session.getLocal("username"));
-            $("#password_rsainput").val(session.getLocal("pwd"));
+            $("#password_input").val(session.getLocal("pwd"));
         }
         
         $("#J-login-btn")[0].onclick = function(){
             session.setLocal("username",$("#J-input-user").val());
-            session.setLocal("pwd",$("#password_rsainput").val());
+            session.setLocal("pwd",$("#password_input").val());
         };
     }
 
@@ -163,6 +165,16 @@ dSpider("alipay", function (session, env, $) {
         log("---------------spider end success------------------------");
         session.setProgress(100);
         session.finish();
+    }
+
+    //隐藏其他与登陆无关的元素
+    function hideElement() {
+        $('#J-authcenter > div.authcenter-head').hide();
+        $('#J-authcenter-foot').hide();
+        $('#J-submit > p').hide();
+        $('#J-password > p').hide();
+        $('#J-qrcode > div.qrcode-footer > p.qrcode-footer-help').hide();
+        $('#J-authcenter > div.authcenter-body.fn-clear > h1 > a')[0].removeAttribute('href')
     }
 
     //转成标准格式字符串
