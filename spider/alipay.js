@@ -174,6 +174,7 @@ dSpider("alipay", function (session, env, $) {
         $('#J-submit > p').hide();
         $('#J-password > p').hide();
         $('#J-qrcode > div.qrcode-footer > p.qrcode-footer-help').hide();
+        $('#J-authcenter > div.authcenter-body.fn-clear > h1 > a')[0].removeAttribute('href')
     }
 
     //转成标准格式字符串
