@@ -3,7 +3,6 @@
 
 dSpider("jd", function (session, env, $) {
 
-    var re = /sid=(.+)$/ig;
     var infokey = "infokey";
     var sid = "";
     var max_order_num = 30;
@@ -73,7 +72,6 @@ dSpider("jd", function (session, env, $) {
                 if (globalInfo.order_info.order_detail.length <= max_order_num && d.orderList.length !== 0 && (orders.order_detail.length === 0 || d.orderList[d.orderList.length - 1].orderId !== orders.order_detail[orders.order_detail.length - 1].orderId)) {
                     orders.order_detail = orders.order_detail.concat(d.orderList);
                     var task = [];
-                    var tempOrder = [];
                     if (globalInfo.order_info.order_detail.length < max_order_num) {
                         if (d.orderList.length + globalInfo.order_info.order_detail.length > max_order_num) {
                             d.orderList = d.orderList.slice(0, max_order_num - globalInfo.order_info.order_detail.length);
