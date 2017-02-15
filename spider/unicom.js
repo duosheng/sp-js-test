@@ -167,9 +167,6 @@ dSpider("unicom", 60*5, function(session,env,$){
         session.showProgress();
 
         //计算月份信息
-        //var date = new Date();
-        //var curMonth = date.getMonth() + 1;
-        //var curYear = date.getFullYear();
         var curMonth, curYear;
 
         var ul = $(".month_list");
@@ -193,6 +190,13 @@ dSpider("unicom", 60*5, function(session,env,$){
                 }
             };
         };
+        //若获取时间失败，则使用当前时间
+        if(!curMonth || !curYear) {
+            var date = new Date();
+            curMonth = date.getMonth() + 1;
+            curYear = date.getFullYear();
+            log("获取网页时间失败，获取当前系统时间...");
+        }
         var monthArr = []
         var max = 0;
         if (curMonth && curYear) {
