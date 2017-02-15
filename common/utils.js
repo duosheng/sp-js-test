@@ -2,7 +2,6 @@
  * Created by du on 16/9/1.
  */
 var $ = dQuery;
-var jQuery=$;
 String.prototype.format = function () {
     var args = Array.prototype.slice.call(arguments);
     var count = 0;
@@ -210,7 +209,7 @@ function dSpider(sessionKey,timeOut, callback) {
     }, 20);
 }
 
-dQuery(function(){
+$(function(){
     if(window.onSpiderInited){
       window.onSpiderInited(dSpider.bind(5));
     }
