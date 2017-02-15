@@ -35,10 +35,9 @@ dSpider("alipay", function (session, env, $) {
         var delay = 500; //为了动画500ms
         setTimeout(function () {
             fetchUserInfo();
+            jumptoOrderListPage();
             session.setProgress(100.0 / (sumCount));
         }, delay);
-
-        jumptoOrderListPage();
     }
 
     if (window.location.href.indexOf('/record/advanced.htm') != -1) {
@@ -58,7 +57,7 @@ dSpider("alipay", function (session, env, $) {
         fetchOrderListBy(1, beginDate, endDate);
     }
 
-    //获取交易记录 pageNum:第几页  beginDate:开始时间  endDate:结束时间
+    //获取交易记录 pageNum:第几页  beginDate:开始时间  endDate:结束时间 //TODO:进度条还可以优化
     function fetchOrderListBy(pageNum, beginDate, endDate) {
         log('---------fetchOrderListBy--------------')
         log('---------start spide order:【' + pageNum + '】page-------');
@@ -106,7 +105,9 @@ dSpider("alipay", function (session, env, $) {
                 } else {
                     var data = $(res).find('tbody').find('tr:has(td)').map(function (index) {
                         var i = index + 1;
-
+                        if($(this).find('p.consume-title')[0] === undefined) { //TODO：退款的数据结构不一样
+                            return {};
+                        }
                         return { //拼接上传数据
                             name: formateStr($(this).find('p.consume-title').text()),
                             time: formateStr($(this).find('td.time > p:nth-child(1)').text()) + '   ' + formateStr($(this).find('td.time > p:nth-child(2)').text()),
@@ -138,7 +139,7 @@ dSpider("alipay", function (session, env, $) {
         userInfo.phone = $('#account-main > div > table > tbody > tr:nth-child(3) > td:nth-child(2) > span').text();
         userInfo.taoId = $('#account-main > div > table > tbody > tr:nth-child(4) > td:nth-child(2)').text();
         userInfo.regTime = $('#account-main > div > table > tbody > tr:nth-child(7) > td:nth-child(2)').text();
-        userInfo.bankCard = $('#J-bankcards > td:nth-child(2) > span').text();
+        userInfo.bankCard = '已绑定' + $('#J-bankcards > td:nth-child(2) > span').text() + '张银行卡';
 
         session.upload({
             user_info: userInfo
