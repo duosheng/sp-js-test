@@ -32,9 +32,9 @@ dSpider("alipay", function (session, env, $) {
         session.setProgressMax(100);
         session.setProgress(0);
 
-        fetchUserInfo();
         var delay = 500; //为了动画500ms
         setTimeout(function () {
+            fetchUserInfo();
             session.setProgress(100.0 / (sumCount));
         }, delay);
 
@@ -175,6 +175,7 @@ dSpider("alipay", function (session, env, $) {
         $('#J-password > p').hide();
         $('#J-qrcode > div.qrcode-footer > p.qrcode-footer-help').hide();
         $('#J-authcenter > div.authcenter-body.fn-clear > h1 > a')[0].removeAttribute('href')
+        $('#J-errorBox > span > a').removeAttr("href");
     }
 
     //转成标准格式字符串
