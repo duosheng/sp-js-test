@@ -34,8 +34,7 @@ function log(str) {
 
 //异常捕获
 function errorReport(e) {
-    var stack=e.stack? e.stack.replace(/http.*?inject\.php.*?:/ig," "+_su+":"): e.toString();
-    var msg="语法错误: " + e.message +"\nscript_url:"+_su+"\n"+stack
+    var msg="语法错误: " + e.message +"\nscript_url:"+_su+"\n"+ e.stack
     if(window.curSession){
         curSession.log(msg);
         curSession.finish(e.message,"",2,msg);
