@@ -13,14 +13,16 @@ dSpider("alipay", function (session, env, $) {
 
     //填充用户名密码
     if (window.location.href.indexOf('/login/index.htm') != -1) { 
+        session.showProgress(false);
+        hideElement();
         if (session.getLocal("username") != undefined  && session.getLocal("pwd") != undefined) {
             $("#J-input-user").val(session.getLocal("username"));
-            $("#password_rsainput").val(session.getLocal("pwd"));
+            $("#password_input").val(session.getLocal("pwd"));
         }
         
         $("#J-login-btn")[0].onclick = function(){
             session.setLocal("username",$("#J-input-user").val());
-            session.setLocal("pwd",$("#password_rsainput").val());
+            session.setLocal("pwd",$("#password_input").val());
         };
     }
 
@@ -30,13 +32,12 @@ dSpider("alipay", function (session, env, $) {
         session.setProgressMax(100);
         session.setProgress(0);
 
-        fetchUserInfo();
         var delay = 500; //为了动画500ms
         setTimeout(function () {
+            fetchUserInfo();
+            jumptoOrderListPage();
             session.setProgress(100.0 / (sumCount));
         }, delay);
-
-        jumptoOrderListPage();
     }
 
     if (window.location.href.indexOf('/record/advanced.htm') != -1) {
@@ -56,7 +57,7 @@ dSpider("alipay", function (session, env, $) {
         fetchOrderListBy(1, beginDate, endDate);
     }
 
-    //获取交易记录 pageNum:第几页  beginDate:开始时间  endDate:结束时间
+    //获取交易记录 pageNum:第几页  beginDate:开始时间  endDate:结束时间 //TODO:进度条还可以优化
     function fetchOrderListBy(pageNum, beginDate, endDate) {
         log('---------fetchOrderListBy--------------')
         log('---------start spide order:【' + pageNum + '】page-------');
@@ -104,7 +105,9 @@ dSpider("alipay", function (session, env, $) {
                 } else {
                     var data = $(res).find('tbody').find('tr:has(td)').map(function (index) {
                         var i = index + 1;
-
+                        if($(this).find('p.consume-title')[0] === undefined) { //TODO：退款的数据结构不一样
+                            return {};
+                        }
                         return { //拼接上传数据
                             name: formateStr($(this).find('p.consume-title').text()),
                             time: formateStr($(this).find('td.time > p:nth-child(1)').text()) + '   ' + formateStr($(this).find('td.time > p:nth-child(2)').text()),
@@ -136,7 +139,7 @@ dSpider("alipay", function (session, env, $) {
         userInfo.phone = $('#account-main > div > table > tbody > tr:nth-child(3) > td:nth-child(2) > span').text();
         userInfo.taoId = $('#account-main > div > table > tbody > tr:nth-child(4) > td:nth-child(2)').text();
         userInfo.regTime = $('#account-main > div > table > tbody > tr:nth-child(7) > td:nth-child(2)').text();
-        userInfo.bankCard = $('#J-bankcards > td:nth-child(2) > span').text();
+        userInfo.bankCard = '已绑定' + $('#J-bankcards > td:nth-child(2) > span').text() + '张银行卡';
 
         session.upload({
             user_info: userInfo
@@ -163,6 +166,17 @@ dSpider("alipay", function (session, env, $) {
         log("---------------spider end success------------------------");
         session.setProgress(100);
         session.finish();
+    }
+
+    //隐藏其他与登陆无关的元素
+    function hideElement() {
+        $('#J-authcenter > div.authcenter-head').hide();
+        $('#J-authcenter-foot').hide();
+        $('#J-submit > p').hide();
+        $('#J-password > p').hide();
+        $('#J-qrcode > div.qrcode-footer > p.qrcode-footer-help').hide();
+        $('#J-authcenter > div.authcenter-body.fn-clear > h1 > a')[0].removeAttribute('href')
+        $('#J-errorBox > span > a').removeAttr("href");
     }
 
     //转成标准格式字符串
