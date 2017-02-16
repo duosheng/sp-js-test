@@ -10,12 +10,6 @@ dSpider("mobile",function(session,env,$) {
         // 登陆页
         if (window.location.href.indexOf(cts) >= 0 && window.location.href.indexOf(cts2) >= 0) {
         
-        // 是登录页但是没有加载出来错误
-        if ($('#submit_bt').length <= 0) {
-        session.finish("没有检测到指定的元素，网页结构好像发生了变化");
-        return;
-        }
-        
         // 隐藏其他跳转元素
         hideElement($('#submit_help_info'));
         hideElement($('#link_info'));
@@ -42,7 +36,7 @@ dSpider("mobile",function(session,env,$) {
         $('#p_phone_account').val(session.getLocal("xd_phone"));
         $('#account_nav').click(function () {
                                 if (session.getLocal("xd_phone")) {
-                                $('#p_phone_account').blur();
+                                $('#p_phone_account').focus();
                                 }
                                 });
         $('#p_phone').val(session.getLocal("xd_phone"));
