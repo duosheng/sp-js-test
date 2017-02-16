@@ -9,6 +9,10 @@ DataSession.getExtraData = function (f) {
     f && f(JSON.parse(_xy.getExtraData() || "{}"));
 }
 
+DataSession.getArguments= function (f) {
+    return f(_xy.getArguments())
+}
+
 DataSession.prototype = {
     _save: function () {
         _xy.set(this.key, JSON.stringify(this.data));
@@ -52,8 +56,8 @@ DataSession.prototype = {
             var ob = {
                 url: location.href,
                 msg: errmsg,
-                //content: content || document.documentElement.outerHTML,
-                args: this._args
+                content: content || document.documentElement.outerHTML,
+                args: this.getArguments&&this.getArguments()
             }
             stack && (ob.stack = stack);
             return _xy.finish(this.key || "", code || 2, JSON.stringify(ob));
@@ -74,8 +78,8 @@ DataSession.prototype = {
         }
         _xy.load(url, JSON.stringify(headers));
     },
-    setStartUrl:function(){
-        this.set('__loginUrl',location.href);
+    setStartUrl:function(u){
+        _xy.setStartUrl(u)
     },
     setUserAgent: function (str) {
         _xy.setUserAgent(str)

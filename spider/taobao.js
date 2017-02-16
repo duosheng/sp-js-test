@@ -15,6 +15,17 @@ dSpider("taobao", 60*10 , function(session,env,$){
 
     if($("div.submit>button").text().indexOf("登 录") != -1){
         session.setStartUrl();
+        session.showProgress(false);
+        //隐藏登录页面的无关按钮
+        if($("div.other-link>a")[0] != undefined){
+            $("div.other-link>a")[0].style.display="none";
+        }
+        if($("div.other-link>a")[1] != undefined){
+            $("div.other-link>a")[1].style.display="none";
+        }
+        if($("div.head")[0] != undefined){
+            $("div.head")[0].style.display = "none"
+        }
         //取出账号和密码填充进去
         if(session.getLocal("TaoBaoUserName") != undefined && session.getLocal("TaoBaoPassWord") != undefined){
             $("div.field-control>input#username")[0].value = session.getLocal("TaoBaoUserName");

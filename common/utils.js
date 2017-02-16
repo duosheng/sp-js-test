@@ -2,7 +2,6 @@
  * Created by du on 16/9/1.
  */
 var $ = dQuery;
-var jQuery=$;
 String.prototype.format = function () {
     var args = Array.prototype.slice.call(arguments);
     var count = 0;
@@ -34,8 +33,7 @@ function log(str) {
 
 //异常捕获
 function errorReport(e) {
-    var stack=e.stack? e.stack.replace(/http.*?inject\.php.*?:/ig," "+_su+":"): e.toString();
-    var msg="语法错误: " + e.message +"\nscript_url:"+_su+"\n"+stack
+    var msg="语法错误: " + e.message +"\nscript_url:"+_su+"\n"+ e.stack
     if(window.curSession){
         curSession.log(msg);
         curSession.finish(e.message,"",2,msg);
@@ -163,7 +161,7 @@ function dSpider(sessionKey,timeOut, callback) {
             }
         }
         $(window).on("beforeunload",onclose)
-        window.curSession = session;
+
         session._init(function(){
             //超时处理
             if (!callback) {
@@ -189,32 +187,30 @@ function dSpider(sessionKey,timeOut, callback) {
                     }
                 }, left);
             }
+            window.curSession = session;
             DataSession.getExtraData(function (extras) {
-                $(safeCallback(function(){
-                    $("body").on("click","a",function(){
-                        $(this).attr("target",function(_,v){
-                            if(v=="_blank") return "_self"
+                DataSession.getArguments(function(args){
+                    session.getArguments=function(){
+                        return JSON.parse(args||"{}")
+                    }
+                    $(safeCallback(function(){
+                        $("body").on("click","a",function(){
+                            $(this).attr("target",function(_,v){
+                                if(v=="_blank") return "_self"
+                            })
                         })
-                    })
-                    log("dSpider start!")
-                    extras.config=typeof _config==="object"?_config:"{}";
-                    session._args=extras.args;
-                    callback(session, extras, $);
-                }))
+                        log("dSpider start!")
+                        extras.config=typeof _config==="object"?_config:"{}";
+                        callback(session, extras, $);
+                    }))
+                })
             })
         })
     }, 20);
 }
 
-dQuery(function(){
+$(function(){
     if(window.onSpiderInited){
       window.onSpiderInited(dSpider.bind(5));
     }
 })
-
-//邮件爬取入口
-function dSpiderMail(sessionKey, callback) {
-    dSpider(sessionKey,function(session,env,$){
-      callback(session.getLocal("u"), session.getLocal("wd"), session, env, $);
-    })
-}
