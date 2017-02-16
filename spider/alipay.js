@@ -32,7 +32,7 @@ dSpider("alipay", function (session, env, $) {
         session.setProgressMax(100);
         session.setProgress(0);
 
-        var delay = 500; //为了动画500ms
+        var delay = 700; //获取银行卡信息有延迟，TODO: 改为AJAX请求
         setTimeout(function () {
             fetchUserInfo();
             jumptoOrderListPage();
@@ -103,11 +103,18 @@ dSpider("alipay", function (session, env, $) {
                     monthArray = []; //上传后清空
 
                 } else {
+                    var offset = 0;
                     var data = $(res).find('tbody').find('tr:has(td)').map(function (index) {
-                        var i = index + 1;
-                        if($(this).find('p.consume-title')[0] === undefined) { //TODO：退款的数据结构不一样
-                            return {};
+                        if($(this).find('td.title.td-refund')[0] !== undefined) { 
+                            offset++;
+                            return { //TODO：退款的数据结构不一样
+                                name: formateStr($(this).find('td.title.td-refund').text()),
+                                time: '无',
+                                amount: formateStr($(this).find('td.amount.td-refund > p').text()),
+                                tradeNo: '无',
+                            };
                         }
+                        var i = index + 1 - offset;
                         return { //拼接上传数据
                             name: formateStr($(this).find('p.consume-title').text()),
                             time: formateStr($(this).find('td.time > p:nth-child(1)').text()) + '   ' + formateStr($(this).find('td.time > p:nth-child(2)').text()),
@@ -140,7 +147,7 @@ dSpider("alipay", function (session, env, $) {
         userInfo.taoId = $('#account-main > div > table > tbody > tr:nth-child(4) > td:nth-child(2)').text();
         userInfo.regTime = $('#account-main > div > table > tbody > tr:nth-child(7) > td:nth-child(2)').text();
         userInfo.bankCard = '已绑定' + $('#J-bankcards > td:nth-child(2) > span').text() + '张银行卡';
-
+        userInfo.alipayId = window.GLOBAL_NAV_DATA.userId;
         session.upload({
             user_info: userInfo
         });
@@ -201,7 +208,7 @@ dSpider("alipay", function (session, env, $) {
     }
 
     //用户信息
-    function userInfo(name, mail, phone, taoId, regTime, certId, bVerify, bankCard) {
+    function userInfo(name, mail, phone, taoId, regTime, certId, bVerify, bankCard, alipayId) {
         this.name = name; //真实名字
         this.mail = mail; //邮箱
         this.phone = phone; //手机号
@@ -210,6 +217,7 @@ dSpider("alipay", function (session, env, $) {
         this.certId = certId; //身份证
         this.bVerify = bVerify; //是否认证
         this.bankCard = bankCard; //绑定银行卡个数
+        this.alipayId = alipayId; //支付宝ID
     }
 
     //交易记录
