@@ -15,8 +15,8 @@ dSpider("jd", function(session,env,$){
             if($(".quick-login") !== undefined){
                 $(".quick-login")[0].style.display="none";
             }
-            if($("#remberme") !== undefined){
-                $("#remberme")[0].style.display="none";
+            if($(".remberme") !== undefined){
+                $(".remberme")[0].style.display="none";
             }
 
 
@@ -44,8 +44,7 @@ dSpider("jd", function(session,env,$){
 
             session.set(infokey, new info({},{},{}));
             globalInfo = session.get(infokey);
-            globalInfo.base_info.username  = $("[report-eventid$='MCommonHTail_Account']").
-                text().replace(/\n/g,"").replace(/\t/g,"");
+            globalInfo.base_info.username  = session.getLocal("username");
             saveInfo();
             session.setProgress(10);
             location.href="https://home.m.jd.com/maddress/address.action?";

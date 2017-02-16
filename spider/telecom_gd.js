@@ -4,13 +4,25 @@ dSpider("telecom_gd", function(session,env,$){
 
 
     if(location.href.indexOf("gd.189.cn/TS/login.htm") != -1) {
+        session.setStartUrl();
+        session.showProgress(false);
         $('.footer_nav').hide();
         $('.login_nav').hide();
         $('#pwd_s').hide();
         $('#getPwd').hide();
         $('.re-back').hide();
-        session.setStartUrl();
-        session.showProgress(false);
+        $("#account").val(session.getLocal("account"));
+        $("#password_k").val(session.getLocal("password"));
+        if(session.getLocal("select_area")) {
+            $("#select_area").find("span").eq(0).text(session.getLocal("select_area"));
+            $("#area").val(session.getLocal("area"));
+        }
+        $(".ui-btn-1").on("click",function(){
+            session.setLocal("password", $("#password_k").val());
+            session.setLocal("account", $("#account").val());
+            session.setLocal("area", $("#area").val());
+            session.setLocal("select_area", $("#select_area").find("span").eq(0).text());
+        });
         return;
     } else if(location.href.indexOf("SSOLoginForCommNoPage") != -1) {
         log("SSOLoginForCommNoPage");
@@ -357,6 +369,15 @@ dSpider("telecom_gd", function(session,env,$){
             thxd = {};
         }
         thxd.month_status = xd;
+
+        var userInfo = thxd.user_info;
+        if(!userInfo) {
+            userInfo = {};
+        }
+        if(!userInfo.mobile) {
+            userInfo.mobile=session.getLocal("account");
+        }
+
         session.set("thxd", thxd);
 
         session.setProgress(100);

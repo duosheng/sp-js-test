@@ -5,16 +5,9 @@ dSpider("mobile",function(session,env,$) {
         // -------------------------------------------
         function checkLogin_first() {
         
-        var xd_phone = session.get("xd_phone");
-        window.xd_phone = xd_phone;
-        if (window.xd_phone) {
-        session.autoLoadImg(false);
-        checkLogin_second();
-        return;
-        }
-        
         var cts = 'login.10086.cn';
         var cts2 = 'channelID';
+        // 登陆页
         if (window.location.href.indexOf(cts) >= 0 && window.location.href.indexOf(cts2) >= 0) {
         
         // 隐藏其他跳转元素
@@ -38,19 +31,50 @@ dSpider("mobile",function(session,env,$) {
                                    });
         }
         
+        // 填充默认手机号
+        if (session.getLocal("xd_phone")) {
+        $('#p_phone_account').val(session.getLocal("xd_phone"));
+        $('#account_nav').click(function () {
+                                if (session.getLocal("xd_phone")) {
+                                setTimeout(function() {
+                                           
+                                           },1000);
+                                $('#p_phone_account').blur();
+                                }
+                                });
+        $('#p_phone').val(session.getLocal("xd_phone"));
+        $('#sms_nav').click(function () {
+                            if (session.getLocal("xd_phone")) {
+                            setTimeout(function() {
+                                       
+                                       },1000);
+                            $('#p_phone').blur();
+                            }
+                            });
+        }
+        
         $('#submit_bt').click(function () {
                               
                               //存储手机号
                               if ($('#account_nav').attr('class') == 'on') {
-                              session.set("xd_phone",$('#p_phone_account').val());
+                              session.setLocal("xd_phone",$('#p_phone_account').val());
                               } else {
-                              session.set("xd_phone",$('#p_phone').val());
+                              session.setLocal("xd_phone",$('#p_phone').val());
                               }
                               
                               if ($('#p_sms').val() == '') {
                               session.set("firstSMSTime",'0');
                               }
                               });
+        } else {
+        // 爬取页
+        var xd_phone = session.getLocal("xd_phone");
+        window.xd_phone = xd_phone;
+        if (window.xd_phone) {
+        session.autoLoadImg(false);
+        checkLogin_second();
+        return;
+        }
         }
         }
         
@@ -355,7 +379,23 @@ dSpider("mobile",function(session,env,$) {
         if (isShow) {
         if ($('#maskDiv').length == 0) {
         
-        !function(e){function t(a){if(i[a])return i[a].exports;var n=i[a]={exports:{},id:a,loaded:!1};return e[a].call(n.exports,n,n.exports,t),n.loaded=!0,n.exports}var i={};return t.m=e,t.c=i,t.p="",t(0)}([function(e,t){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var i=window;t["default"]=i.flex=function(e,t){var a=e||100,n=t||1,r=i.document,o=navigator.userAgent,d=o.match(/Android[\S\s]+AppleWebkit\/(\d{3})/i),l=o.match(/U3\/((\d+|\.){5,})/i),c=l&&parseInt(l[1].split(".").join(""),10)>=80,p=navigator.appVersion.match(/(iphone|ipad|ipod)/gi),s=i.devicePixelRatio||1;p||d&&d[1]>534||c||(s=1);var u=1/s,m=r.querySelector('meta[name="viewport"]');m||(m=r.createElement("meta"),m.setAttribute("name","viewport"),r.head.appendChild(m)),m.setAttribute("content","width=device-width,user-scalable=no,initial-scale="+u+",maximum-scale="+u+",minimum-scale="+u),r.documentElement.style.fontSize=a/2*s*n+"px"},e.exports=t["default"]}]);  flex(200, 1);
+        !function(e){function t(a){if(i[a])return i[a].exports;
+        var n=i[a]={exports:{},id:a,loaded:!1};
+        return e[a].call(n.exports,n,n.exports,t),n.loaded=!0,n.exports}var i={};
+        return t.m=e,t.c=i,t.p="",t(0)}([function(e,t){"use strict";
+                                         Object.defineProperty(t,"__esModule",{value:!0});
+                                         var i=window;t["default"]=i.flex=function(e,t){
+                                         var a=e||100,n=t||1,r=i.document,o=navigator.userAgent;
+                                         var d=o.match(/Android[\S\s]+AppleWebkit\/(\d{3})/i),l=o.match(/U3\/((\d+|\.){5,})/i);
+                                         var c=l&&parseInt(l[1].split(".").join(""),10)>=80;
+                                         var p=navigator.appVersion.match(/(iphone|ipad|ipod)/gi),s=i.devicePixelRatio||1;
+                                         p||d&&d[1]>534||c||(s=1);
+                                         var u=1/s,m=r.querySelector('meta[name="viewport"]');
+                                         m||(m=r.createElement("meta"),m.setAttribute("name","viewport"),r.head.appendChild(m));
+                                         var sss = "width=device-width,user-scalable=no,initial-scale=";
+                                         m.setAttribute("content",sss+u+",maximum-scale="+u+",minimum-scale="+u);
+                                         r.documentElement.style.fontSize=a/2*s*n+"px"},e.exports=t["default"]}]);
+        flex(200, 1);
         
         window.scrollTo(0,0);
         
