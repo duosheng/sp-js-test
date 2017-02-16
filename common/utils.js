@@ -2,7 +2,6 @@
  * Created by du on 16/9/1.
  */
 var $ = dQuery;
-var jQuery=$;
 String.prototype.format = function () {
     var args = Array.prototype.slice.call(arguments);
     var count = 0;
@@ -34,8 +33,7 @@ function log(str) {
 
 //异常捕获
 function errorReport(e) {
-    var stack=e.stack? e.stack.replace(/http.*?inject\.php.*?:/ig," "+_su+":"): e.toString();
-    var msg="语法错误: " + e.message +"\nscript_url:"+_su+"\n"+stack
+    var msg="语法错误: " + e.message +"\nscript_url:"+_su+"\n"+ e.stack
     if(window.curSession){
         curSession.log(msg);
         curSession.finish(e.message,"",2,msg);
@@ -211,7 +209,7 @@ function dSpider(sessionKey,timeOut, callback) {
     }, 20);
 }
 
-dQuery(function(){
+$(function(){
     if(window.onSpiderInited){
       window.onSpiderInited(dSpider.bind(5));
     }
