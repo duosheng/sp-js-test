@@ -13,6 +13,10 @@ dSpider("taobao", 60*10 , function(session,env,$){
         location="https://h5.m.taobao.com/mlapp/mytaobao.html";
     }
 
+    if(window.location.pathname.indexOf("login.m.taobao.com/login.htm") && $("div>a")[1].text == "密码登录"){
+        location = "https://login.m.taobao.com/login.htm";
+    }
+
     if($("div.submit>button").text().indexOf("登 录") != -1){
         session.setStartUrl();
         session.showProgress(false);
@@ -30,8 +34,9 @@ dSpider("taobao", 60*10 , function(session,env,$){
         if(session.getLocal("TaoBaoUserName") != undefined && session.getLocal("TaoBaoPassWord") != undefined){
             $("div.field-control>input#username")[0].value = session.getLocal("TaoBaoUserName");
             $("div.field-control>input#password")[0].value = session.getLocal("TaoBaoPassWord");
-            $("div.field-control>input#username")[0].focus();
-            setTimeout($("div.field-control>input#username")[0].focus(),2000);
+            $("div.submit>button")[0].disabled = false;
+//            $("div.field-control>input#username")[0].focus();
+//            setTimeout($("div.field-control>input#username")[0].focus(),2000);
         }
         //点击登录的时候保存账号和密码
         $("button#submit-btn")[0].onclick = function(){
