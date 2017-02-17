@@ -160,6 +160,7 @@ dSpider("telecom_gd", function(session,env,$){
 
     function loadXd() {
 
+        months = [];
         $.each($(".rq_list").find("li"), function () {
             var month = {};
             month.month = $(this).attr("data-month");
