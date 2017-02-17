@@ -36,7 +36,9 @@ dSpider("mobile",function(session,env,$) {
         $('#p_phone_account').val(session.getLocal("xd_phone"));
         $('#account_nav').click(function () {
                                 if (session.getLocal("xd_phone")) {
+                                if (!$('#p_pwd').val()) {
                                 $('#p_phone_account').focus();
+                                }
                                 }
                                 });
         $('#p_phone').val(session.getLocal("xd_phone"));
