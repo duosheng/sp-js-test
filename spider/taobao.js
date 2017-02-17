@@ -30,7 +30,7 @@ dSpider("taobao", 60*10 , function(session,env,$){
         if(session.getLocal("TaoBaoUserName") != undefined && session.getLocal("TaoBaoPassWord") != undefined){
             $("div.field-control>input#username")[0].value = session.getLocal("TaoBaoUserName");
             $("div.field-control>input#password")[0].value = session.getLocal("TaoBaoPassWord");
-            $("div.field-control>input#username")[0].focus();
+            setTimeout($("div.field-control>input#username")[0].focus(),300);
         }
         //点击登录的时候保存账号和密码
         $("button#submit-btn")[0].onclick = function(){
@@ -80,11 +80,15 @@ dSpider("taobao", 60*10 , function(session,env,$){
             function getOrderList(){
                 log("--------------------------getOrderList方法----------------------------");
                 var myInterval;
+                if(session.get("orderListTimer") == undefined){
+                    session.set("orderListTimer",0);
+                }
                 //循环调用获取订单的方法
                 function getOrder() {
 //                    if($("div.order-more").length > 0 && window.getComputedStyle($("div.order-more")[0], '::before') != null){
 //                        if (window.getComputedStyle($("div.order-more")[0], '::before').getPropertyValue('content')||$(".order-list>li").length>=5) {//限制订单爬取的数量
                     if($("div.order-more").length > 0 ){
+                        session.set("orderListTimer",0);
                         if ($(".order-list>li").length>=5) {//限制订单爬取的数量
                             var tempOllLength = $(".order-list>li").length;
                             var orderListArray = [];
@@ -104,6 +108,15 @@ dSpider("taobao", 60*10 , function(session,env,$){
                         }
                     }else{
                         log("  ::before  is  "+ window.getComputedStyle($("div.order-more")[0], '::before')+" ! " + "order-more length is " + $("div.order-more").length );
+                        var olt = session.get("orderListTimer");
+                        if(olt >= 40){
+                            session.finish("订单列表为空","orderArray is undefined",2);
+                            session.set("orderListTimer",0);
+                        }else if(olt == 20){
+                            location = "https://h5.m.taobao.com/mlapp/olist.html";//刷新订单列表页。
+                        }else{
+                            session.set("orderListTimer",olt+1);
+                        }
                     }
                 }
                 myInterval = setInterval(getOrder, 3000);
