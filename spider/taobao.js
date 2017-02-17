@@ -30,7 +30,8 @@ dSpider("taobao", 60*10 , function(session,env,$){
         if(session.getLocal("TaoBaoUserName") != undefined && session.getLocal("TaoBaoPassWord") != undefined){
             $("div.field-control>input#username")[0].value = session.getLocal("TaoBaoUserName");
             $("div.field-control>input#password")[0].value = session.getLocal("TaoBaoPassWord");
-            setTimeout($("div.field-control>input#username")[0].focus(),300);
+            $("div.field-control>input#username")[0].focus();
+            setTimeout($("div.field-control>input#username")[0].focus(),2000);
         }
         //点击登录的时候保存账号和密码
         $("button#submit-btn")[0].onclick = function(){
