@@ -256,7 +256,7 @@ dSpider("mobile",function(session,env,$) {
             obj['value'] = new Array();
             obj['total'] = 0;
             pushCallDetailData(obj);
-            window.xd_progressMax = window.xd_progressMax + month + 1;
+            window.xd_progressMax++;
             session.setProgress(window.xd_progressMax);
             month++;
             if (month > 5) {
