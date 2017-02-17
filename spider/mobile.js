@@ -36,23 +36,19 @@ dSpider("mobile",function(session,env,$) {
             // 填充默认手机号
             if (session.getLocal("xd_phone")) {
                 $('#p_phone_account').val(session.getLocal("xd_phone"));
+                $("#p_phone_account").attr({"disabled":true});
+
                 $('#account_nav').click(function () {
                     if (session.getLocal("xd_phone")) {
                         if (!$('#p_pwd').val()) {
-                            $('#p_phone_account').focus();
+                            needVerifyCode();
                         }
                     }
                 });
+
                 $('#p_phone').val(session.getLocal("xd_phone"));
-                $('#sms_nav').click(function () {
-                    if (session.getLocal("xd_phone")) {
-                        if (!$('#p_sms').val()) {
-                            $('#p_phone').focus();
-                        }
-                    }
-                })
-                $('#sms_nav').click();
-                ;
+                $("#p_phone").attr({"disabled":true});
+                needVerifyCode();
             }
 
             $('#submit_bt').click(function () {
@@ -362,6 +358,29 @@ dSpider("mobile",function(session,env,$) {
 
     function xd_check() {
         $('#month-data li').eq(0).click();
+
+        var xd_startTriggerSecVertifiTime = session.get('xd_startTriggerSecVertifiTime');
+        var xd_hasFitstSecReload = true;
+
+        if (!xd_startTriggerSecVertifiTime) {
+            xd_hasFitstSecReload = false;
+            xd_startTriggerSecVertifiTime = (new Date).getTime();
+            session.set('xd_startTriggerSecVertifiTime', xd_startTriggerSecVertifiTime);
+        }
+
+        if (xd_startTriggerSecVertifiTime < (new Date).getTime() - 60000) {
+            if (!xd_hasFitstSecReload) {
+                log('二次认证一直不出现，刷新一次试试');
+                location.reload();
+                return;
+            }
+        }
+
+        if (window.xd_startTriggerSecVertifiTime < (new Date).getTime() - 90000) {
+            session.finish("二次验证请求, 许久没有出现",3);
+            return;
+        }
+
         log('触发二次验证');
         setTimeout(function() {
             if ($('#show_vec_firstdiv').is(':visible')) {
