@@ -13,10 +13,6 @@ dSpider("taobao", 60*10 , function(session,env,$){
         location="https://h5.m.taobao.com/mlapp/mytaobao.html";
     }
 
-    if(window.location.pathname.indexOf("login.m.taobao.com/login.htm") && $("div>a")[1].text == "密码登录"){
-        location = "https://login.m.taobao.com/login.htm";
-    }
-
     if($("div.submit>button").text().indexOf("登 录") != -1){
         session.setStartUrl();
         session.showProgress(false);
@@ -43,6 +39,19 @@ dSpider("taobao", 60*10 , function(session,env,$){
             session.setLocal("TaoBaoUserName",$("div.field-control>input#username")[0].value);
             session.setLocal("TaoBaoPassWord",$("div.field-control>input#password")[0].value);
         }
+    }else if(window.location.pathname.indexOf("login.m.taobao.com/login.htm")){
+        session.waitDomAvailable(
+        ".am-button",
+        function(dom,timeSpan){
+            if($("div>a")[1].text().indexOf("密码登录") != -1 ){
+                location = "https://login.m.taobao.com/login.htm";
+            }
+        },
+        function(){
+            log("不是中转页,再次跳转到登录页");
+            location = "https://login.m.taobao.com/login.htm";
+        }
+        );
     }
 
     if (window.location.pathname.indexOf("mlapp/mytaobao") != -1) {
