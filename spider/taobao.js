@@ -465,6 +465,9 @@ dSpider("taobao", 60*10 , function(session,env,$){
              * 爬取收货地址
              */
             if((window.location.hostname.indexOf("www.taobao.com") != -1)){
+                if(($("input#q")) != undefined){
+                    ($("input#q")).removeAttribute("autofocus");
+                }
                 location.href = "//i.taobao.com/my_taobao.htm";
             }
 
