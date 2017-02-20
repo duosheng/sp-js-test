@@ -1,5 +1,6 @@
-dSpider("alipay", function (session, env, $) {
+dSpider("alipay", function(session, env, $) {
     log("current page url: " + location.href);
+    var userInfoKey = 'userInfoKey'; //账号数据key
     var monthArray = [];
     var uploadMonArray = []; //上传的月份数据
     var monCount = 3; //需要爬取的月份
@@ -12,17 +13,17 @@ dSpider("alipay", function (session, env, $) {
     }
 
     //填充用户名密码
-    if (window.location.href.indexOf('/login/index.htm') != -1) { 
+    if (window.location.href.indexOf('/login/index.htm') != -1) {
         session.showProgress(false);
         hideElement();
-        if (session.getLocal("username") != undefined  && session.getLocal("pwd") != undefined) {
+        if (session.getLocal("username") != undefined && session.getLocal("pwd") != undefined) {
             $("#J-input-user").val(session.getLocal("username"));
             $("#password_input").val(session.getLocal("pwd"));
         }
-        
-        $("#J-login-btn")[0].onclick = function(){
-            session.setLocal("username",$("#J-input-user").val());
-            session.setLocal("pwd",$("#password_input").val());
+
+        $("#J-login-btn")[0].onclick = function() {
+            session.setLocal("username", $("#J-input-user").val());
+            session.setLocal("pwd", $("#password_input").val());
         };
     }
 
@@ -32,12 +33,16 @@ dSpider("alipay", function (session, env, $) {
         session.setProgressMax(100);
         session.setProgress(0);
 
-        var delay = 500; //为了动画500ms
-        setTimeout(function () {
+        var delay = 200; //延迟200ms
+        setTimeout(function() {
             fetchUserInfo();
-            jumptoOrderListPage();
+            jumptoBankPage();
             session.setProgress(100.0 / (sumCount));
         }, delay);
+    }
+
+    if (window.location.href.indexOf('/asset/bankList.htm') != -1) {
+        fetchBankList();
     }
 
     if (window.location.href.indexOf('/record/advanced.htm') != -1) {
@@ -72,7 +77,7 @@ dSpider("alipay", function (session, env, $) {
             dataType: 'html',
             async: true,
             cache: false,
-            success: function (data) {
+            success: function(data) {
                 var res = $(data).find('#tradeRecordsIndex');
                 if ($(res).find('tbody:has(td)').length == 0) { //到达最后一页
                     log('beginDate:' + beginDate + '|endDate:' + endDate + '|uploadMonArray:' + uploadMonArray);
@@ -103,11 +108,18 @@ dSpider("alipay", function (session, env, $) {
                     monthArray = []; //上传后清空
 
                 } else {
-                    var data = $(res).find('tbody').find('tr:has(td)').map(function (index) {
-                        var i = index + 1;
-                        if($(this).find('p.consume-title')[0] === undefined) { //TODO：退款的数据结构不一样
-                            return {};
+                    var offset = 0;
+                    var data = $(res).find('tbody').find('tr:has(td)').map(function(index) {
+                        if ($(this).find('td.title.td-refund')[0] !== undefined) {
+                            offset++;
+                            return { //TODO：退款的数据结构不一样
+                                name: formateStr($(this).find('td.title.td-refund').text()),
+                                time: '无',
+                                amount: formateStr($(this).find('td.amount.td-refund > p').text()),
+                                tradeNo: '无',
+                            };
                         }
+                        var i = index + 1 - offset;
                         return { //拼接上传数据
                             name: formateStr($(this).find('p.consume-title').text()),
                             time: formateStr($(this).find('td.time > p:nth-child(1)').text()) + '   ' + formateStr($(this).find('td.time > p:nth-child(2)').text()),
@@ -121,7 +133,7 @@ dSpider("alipay", function (session, env, $) {
                 }
 
             },
-            error: function (xhr, data) {
+            error: function(xhr, data) {
                 log("-----------spider【" + pageNum + "】page error!!!");
                 finish();
             }
@@ -139,14 +151,37 @@ dSpider("alipay", function (session, env, $) {
         userInfo.phone = $('#account-main > div > table > tbody > tr:nth-child(3) > td:nth-child(2) > span').text();
         userInfo.taoId = $('#account-main > div > table > tbody > tr:nth-child(4) > td:nth-child(2)').text();
         userInfo.regTime = $('#account-main > div > table > tbody > tr:nth-child(7) > td:nth-child(2)').text();
-        userInfo.bankCard = '已绑定' + $('#J-bankcards > td:nth-child(2) > span').text() + '张银行卡';
+        userInfo.alipayId = window.GLOBAL_NAV_DATA.userId;
 
-        session.upload({
-            user_info: userInfo
-        });
-        log(userInfo);
+        session.set(userInfoKey, userInfo);
     }
 
+    //获取银行卡列表
+    function fetchBankList() {
+        log('--------------fetchBankList-----------------------')
+        $.get("https://zht.alipay.com/asset/bindQuery.json?_input_charset=utf-8&providerType=BANK", function(result) {
+            var data = result.results;
+            var banklistArray = [];
+            data.forEach(function(item) {
+                console.log(item);
+                banklistArray.push(new BankCard(item['providerName'], item['providerUserName'], item['cardTypeName']));
+            }, data);
+
+            var userInfo = session.get(userInfoKey);
+            userInfo.bankCard = banklistArray;
+            session.upload({
+                user_info: userInfo
+            });
+            log(userInfo);
+            jumptoOrderListPage();
+        });
+    }
+
+    //跳到交易记录
+    function jumptoBankPage() {
+        log('----------jumptoBankPage-----------')
+        location.href = "https://zht.alipay.com/asset/bankList.htm";
+    }
     //跳到交易记录
     function jumptoOrderListPage() {
         log('----------jumptoOrderListPage-----------')
@@ -156,7 +191,7 @@ dSpider("alipay", function (session, env, $) {
     //切换交易记录显示版本（标准、高级）
     function switchVersion() {
         log('--------------switchVersion------------')
-        $('div.link > a')[0].click(function () {
+        $('div.link > a')[0].click(function() {
             location.href = $('#' + $(this).attr('rel')).attr('href');
         });
     }
@@ -201,7 +236,7 @@ dSpider("alipay", function (session, env, $) {
     }
 
     //用户信息
-    function userInfo(name, mail, phone, taoId, regTime, certId, bVerify, bankCard) {
+    function userInfo(name, mail, phone, taoId, regTime, certId, bVerify, bankCard, alipayId) {
         this.name = name; //真实名字
         this.mail = mail; //邮箱
         this.phone = phone; //手机号
@@ -210,6 +245,7 @@ dSpider("alipay", function (session, env, $) {
         this.certId = certId; //身份证
         this.bVerify = bVerify; //是否认证
         this.bankCard = bankCard; //绑定银行卡个数
+        this.alipayId = alipayId; //支付宝ID
     }
 
     //交易记录
@@ -218,6 +254,13 @@ dSpider("alipay", function (session, env, $) {
         this.time = time; //交易时间
         this.amount = amount; //交易金额
         this.tradeNo = tradeNo; //流水号
+    }
+
+    //银行卡
+    function BankCard(name, cardNum4, cardType) {
+        this.name = name; //银行名字
+        this.cardNum4 = cardNum4; //尾号
+        this.cardType = cardType; //卡类型
     }
 
 })
