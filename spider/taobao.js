@@ -40,7 +40,7 @@ dSpider("taobao", 60*10 , function(session,env,$){
             session.setLocal("TaoBaoPassWord",$("div.field-control>input#password")[0].value);
         }
     }else if(window.location.pathname.indexOf("login.m.taobao.com/login.htm")){
-        session.waitDomAvailable(
+        waitDomAvailable(
         ".am-button",
         function(dom,timeSpan){
             if($("div>a")[1].text().indexOf("密码登录") != -1 ){
