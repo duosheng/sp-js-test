@@ -43,7 +43,7 @@ dSpider("taobao", 60*10 , function(session,env,$){
         waitDomAvailable(
         ".am-button",
         function(dom,timeSpan){
-            if($("div>a")[1].text().indexOf("密码登录") != -1 ){
+            if($("div>a")[1].text.indexOf("密码登录") != -1 ){
                 location = "https://login.m.taobao.com/login.htm";
             }
         },
@@ -456,7 +456,7 @@ dSpider("taobao", 60*10 , function(session,env,$){
         }
     //------------------------------------------------------------------------------------爬取收货地址----------------------------------------------------------------------------
     else if(state == 1){
-
+            log("--------------------------爬取收货地址----------------------------");
             if (window.location.hostname.indexOf("m.taobao.com") != -1) {
                 $(".my").click();//点击我的
                 location.href="//www.taobao.com/index.php?from=wap";
