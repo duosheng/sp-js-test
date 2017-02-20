@@ -7,7 +7,7 @@ dSpider("mobile",function(session,env,$) {
 
         // 检测400错误
         if ($('title').innerHTML.indexOf('400') >= 0) {
-            session.finish($('title').innerHTML.toString(), 3);
+            session.finish($('title').innerHTML.toString(), '', 3);
             return;
         }
 
