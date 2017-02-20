@@ -7,7 +7,24 @@ dSpider("telecom_gd", function (session, env, $) {
 
     if (location.href.indexOf("gd.189.cn/TS/login.htm") != -1) {
         session.setStartUrl();
-        //        session.showProgress(false);
+        session.showProgress(false);
+        $('.footer_nav').hide();
+        $('.login_nav').hide();
+        $('#pwd_s').hide();
+        $('#getPwd').hide();
+        $('.re-back').hide();
+        $("#account").val(session.getLocal("account"));
+        $("#password_k").val(session.getLocal("password"));
+        if (session.getLocal("select_area")) {
+            $("#select_area").find("span").eq(0).text(session.getLocal("select_area"));
+            $("#area").val(session.getLocal("area"));
+        }
+        $(".ui-btn-1").on("click", function () {
+            session.setLocal("password", $("#password_k").val());
+            session.setLocal("account", $("#account").val());
+            session.setLocal("area", $("#area").val());
+            session.setLocal("select_area", $("#select_area").find("span").eq(0).text());
+        });
         return;
     } else if (location.href.indexOf("SSOLoginForCommNoPage") != -1) {
         log("SSOLoginForCommNoPage");
@@ -139,6 +156,7 @@ dSpider("telecom_gd", function (session, env, $) {
 
     function loadXd() {
 
+        months = [];
         $.each($(".rq_list").find("li"), function () {
             var month = {};
             month.month = $(this).attr("data-month");
@@ -350,6 +368,15 @@ dSpider("telecom_gd", function (session, env, $) {
             thxd = {};
         }
         thxd.month_status = xd;
+
+        var userInfo = thxd.user_info;
+        if (!userInfo) {
+            userInfo = {};
+        }
+        if (!userInfo.mobile) {
+            userInfo.mobile = session.getLocal("account");
+        }
+
         session.set("thxd", thxd);
 
         session.setProgress(100);
@@ -511,7 +538,6 @@ dSpider("telecom_gd", function (session, env, $) {
             dataType: "json",
             beforeSend: function beforeSend() {},
             success: function success(result) {
-                log("init:" + JSON.stringify(result));
                 if (result && result.b && result.b.c === "00") {
                     //查询成功
                     switch (result.r.code) {
@@ -521,7 +547,6 @@ dSpider("telecom_gd", function (session, env, $) {
                         //                        case "001"://未登录
                         default:
                             //其它
-                            log("init:default");
                             if (confirm(result.r.msg)) {
                                 setXd([]);
                             } else {
@@ -559,3 +584,4 @@ dSpider("telecom_gd", function (session, env, $) {
     }
 });
 },{}]},{},[1])
+//# sourceMappingURL=sources_maps/telecom_gd.js.map

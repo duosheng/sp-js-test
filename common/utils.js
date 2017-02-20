@@ -3,9 +3,9 @@
  */
 var $ = dQuery;
 String.prototype.format = function () {
-    var args = Array.prototype.slice.call(arguments);
+    var args = [].slice.call(arguments);
     var count = 0;
-    return this.replace(/%s/g, function (s, i) {
+    return this.replace(/%s/g, function () {
         return args[count++];
     });
 };
@@ -101,7 +101,7 @@ function waitDomAvailable(selector, success, fail) {
         if (ob[0]) {
             clearInterval(t)
             success(ob, 10000 - timeout)
-        } else if (timeout == 0) {
+        } else if (timeout ===0) {
             clearInterval(t)
             var f = fail || DomNotFindReport;
             f(selector)

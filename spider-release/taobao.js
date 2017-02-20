@@ -17,17 +17,39 @@ dSpider("taobao", 60 * 10, function (session, env, $) {
 
     if ($("div.submit>button").text().indexOf("登 录") != -1) {
         session.setStartUrl();
+        session.showProgress(false);
+        //隐藏登录页面的无关按钮
+        if ($("div.other-link>a")[0] != undefined) {
+            $("div.other-link>a")[0].style.display = "none";
+        }
+        if ($("div.other-link>a")[1] != undefined) {
+            $("div.other-link>a")[1].style.display = "none";
+        }
+        if ($("div.head")[0] != undefined) {
+            $("div.head")[0].style.display = "none";
+        }
         //取出账号和密码填充进去
         if (session.getLocal("TaoBaoUserName") != undefined && session.getLocal("TaoBaoPassWord") != undefined) {
             $("div.field-control>input#username")[0].value = session.getLocal("TaoBaoUserName");
             $("div.field-control>input#password")[0].value = session.getLocal("TaoBaoPassWord");
-            $("div.field-control>input#username")[0].focus();
+            $("div.submit>button")[0].disabled = false;
+            //            $("div.field-control>input#username")[0].focus();
+            //            setTimeout($("div.field-control>input#username")[0].focus(),2000);
         }
         //点击登录的时候保存账号和密码
         $("button#submit-btn")[0].onclick = function () {
             session.setLocal("TaoBaoUserName", $("div.field-control>input#username")[0].value);
             session.setLocal("TaoBaoPassWord", $("div.field-control>input#password")[0].value);
         };
+    } else if (window.location.pathname.indexOf("login.m.taobao.com/login.htm")) {
+        waitDomAvailable(".am-button", function (dom, timeSpan) {
+            if ($("div>a")[1].text.indexOf("密码登录") != -1) {
+                location = "https://login.m.taobao.com/login.htm";
+            }
+        }, function () {
+            log("不是中转页,再次跳转到登录页");
+            location = "https://login.m.taobao.com/login.htm";
+        });
     }
 
     if (window.location.pathname.indexOf("mlapp/mytaobao") != -1) {
@@ -80,11 +102,15 @@ dSpider("taobao", 60 * 10, function (session, env, $) {
             var getOrderList = function getOrderList() {
                 log("--------------------------getOrderList方法----------------------------");
                 var myInterval;
+                if (session.get("orderListTimer") == undefined) {
+                    session.set("orderListTimer", 0);
+                }
                 //循环调用获取订单的方法
                 function getOrder() {
                     //                    if($("div.order-more").length > 0 && window.getComputedStyle($("div.order-more")[0], '::before') != null){
                     //                        if (window.getComputedStyle($("div.order-more")[0], '::before').getPropertyValue('content')||$(".order-list>li").length>=5) {//限制订单爬取的数量
                     if ($("div.order-more").length > 0) {
+                        session.set("orderListTimer", 0);
                         if ($(".order-list>li").length >= 5) {
                             //限制订单爬取的数量
                             var tempOllLength = $(".order-list>li").length;
@@ -105,6 +131,15 @@ dSpider("taobao", 60 * 10, function (session, env, $) {
                         }
                     } else {
                         log("  ::before  is  " + window.getComputedStyle($("div.order-more")[0], '::before') + " ! " + "order-more length is " + $("div.order-more").length);
+                        var olt = session.get("orderListTimer");
+                        if (olt >= 40) {
+                            session.finish("订单列表为空", "orderArray is undefined", 2);
+                            session.set("orderListTimer", 0);
+                        } else if (olt == 20) {
+                            location = "https://h5.m.taobao.com/mlapp/olist.html"; //刷新订单列表页。
+                        } else {
+                            session.set("orderListTimer", olt + 1);
+                        }
                     }
                 }
                 myInterval = setInterval(getOrder, 3000);
@@ -471,7 +506,7 @@ dSpider("taobao", 60 * 10, function (session, env, $) {
     }
     //------------------------------------------------------------------------------------爬取收货地址----------------------------------------------------------------------------
     else if (state == 1) {
-
+            log("--------------------------爬取收货地址----------------------------");
             if (window.location.hostname.indexOf("m.taobao.com") != -1) {
                 $(".my").click(); //点击我的
                 location.href = "//www.taobao.com/index.php?from=wap";
@@ -480,6 +515,9 @@ dSpider("taobao", 60 * 10, function (session, env, $) {
              * 爬取收货地址
              */
             if (window.location.hostname.indexOf("www.taobao.com") != -1) {
+                if ($("input#q") != undefined) {
+                    $("input#q").removeAttr("autofocus");
+                }
                 location.href = "//i.taobao.com/my_taobao.htm";
             }
 
@@ -631,3 +669,4 @@ dSpider("taobao", 60 * 10, function (session, env, $) {
     }
 });
 },{}]},{},[1])
+//# sourceMappingURL=sources_maps/taobao.js.map
