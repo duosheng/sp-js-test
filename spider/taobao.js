@@ -466,7 +466,7 @@ dSpider("taobao", 60*10 , function(session,env,$){
              */
             if((window.location.hostname.indexOf("www.taobao.com") != -1)){
                 if(($("input#q")) != undefined){
-                    ($("input#q")).removeAttribute("autofocus");
+                    ($("input#q")).removeAttr("autofocus");
                 }
                 location.href = "//i.taobao.com/my_taobao.htm";
             }
