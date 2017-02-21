@@ -562,7 +562,7 @@ dSpider("telecom_gd", function(session,env,$){
         // verify_second_sms($('#inputSms').val());
     }
 
-    window.countdown = 60;
+    window.countdown = 0;
     function settime() {
         log("time:" + window.countdown);
         var obj = $('#sendSmsBtn')[0];
