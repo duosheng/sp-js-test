@@ -446,7 +446,7 @@ dSpider("telecom_gd", function(session,env,$){
      * @param phone
      */
     function getSmsCode(){
-        if (window.countdown !== 0) {
+        if (window.countdown !== 60) {
             log("getSmsCode return:" + window.countdown);
             return;
         }
@@ -562,7 +562,7 @@ dSpider("telecom_gd", function(session,env,$){
         // verify_second_sms($('#inputSms').val());
     }
 
-    window.countdown = 0;
+    window.countdown = 60;
     function settime() {
         log("time:" + window.countdown);
         var obj = $('#sendSmsBtn')[0];
