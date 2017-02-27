@@ -4,6 +4,10 @@ dSpider("telecom_gd", function(session,env,$){
 
 
     if(location.href.indexOf("gd.189.cn/TS/login.htm") != -1) {
+        window.alert=function(str){
+            log("alert" + str);
+            return;
+        }
         session.setStartUrl();
         session.showProgress(false);
         $('.footer_nav').hide();
@@ -442,7 +446,11 @@ dSpider("telecom_gd", function(session,env,$){
      * @param phone
      */
     function getSmsCode(){
-        log("getSmsCode:" + loginUser.latnId + "|" + loginUser.account);
+        if (window.countdown !== 60) {
+            log("getSmsCode return:" + window.countdown);
+            return;
+        }
+        log("getSmsCode:" + loginUser.latnId + "|" + loginUser.account + "|" + window.countdown);
         $.ajax({
             url:"/J/J20009.j?a.c=0&a.u=user&a.p=pass&a.s=ECSS",
             type:'post',
@@ -492,6 +500,42 @@ dSpider("telecom_gd", function(session,env,$){
                 $("#maskDiv").append(button);
                 $('#sendSmsBtn').click(getSmsCode);
                 $('#certificateBtn').click(certificateBtnAction);
+
+                var cssEnable = {
+                    'display': 'block',
+                    'width': '120px',
+                    'height': '30px',
+                    'line-height': '30px',
+                    'background-color': 'white',
+                    'color': '#5a7bd0',
+                    'font-size': '14px',
+                    'margin-top': '10px',
+                    'margin-right': '15px',
+                    'text-align': 'center',
+                    'border-radius':'3px',
+                    'border-style':'solid',
+                    'border-color':'#5a7bd0',
+                    'border-width':'1px'
+                };
+
+                var cssDisable = {
+                    'display': 'block',
+                    'width': '120px',
+                    'height': '30px',
+                    'line-height': '30px',
+                    'background-color': '#bcc0c9',
+                    'color': 'white',
+                    'font-size': '14px',
+                    'margin-top': '10px',
+                    'margin-right': '15px',
+                    'text-align': 'center',
+                    'border-radius':'3px',
+                    'border-style':'none'
+                };
+                var smsBtn = $('#sendSmsBtn')
+                smsBtn[0].cssEnable = cssEnable;
+                smsBtn[0].cssDisable = cssDisable;
+                smsBtn.css(cssEnable);
             } else {
                 $('#maskDiv').show();
             }
@@ -522,8 +566,12 @@ dSpider("telecom_gd", function(session,env,$){
     function settime() {
         log("time:" + window.countdown);
         var obj = $('#sendSmsBtn')[0];
+        if (window.countdown === 60) {
+            $('#sendSmsBtn').css(obj.cssDisable);
+        }
         if (window.countdown === 0) {
             obj.removeAttribute("disabled");
+            $('#sendSmsBtn').css(obj.cssEnable);
             $('#sendSmsBtn').text("发送验证码");
             window.countdown = 60;
             return;

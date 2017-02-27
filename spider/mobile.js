@@ -5,6 +5,12 @@ dSpider("mobile",function(session,env,$) {
     // -------------------------------------------
     function checkLogin_first() {
 
+        // 检测400错误
+        if ($('title').text().indexOf('400') >= 0) {
+            session.finish($('title').text().toString(), '', 3);
+            return;
+        }
+
         var cts = 'login.10086.cn';
         var cts2 = 'channelID';
         // 登陆页

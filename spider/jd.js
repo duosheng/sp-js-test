@@ -219,8 +219,6 @@ dSpider("jd", function(session,env,$){
     　　 this.order_info  = order;
     }
 
-  
-
     function contact_info(contact_detail){
         this.contact_detail = contact_detail;
     }
