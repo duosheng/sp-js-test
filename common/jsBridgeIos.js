@@ -71,7 +71,9 @@ DataSession.prototype = {
 
     showProgress: function (isShow) {
         log("showProgress called")
-        callHandler("showProgress", {"show":isShow === undefined ? true : !!isShow});
+        isShow=isShow === undefined ? true : !!isShow;
+        _resetTimer(isShow)
+        callHandler("showProgress", {"show":isShow});
     },
     setProgressMax: function (max) {
         log("setProgressMax called")
@@ -81,16 +83,6 @@ DataSession.prototype = {
         log("setProgress called")
         callHandler("setProgress", {"progress":progress});
     },
-    getProgress: function (f) {
-
-    },
-    showLoading: function (s) {
-
-    },
-    hideLoading: function () {
-
-    },
-
     setStartUrl:function(){
        this.set('__loginUrl',location.href);
     },

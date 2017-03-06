@@ -2,15 +2,17 @@
  * Created by du on 16/9/1.
  */
 var $ = dQuery;
-var jQuery=$;
 String.prototype.format = function () {
-    var args = Array.prototype.slice.call(arguments);
+    var args = [].slice.call(arguments);
     var count = 0;
-    return this.replace(/%s/g, function (s, i) {
+    return this.replace(/%s/g, function () {
         return args[count++];
     });
 };
 
+String.prototype.trim = function () {
+    return this.replace(/(^\s*)|(\s*$)/g, '');
+};
 
 String.prototype.empty = function () {
     return this.trim() === "";
@@ -31,11 +33,10 @@ function log(str) {
 
 //异常捕获
 function errorReport(e) {
-    var stack=e.stack? e.stack.replace(/http.*?inject\.php.*?:/ig," "+_su+":"): e.toString();
-    var msg="语法错误: " + e.message +"\nscript_url:"+_su+"\n"+stack
+    var msg="语法错误: " + e.message +"\nscript_url:"+_su+"\n"+ e.stack
     if(window.curSession){
         curSession.log(msg);
-        curSession.finish(e.message,"",3,msg);
+        curSession.finish(e.message,"",2,msg);
     }
 }
 
@@ -100,7 +101,7 @@ function waitDomAvailable(selector, success, fail) {
         if (ob[0]) {
             clearInterval(t)
             success(ob, 10000 - timeout)
-        } else if (timeout == 0) {
+        } else if (timeout ===0) {
             clearInterval(t)
             var f = fail || DomNotFindReport;
             f(selector)
@@ -140,6 +141,41 @@ function apiInit() {
     }, 20);
 }
 
+//超时逻辑
+var _timer,_timeOut=-1;
+
+function _startTimer(s){
+    var left=_timeOut*1000- (s.get("_pass")||0)
+    if(left<0) left=0;
+    _timer=setTimeout(function(){
+        log("time out");
+        if (!s.finished) {
+            s.finish("timeout ["+_timeOut+"s] ", "",4)
+        }
+    },left);
+    log("_Timer:"+left/1000+"s left");
+}
+function _resetTimer(show){
+    var s=window.curSession;
+    if(_timeOut==-1) return;
+    var key=show?"_show":"_hide";
+    var last=s.get("_last");
+    last=last||"_hide";
+    //显示状态没有改变则什么也不做
+    if(last==key) return;
+    var now=new Date().getTime()
+    var passed;
+    if(key=="_show"){
+        _startTimer(s)
+    }else{
+        passed=now- (s.get("_show")||now);
+        s.set("_pass", (s.get("_pass")||0)+passed);
+        clearTimeout(_timer)
+    }
+    s.set("_last",key);
+    s.set(key,now)
+}
+
 //爬取入口
 function dSpider(sessionKey,timeOut, callback) {
     if(window.onSpiderInited&&this!=5)
@@ -160,62 +196,50 @@ function dSpider(sessionKey,timeOut, callback) {
             }
         }
         $(window).on("beforeunload",onclose)
-        window.curSession = session;
+
         session._init(function(){
             //超时处理
             if (!callback) {
                 callback = timeOut;
                 timeOut = -1;
             }
+            window.curSession = session;
             if (timeOut != -1) {
-                var startTime = session.get("startTime")
-                var now = new Date().getTime();
-                if (!startTime) {
-                    session.set("startTime", now);
-                    startTime=now
+                _timeOut=timeOut;
+                if(session.get("_last")=="_show"){
+                    var now=new Date().getTime()
+                    var passed=now-(session.get("_show")||now);
+                    session.set("_pass", (session.get("_pass")||0)+passed);
+                    session.set("_show",now);
+                    _startTimer(session)
                 }
-                timeOut *= 1000;
-                var passed = (now - startTime);
-                var left = timeOut -passed;
-                left = left > 0 ? left : 0;
-                log("left:"+left)
-                setTimeout(function () {
-                    log("time out");
-                    if (!session.finished) {
-                        session.finish("timeout ["+timeOut/1000+"s] ", "",4)
-                    }
-                }, left);
             }
             DataSession.getExtraData(function (extras) {
-                $(safeCallback(function(){
-                    $("body").on("click","a",function(){
-                        $(this).attr("target",function(_,v){
-                            if(v=="_blank") return "_self"
+                DataSession.getArguments(function(args){
+                    session.getArguments=function(){
+                        return JSON.parse(args||"{}")
+                    }
+                    $(safeCallback(function(){
+                        $("body").on("click","a",function(){
+                            $(this).attr("target",function(_,v){
+                                if(v=="_blank") return "_self"
+                            })
                         })
-                    })
-                    log("dSpider start!")
-                    extras.config=typeof _config==="object"?_config:"{}";
-                    session._args=extras.args;
-                    callback(session, extras, $);
-                }))
+                        log("dSpider start!")
+                        extras.config=typeof _config==="object"?_config:"{}";
+                        callback(session, extras, $);
+                    }))
+                })
             })
         })
     }, 20);
 }
-
-dQuery(function(){
+//网页回调
+$(function(){
     if(window.onSpiderInited){
         window.onSpiderInited(dSpider.bind(5));
     }
 })
-
-//邮件爬取入口
-function dSpiderMail(sessionKey, callback) {
-    dSpider(sessionKey,function(session,env,$){
-        callback(session.getLocal("u"), session.getLocal("wd"), session, env, $);
-    })
-}
-
 /**
  * Created by du on 16/8/17.
  */
@@ -256,6 +280,12 @@ DataSession.getExtraData = function (f) {
     })
 }
 
+DataSession.getArguments= function (f) {
+    log("getArguments called")
+    callHandler("getArguments", null, function (data) {
+        f && f(data)
+    })
+}
 DataSession.prototype = {
     _save: function () {
         callHandler("set", {"sessionKey": this.key, "value": JSON.stringify(this.data)})
@@ -283,7 +313,9 @@ DataSession.prototype = {
 
     showProgress: function (isShow) {
         log("showProgress called")
-        callHandler("showProgress", {"show":isShow === undefined ? true : !!isShow});
+        isShow=isShow === undefined ? true : !!isShow;
+        _resetTimer(isShow)
+        callHandler("showProgress", {"show":isShow});
     },
     setProgressMax: function (max) {
         log("setProgressMax called")
@@ -293,16 +325,10 @@ DataSession.prototype = {
         log("setProgress called")
         callHandler("setProgress", {"progress":progress});
     },
-    getProgress: function (f) {
-
+    setStartUrl:function(){
+        this.set('__loginUrl',location.href);
     },
-    showLoading: function (s) {
-
-    },
-    hideLoading: function () {
-
-    },
-    finish: function (errmsg, content, code) {
+    finish: function (errmsg, content, code,stack) {
         var that=this;
         DataSession.getExtraData(function (d) {
             var ret = {"sessionKey":that.key, "result": 0, "msg": ""}
@@ -310,8 +336,8 @@ DataSession.prototype = {
                 var ob = {
                     url: location.href,
                     msg: errmsg,
-                    args:that._args
-                    // content: content||document.documentElement.outerHTML ,
+                    args:this.getArguments&&this.getArguments(),
+                    content: content||document.documentElement.outerHTML
                 }
                 stack&&(ob.stack=stack);
                 ret.result = code || 2;

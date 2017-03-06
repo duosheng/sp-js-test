@@ -114,8 +114,7 @@ dSpider("126", function ( session, env, $) {
                     return;
                 }
                 var start = 0;
-                session.set("count", count)
-                log(count)
+                session.setProgressMax(count)
                 $.each(d, function (i, e) {
                     ajax({
                         url: "s?sid=" + sid + "&func=mbox:readMessage&l=read&action=read",
@@ -139,6 +138,7 @@ dSpider("126", function ( session, env, $) {
                         },
                         complete: function () {
                             console.log(++start)
+                            session.setProgress(start)
                             if (start == count) {
                                 session.finish();
                                 log(session.string())
