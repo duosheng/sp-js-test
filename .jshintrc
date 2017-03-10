@@ -1,9 +1,10 @@
 {
-  "unused": true,//定义了,但未使用的变量给出警告
+  "unused": false,//忽略定义了,但未使用的变量给出的警告
   "maxlen": 180,//每行最多180个字符
   "asi": true, //忽略缺少分号警告
   "maxdepth": 10,//函数嵌套层数不要超过10层
   "eqeqeq": false,//不强制所有相等判断都用3⃣️等号
+  "expr":true,
   "globals": {
     "dSpider": true,
     "log":true,
@@ -17,7 +18,7 @@
     "setInterval":true,
     "clearInterval":true,
     "waitDomAvailable":true,
-    "setTimeout":true,
-    "waitDomAvailable":true
+    "setTimeout":true
   }
 }
+

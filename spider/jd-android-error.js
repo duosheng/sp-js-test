@@ -9,7 +9,7 @@
     String.prototype.format = function () {
         var args = Array.prototype.slice.call(arguments);
         var count = 0;
-        return this.replace(/%s/g, function (s, i) {
+        return this.replace(/%s/g, function () {
             return args[count++];
         });
     };
@@ -106,7 +106,7 @@
             if (ob[0]) {
                 clearInterval(t)
                 success(ob, 10000 - timeout)
-            } else if (timeout == 0) {
+            } else if (timeout === 0) {
                 clearInterval(t)
                 var f = fail || DomNotFindReport;
                 f(selector)
@@ -215,12 +215,6 @@
         }
     })
 
-//邮件爬取入口
-    function dSpiderMail(sessionKey, callback) {
-        dSpider(sessionKey,function(session,env,$){
-            callback(session.getLocal("u"), session.getLocal("wd"), session, env, $);
-        })
-    };
     function DataSession(key) {
         this.key = key;
         this.finished = false;
@@ -229,6 +223,7 @@
 
     DataSession.getExtraData = function (f) {
         f = safeCallback(f);
+
         f && f(JSON.parse(_xy.getExtraData() || "{}"));
     }
 

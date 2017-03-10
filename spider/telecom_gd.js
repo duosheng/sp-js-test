@@ -4,13 +4,29 @@ dSpider("telecom_gd", function(session,env,$){
 
 
     if(location.href.indexOf("gd.189.cn/TS/login.htm") != -1) {
+        window.alert=function(str){
+            log("alert" + str);
+            return;
+        }
+        session.setStartUrl();
+        session.showProgress(false);
         $('.footer_nav').hide();
         $('.login_nav').hide();
         $('#pwd_s').hide();
         $('#getPwd').hide();
         $('.re-back').hide();
-        session.setStartUrl();
-        session.showProgress(false);
+        $("#account").val(session.getLocal("account"));
+        $("#password_k").val(session.getLocal("password"));
+        if(session.getLocal("select_area")) {
+            $("#select_area").find("span").eq(0).text(session.getLocal("select_area"));
+            $("#area").val(session.getLocal("area"));
+        }
+        $(".ui-btn-1").on("click",function(){
+            session.setLocal("password", $("#password_k").val());
+            session.setLocal("account", $("#account").val());
+            session.setLocal("area", $("#area").val());
+            session.setLocal("select_area", $("#select_area").find("span").eq(0).text());
+        });
         return;
     } else if(location.href.indexOf("SSOLoginForCommNoPage") != -1) {
         log("SSOLoginForCommNoPage");
@@ -148,6 +164,7 @@ dSpider("telecom_gd", function(session,env,$){
 
     function loadXd() {
 
+        months = [];
         $.each($(".rq_list").find("li"), function () {
             var month = {};
             month.month = $(this).attr("data-month");
@@ -357,6 +374,15 @@ dSpider("telecom_gd", function(session,env,$){
             thxd = {};
         }
         thxd.month_status = xd;
+
+        var userInfo = thxd.user_info;
+        if(!userInfo) {
+            userInfo = {};
+        }
+        if(!userInfo.mobile) {
+            userInfo.mobile=session.getLocal("account");
+        }
+
         session.set("thxd", thxd);
 
         session.setProgress(100);
@@ -420,7 +446,11 @@ dSpider("telecom_gd", function(session,env,$){
      * @param phone
      */
     function getSmsCode(){
-        log("getSmsCode:" + loginUser.latnId + "|" + loginUser.account);
+        if (window.countdown !== 60) {
+            log("getSmsCode return:" + window.countdown);
+            return;
+        }
+        log("getSmsCode:" + loginUser.latnId + "|" + loginUser.account + "|" + window.countdown);
         $.ajax({
             url:"/J/J20009.j?a.c=0&a.u=user&a.p=pass&a.s=ECSS",
             type:'post',
@@ -464,12 +494,48 @@ dSpider("telecom_gd", function(session,env,$){
 
         if (isShow) {
             if ($('#maskDiv').length === 0) {
-                var maskDiv = $('<div id="maskDiv" style="opacity: 1;position: absolute;top: 0;left: 0;background-color: white;width: 100%;height: 100%;z-index: 10000"></div>');        //创建一个父div
+                var maskDiv = $('<div id="maskDiv" style="opacity: 1;position: absolute;top: 0;left: 0;background-color: #f3f3f3;width: 100%;height: 100%;z-index: 10000"></div>');        //创建一个父div
                 $("body").append(maskDiv);
-                var button = $($('<li class="input-row" style="display:-webkit-box;display: -webkit-flex"><span class="lf" style="display: block;width: 90px;height: 50px;line-height: 50px;margin-left: 15px;text-align: left;color: #3c3c3c;font-size: 18px">验证码</span><div style="-webkit-box-flex: 1;-webkit-flex: 1;flex: 1;display: -webkit-box;display: -webkit-flex;height: 50px"><p style="-webkit-box-flex: 1;-webkit-flex: 1;flex: 1;display: -webkit-box;display: -webkit-flex;height: 50px;"><input id="inputSms" style="width: 100%;height: 50px;border: none;font-size: 18px" placeholder="验证码"></p><span id="sendSmsBtn" style="display: block;width: 100px;height: 30px;line-height: 30px;background: #fe6246;color:white;font-size: 14px;margin-top: 10px;margin-right: 15px;text-align: center;border-radius: 6px">发送验证码</span></div></li><li style="display:-webkit-box;display: -webkit-flex;margin-top: 20px;margin-left: 15px;margin-right: 15px"><div style="-webkit-box-flex: 1;-webkit-flex: 1;flex: 1;display: -webkit-box;display: -webkit-flex;height: 50px"><span id="certificateBtn" style="width:100%;height:50px;line-height:50px;background:#fe6246;font-size:20px;color:white;text-align: center;border-radius: 6px">确定</span></div></li>'));
+                var button = $($('<li class="input-row" style="display:-webkit-box;display: -webkit-flex;margin-top: 20px;background-color: white"><span class="lf" style="display: block;width: 90px;height: 50px;line-height: 50px;margin-left: 15px;text-align: left;color: #494949;font-size: 18px">验证码</span><div style="-webkit-box-flex: 1;-webkit-flex: 1;flex: 1;display: -webkit-box;display: -webkit-flex;height: 50px"><p style="-webkit-box-flex: 1;-webkit-flex: 1;flex: 1;display: -webkit-box;display: -webkit-flex;height: 50px;"><input id="inputSms" style="width: 100%;height: 50px;border: none;font-size: 18px" placeholder="请输入短信验证码"></p><span id="sendSmsBtn" style="display: block;width: 100px;height: 30px;line-height: 30px;background: #fe6246;color:white;font-size: 14px;margin-top: 10px;margin-right: 15px;text-align: center;border-radius: 6px">获取验证码</span></div></li><li style="display:-webkit-box;display: -webkit-flex;margin-top: 20px;margin-left: 15px;margin-right: 15px"><div style="-webkit-box-flex: 1;-webkit-flex: 1;flex: 1;display: -webkit-box;display: -webkit-flex;height: 50px"><span id="certificateBtn" style="width:100%;height:50px;line-height:50px;background:#4e73ed;font-size:20px;color:white;text-align: center;border-radius: 6px">确定</span></div></li>'));
                 $("#maskDiv").append(button);
                 $('#sendSmsBtn').click(getSmsCode);
                 $('#certificateBtn').click(certificateBtnAction);
+
+                var cssEnable = {
+                    'display': 'block',
+                    'width': '100px',
+                    'height': '30px',
+                    'line-height': '30px',
+                    'background-color': 'white',
+                    'color': '#157efb',
+                    'font-size': '14px',
+                    'margin-top': '10px',
+                    'margin-right': '15px',
+                    'text-align': 'center',
+                    'border-radius':'3px',
+                    'border-style':'solid',
+                    'border-color':'#157efb',
+                    'border-width':'1px'
+                };
+
+                var cssDisable = {
+                    'display': 'block',
+                    'width': '100px',
+                    'height': '30px',
+                    'line-height': '30px',
+                    'background-color': '#bcc0c9',
+                    'color': 'white',
+                    'font-size': '14px',
+                    'margin-top': '10px',
+                    'margin-right': '15px',
+                    'text-align': 'center',
+                    'border-radius':'3px',
+                    'border-style':'none'
+                };
+                var smsBtn = $('#sendSmsBtn')
+                smsBtn[0].cssEnable = cssEnable;
+                smsBtn[0].cssDisable = cssDisable;
+                smsBtn.css(cssEnable);
             } else {
                 $('#maskDiv').show();
             }
@@ -500,8 +566,12 @@ dSpider("telecom_gd", function(session,env,$){
     function settime() {
         log("time:" + window.countdown);
         var obj = $('#sendSmsBtn')[0];
+        if (window.countdown === 60) {
+            $('#sendSmsBtn').css(obj.cssDisable);
+        }
         if (window.countdown === 0) {
             obj.removeAttribute("disabled");
+            $('#sendSmsBtn').css(obj.cssEnable);
             $('#sendSmsBtn').text("发送验证码");
             window.countdown = 60;
             return;

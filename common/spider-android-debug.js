@@ -2,11 +2,10 @@
  * Created by du on 16/9/1.
  */
 var $ = dQuery;
-var jQuery=$;
 String.prototype.format = function () {
-    var args = Array.prototype.slice.call(arguments);
+    var args = [].slice.call(arguments);
     var count = 0;
-    return this.replace(/%s/g, function (s, i) {
+    return this.replace(/%s/g, function () {
         return args[count++];
     });
 };
@@ -34,11 +33,10 @@ function log(str) {
 
 //异常捕获
 function errorReport(e) {
-    var stack=e.stack? e.stack.replace(/http.*?inject\.php.*?:/ig," "+_su+":"): e.toString();
-    var msg="语法错误: " + e.message +"\nscript_url:"+_su+"\n"+stack
+    var msg="语法错误: " + e.message +"\nscript_url:"+_su+"\n"+ e.stack
     if(window.curSession){
         curSession.log(msg);
-        curSession.finish(e.message,"",3,msg);
+        curSession.finish(e.message,"",2,msg);
     }
 }
 
@@ -103,7 +101,7 @@ function waitDomAvailable(selector, success, fail) {
         if (ob[0]) {
             clearInterval(t)
             success(ob, 10000 - timeout)
-        } else if (timeout == 0) {
+        } else if (timeout ===0) {
             clearInterval(t)
             var f = fail || DomNotFindReport;
             f(selector)
@@ -143,6 +141,41 @@ function apiInit() {
     }, 20);
 }
 
+//超时逻辑
+var _timer,_timeOut=-1;
+
+function _startTimer(s){
+    var left=_timeOut*1000- (s.get("_pass")||0)
+    if(left<0) left=0;
+    _timer=setTimeout(function(){
+        log("time out");
+        if (!s.finished) {
+            s.finish("timeout ["+_timeOut+"s] ", "",4)
+        }
+    },left);
+    log("_Timer:"+left/1000+"s left");
+}
+function _resetTimer(show){
+    var s=window.curSession;
+    if(_timeOut==-1) return;
+    var key=show?"_show":"_hide";
+    var last=s.get("_last");
+    last=last||"_hide";
+    //显示状态没有改变则什么也不做
+    if(last==key) return;
+    var now=new Date().getTime()
+    var passed;
+    if(key=="_show"){
+        _startTimer(s)
+    }else{
+        passed=now- (s.get("_show")||now);
+        s.set("_pass", (s.get("_pass")||0)+passed);
+        clearTimeout(_timer)
+    }
+    s.set("_last",key);
+    s.set(key,now)
+}
+
 //爬取入口
 function dSpider(sessionKey,timeOut, callback) {
     if(window.onSpiderInited&&this!=5)
@@ -156,68 +189,57 @@ function dSpider(sessionKey,timeOut, callback) {
         }
         var session = new DataSession(sessionKey);
         var onclose=function(){
-            log("onNavigate:"+location.href)
             session._save()
             if(session.onNavigate){
                 session.onNavigate(location.href);
             }
         }
         $(window).on("beforeunload",onclose)
-        window.curSession = session;
+
         session._init(function(){
             //超时处理
             if (!callback) {
                 callback = timeOut;
                 timeOut = -1;
             }
+            window.curSession = session;
             if (timeOut != -1) {
-                var startTime = session.get("startTime")
-                var now = new Date().getTime();
-                if (!startTime) {
-                    session.set("startTime", now);
-                    startTime=now
+                _timeOut=timeOut;
+                if(session.get("_last")=="_show"){
+                    var now=new Date().getTime()
+                    var passed=now-(session.get("_show")||now);
+                    session.set("_pass", (session.get("_pass")||0)+passed);
+                    session.set("_show",now);
+                    _startTimer(session)
                 }
-                timeOut *= 1000;
-                var passed = (now - startTime);
-                var left = timeOut -passed;
-                left = left > 0 ? left : 0;
-                log("left:"+left)
-                setTimeout(function () {
-                    log("time out");
-                    if (!session.finished) {
-                        session.finish("timeout ["+timeOut/1000+"s] ", "",4)
-                    }
-                }, left);
             }
             DataSession.getExtraData(function (extras) {
-                $(safeCallback(function(){
-                    $("body").on("click","a",function(){
-                        $(this).attr("target",function(_,v){
-                            if(v=="_blank") return "_self"
+                DataSession.getArguments(function(args){
+                    session.getArguments=function(){
+                        return JSON.parse(args||"{}")
+                    }
+                    $(safeCallback(function(){
+                        $("body").on("click","a",function(){
+                            $(this).attr("target",function(_,v){
+                                if(v=="_blank") return "_self"
+                            })
                         })
-                    })
-                    log("dSpider start!")
-                    extras.config=typeof _config==="object"?_config:"{}";
-                    session._args=extras.args;
-                    callback(session, extras, $);
-                }))
+                        log("dSpider start!")
+                        extras.config=typeof _config==="object"?_config:"{}";
+                        callback(session, extras, $);
+                    }))
+                })
             })
         })
     }, 20);
 }
-
-dQuery(function(){
+//网页回调
+$(function(){
     if(window.onSpiderInited){
         window.onSpiderInited(dSpider.bind(5));
     }
 })
 
-//邮件爬取入口
-function dSpiderMail(sessionKey, callback) {
-    dSpider(sessionKey,function(session,env,$){
-        callback(session.getLocal("u"), session.getLocal("wd"), session, env, $);
-    })
-}
 function DataSession(key) {
     this.key = key;
     this.finished = false;
@@ -227,6 +249,10 @@ function DataSession(key) {
 DataSession.getExtraData = function (f) {
     f = safeCallback(f);
     f && f(JSON.parse(_xy.getExtraData() || "{}"));
+}
+
+DataSession.getArguments= function (f) {
+    return f(_xy.getArguments())
 }
 
 DataSession.prototype = {
@@ -239,16 +265,16 @@ DataSession.prototype = {
         this.local=JSON.parse(_xy.read(this.key)|| "{}")
         f()
     },
-
     get: function (key) {
         return this.data[key];
     },
     set: function (key, value) {
         this.data[key] = value;
     },
-
     showProgress: function (isShow) {
-        _xy.showProgress(isShow === undefined ? true : !!isShow);
+        isShow=isShow === undefined ? true : !!isShow;
+        _resetTimer(isShow)
+        _xy.showProgress(isShow);
     },
     setProgressMax: function (max) {
         _xy.setProgressMax(max);
@@ -256,24 +282,14 @@ DataSession.prototype = {
     setProgress: function (progress) {
         _xy.setProgress(progress);
     },
-    getProgress: function (f) {
-        f = safeCallback(f);
-        f && f(_xy.getProgress());
-    },
-    showLoading: function (s) {
-        _xy.showLoading(s || "正在爬取,请耐心等待...")
-    },
-    hideLoading: function () {
-        _xy.hideLoading()
-    },
     finish: function (errmsg, content, code, stack) {
         this.finished = true;
         if (errmsg) {
             var ob = {
                 url: location.href,
                 msg: errmsg,
-                //content: content || document.documentElement.outerHTML,
-                args: this._args
+                content: content || document.documentElement.outerHTML,
+                args: this.getArguments&&this.getArguments()
             }
             stack && (ob.stack = stack);
             return _xy.finish(this.key || "", code || 2, JSON.stringify(ob));
@@ -293,6 +309,9 @@ DataSession.prototype = {
             return
         }
         _xy.load(url, JSON.stringify(headers));
+    },
+    setStartUrl:function(u){
+        _xy.setStartUrl(u)
     },
     setUserAgent: function (str) {
         _xy.setUserAgent(str)
@@ -322,4 +341,18 @@ DataSession.prototype = {
         return this.local[k];
     }
 };
+function DataSession(key) {
+    this.key = key;
+    this.finished = false;
+    _xy.start(key);
+}
+
+DataSession.getExtraData = function (f) {
+    f = safeCallback(f);
+    f && f(JSON.parse(_xy.getExtraData() || "{}"));
+}
+
+DataSession.getArguments= function (f) {
+    return f(_xy.getArguments())
+}
 apiInit();
