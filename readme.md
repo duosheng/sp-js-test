@@ -26,6 +26,8 @@
 联通：http://wap.10010.com/t/query/getPhoneByDetailTip.htm
 移动：https://login.10086.cn/login.html?channelID=12003&backUrl=http://shop.10086.cn/i/?f=billdetailqry
 支付宝：https://custweb.alipay.com/account/index.htm
+广东电信:https://gd.189.cn/TS/login.htm
+北京电信:http://login.189.cn/login
 
 ```
 
