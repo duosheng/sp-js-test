@@ -15,7 +15,12 @@ dSpider("telecom_gd", function(session,env,$){
         $('#pwd_s').hide();
         $('#getPwd').hide();
         $('.re-back').hide();
-        $("#account").val(session.getLocal("account"));
+        var phone=session.getLocal("phoneNo");
+        if(!phone) {
+            phone=session.getArguments().phoneNo;
+        }
+        $("#account").val(phone);
+        $("#account").attr("disabled", true);
         $("#password_k").val(session.getLocal("password"));
         if(session.getLocal("select_area")) {
             $("#select_area").find("span").eq(0).text(session.getLocal("select_area"));
@@ -23,7 +28,7 @@ dSpider("telecom_gd", function(session,env,$){
         }
         $(".ui-btn-1").on("click",function(){
             session.setLocal("password", $("#password_k").val());
-            session.setLocal("account", $("#account").val());
+            session.setLocal("phoneNo", $("#account").val());
             session.setLocal("area", $("#area").val());
             session.setLocal("select_area", $("#select_area").find("span").eq(0).text());
         });
@@ -380,7 +385,7 @@ dSpider("telecom_gd", function(session,env,$){
             userInfo = {};
         }
         if(!userInfo.mobile) {
-            userInfo.mobile=session.getLocal("account");
+            userInfo.mobile=session.getLocal("phoneNo");
         }
 
         session.set("thxd", thxd);
