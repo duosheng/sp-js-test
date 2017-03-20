@@ -147,7 +147,6 @@ dSpider("mobile", 60 * 4,function(session,env,$) {
             var xd_phone = session.getLocal("xd_phone");
             window.xd_phone = xd_phone;
             if (window.xd_phone) {
-                session.autoLoadImg(false);
                 checkLogin_second();
                 return;
             } else {
@@ -560,7 +559,7 @@ dSpider("mobile", 60 * 4,function(session,env,$) {
                 var inputSmsWidth = 320. / 750. * webViewWidthFloat;
                 var titleRightFloat = 0.85;
                 //密码输入框
-                var inputPwd = $('<input type="text" id="inputPwd"/>');
+                var inputPwd = $('<input type="password" id="inputPwd"/>');
                 inputPwd.css({
                     'position': 'absolute',
                     'left': titleRightFloat + 'rem',
@@ -692,10 +691,6 @@ dSpider("mobile", 60 * 4,function(session,env,$) {
                     var canvasHeight = canvasWidth * 0.444;
                     imgVert.attr({'height': canvasHeight + 'px', 'width': canvasWidth + 'px'});
                     cellBackgroundDiv.append(imgVert);
-                    
-                    // 处理安卓兼容错误
-                    $("#imgVert").hide();
-					setTimeout(function(){$("#imgVert").show()，1000);
 
                     // 设置图片
                     var c = document.getElementById("imgVert");
@@ -751,7 +746,6 @@ dSpider("mobile", 60 * 4,function(session,env,$) {
                     'color': 'white',
                     'background-color':'#4e73ed',
                 });
-
 
             } else {
                 $('#maskDiv').show();
