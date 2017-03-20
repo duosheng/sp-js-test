@@ -158,18 +158,18 @@ dSpider("unicom", 60*5, function(session,env,$){
             });
         }
 
-        var uname = session.getLocal("userName");
-        if(uname) {
-            $("input#userName:eq(0)").val(uname);
-            $("input#userPwd:eq(0)").val(session.getLocal("password"));
-        } else {
-            var phoneNo = session.getArguments().phoneNo;
-            if(phoneNo) {
-                $("input#userName:eq(0)").val(phoneNo);
-            }
+        // 填充默认手机号
+        var prePhone = null;
+        prePhone = session.getArguments().phoneNo;
+        log('默认手机号：' + prePhone);
+        if (!prePhone) {
+            prePhone = session.getLocal("userName");
         }
+        $("input#userName:eq(0)").val(prePhone);
+        $("input#userPwd:eq(0)").val(session.getLocal("password"));
+
         //禁用输入框
-        $("input#userName:eq(0)")..attr("disabled", "disabled");
+        $("input#userName:eq(0)").attr("disabled", "disabled");
         var emObj = $("input#userName:eq(0)").next();
         if(emObj.is("em") && emObj.attr("class") == "sl-delect") {
             emObj.css("display", "none");
