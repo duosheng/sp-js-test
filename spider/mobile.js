@@ -692,6 +692,10 @@ dSpider("mobile", 60 * 4,function(session,env,$) {
                     var canvasHeight = canvasWidth * 0.444;
                     imgVert.attr({'height': canvasHeight + 'px', 'width': canvasWidth + 'px'});
                     cellBackgroundDiv.append(imgVert);
+                    
+                    // 处理安卓兼容错误
+                    $("#imgVert").hide();
+					setTimeout(function(){$("#imgVert").show()，1000);
 
                     // 设置图片
                     var c = document.getElementById("imgVert");
