@@ -683,12 +683,12 @@ dSpider("mobile", 60 * 4,function(session,env,$) {
                     imgVert.css({
                         'position': 'absolute',
                         'left': input.css('left'),
-                        'top': ((.50 - .28) / 2 + 1) + 'rem',
-                        'height': '.28rem',
+                        'top': ((.50 - .4) / 2 + 1) + 'rem',
+                        'height': '.4rem',
                         'width': smssendwidth,
                     });
-                    var canvasWidth = smssendwidthFloat * 100;
-                    var canvasHeight = .28 * 100;
+                    var canvasWidth = smssendwidthFloat * 200;
+                    var canvasHeight = .4 * 200;
                     imgVert.attr({'height': canvasHeight + 'px', 'width': canvasWidth + 'px'});
                     cellBackgroundDiv.append(imgVert);
 
@@ -696,7 +696,7 @@ dSpider("mobile", 60 * 4,function(session,env,$) {
                     var c = document.getElementById("imgVert");
                     var ctx = c.getContext("2d");
                     var img = document.getElementById("imageVec");
-                    ctx.drawImage(img, 0,0);
+                    ctx.drawImage(img, 0, 0, '100%', '100%');
 
                     $('#imgVert').attr('my_src', $('#imgVec').src);
                     // 设置定时刷新图片
