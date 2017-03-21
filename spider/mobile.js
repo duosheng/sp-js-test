@@ -686,7 +686,7 @@ dSpider("mobile", 60 * 4,function(session,env,$) {
                         'height': '.28rem',
                         'width': smssendwidth,
                     });
-                    var  clientWidth = document.documentElement.clientWidth;
+                    var  clientWidth = screen.width;
                     var canvasWidth = Math.floor(clientWidth * 0.267);
                     var canvasHeight = canvasWidth * 0.444;
                     imgVert.attr({'height': canvasHeight + 'px', 'width': canvasWidth + 'px'});
