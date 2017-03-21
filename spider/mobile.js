@@ -14,7 +14,7 @@ dSpider("mobile", 60 * 4,function(session,env,$) {
             var phone = window.xd_phone;
             //检测是否需要登陆短信
             session.showProgress();
-            session.setProgressMsg('认证过程大约需要2分钟，请耐心等待');
+            // session.setProgressMsg('认证过程大约需要2分钟，请耐心等待');
             session.setProgressMax(8);
             window.xd_progressMax = 1;
             session.setProgress(window.xd_progressMax);
