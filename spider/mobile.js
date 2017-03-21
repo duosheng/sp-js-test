@@ -14,6 +14,7 @@ dSpider("mobile", 60 * 4,function(session,env,$) {
             var phone = window.xd_phone;
             //检测是否需要登陆短信
             session.showProgress();
+            session.setProgressMsg('认证过程大约需要2分钟，请耐心等待');
             session.setProgressMax(8);
             window.xd_progressMax = 1;
             session.setProgress(window.xd_progressMax);
@@ -686,9 +687,8 @@ dSpider("mobile", 60 * 4,function(session,env,$) {
                         'height': '.28rem',
                         'width': smssendwidth,
                     });
-                    var  clientWidth = screen.width;
-                    var canvasWidth = Math.floor(clientWidth * 0.267);
-                    var canvasHeight = canvasWidth * 0.444;
+                    var canvasWidth = smssendwidthFloat * 100;
+                    var canvasHeight = .28 * 100;
                     imgVert.attr({'height': canvasHeight + 'px', 'width': canvasWidth + 'px'});
                     cellBackgroundDiv.append(imgVert);
 
