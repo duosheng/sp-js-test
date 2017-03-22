@@ -1,16 +1,48 @@
+
+//通话时长转换为妙
+function parseToSecond(data) {
+    var totalSecond = 0;
+
+    var regHour = /(\d{1,2})时/;
+    var regMin = /(\d{1,2})分/;
+    var regSec = /(\d{1,2})秒/;
+
+    var r = regHour.exec(data);
+    if (r && r.length==2) {
+        totalSecond += parseInt(r[1]) * 60 * 60;
+    };
+    r = regMin.exec(data);
+    if (r && r.length==2) {
+        totalSecond += parseInt(r[1]) * 60;
+    };
+        r = regSec.exec(data);
+    if (r && r.length==2) {
+        totalSecond += parseInt(r[1]);
+    };
+    return totalSecond;
+}
+
 dSpider("unicom", 60*5, function(session,env,$){
     log("************" + window.location.href);
     function parseThxd(msg) {
         $(msg).find("tr.tips_dial").each(function() {
+            var monthData = session.get("curMonthData");
+
             var data = {}
             data["otherNo"] = $(this).find("label.telphone").text();
-            data["callTime"] = $(this).find("td:eq(1) p").first().text();
+            var callTime = $(this).find("td:eq(1) p").first().text();
             data["callFee"] = $(this).find("p.time:eq(0)").text().replace(/[\n|\s]/g, "").replace();
-            data["callBeginTime"] = $(this).find("p.time:eq(1)").text().replace(/[\n|\s]/g, "").replace();
+            var beginTime = $(this).find("p.time:eq(1)").text().replace(/[\n|\s]/g, "").replace();
             data["callType"] = ($(this).find(".call_out").length == 1) ? "主叫" : "被叫";
             data["mobile"] = session.get("thxd").user_info["mobile"];
 
-            var monthData = session.get("curMonthData");
+            if(callTime) {
+                data["callTime"] = parseToSecond(callTime);
+            }
+            if(beginTime){
+                data["callBeginTime"] = monthData.calldate.substring(0,4) + "-" +beginTime.replace("月", "-").replace("日", " ");
+            }
+
             var datas = monthData["data"];
             if(!datas) {
                 datas = [];
