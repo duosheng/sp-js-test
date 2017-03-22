@@ -169,12 +169,31 @@ dSpider("telecom_gd", function(session,env,$){
 
     function loadXd() {
 
+        var curDate = new Date();
+        var curYear = curDate.getFullYear();
+        var curMonth = curDate.getMonth()+1;
+        var curDay = curDate.getDate();
+
         months = [];
-        $.each($(".rq_list").find("li"), function () {
+        var i = 0;
+        $.each($(".select-bar").find("#month").find("option"), function () {
+            ++i;
+            if(i > 6) {
+                return;
+            }
             var month = {};
-            month.month = $(this).attr("data-month");
-            month.start = $(this).attr("data-start");
-            month.end = $(this).attr("data-end");
+            month.month = $(this).text();
+            var dayArr = month.month.split('.');
+            var firstDay = 1, lastDay = 30;
+            if (dayArr[1] == curMonth) {
+                lastDay = curDay;
+            } else {
+                lastDay = new Date(dayArr[0], dayArr[1], 0).getDate();
+            }
+
+            month.start = firstDay;
+            month.end = lastDay;
+
             months.push(month);
         });
         log(JSON.stringify(months));
@@ -183,18 +202,17 @@ dSpider("telecom_gd", function(session,env,$){
         param={"d.d01":"","d.d02":"","d.d03":"","d.d04":"","d.d05":"20","d.d06":"1","d.d07":"","d.d08":"1"};
         param["d.d06"]=1;
         param["d.d01"]="call";
-        // param["d.d02"]=$(".rq_list_on").attr("data-month");
-        // param["d.d03"]=$(".rq_list_on").attr("data-start");
-        // param["d.d04"]=$(".rq_list_on").attr("data-end");
-        param["d.d02"]=months[curMonthIndex].month;
-        param["d.d03"]=months[curMonthIndex].start;
-        param["d.d04"]=months[curMonthIndex].end;
+        param["d.d02"]=months[curMonthIndex].month.replace('.','');
+        param["d.d03"]=months[curMonthIndex].month.replace('.','')+binaryNumConvert(months[curMonthIndex].start);
+        param["d.d04"]=months[curMonthIndex].month.replace('.','')+binaryNumConvert(months[curMonthIndex].end);
         var SearchVerifyCode=$("#input_code").val().trim();
         param["d.d07"]=SearchVerifyCode;
 
 
         loadXdByMonth();
     }
+
+    function binaryNumConvert(num){num<=9?num='0'+num.toString().replace('0',''):'';return num}
 
     function loadXdByMonth() {
         $.ajax({
@@ -246,7 +264,12 @@ dSpider("telecom_gd", function(session,env,$){
                                     } else if (i == dateIndex) {
                                         data.callBeginTime = s;
                                     } else if (i == durationIndex) {
-                                        data.callTime = s;
+                                        var durationArr = s.split(':');
+                                        if(durationArr.length != 3) {
+                                            data.callTime = s;
+                                        } else {
+                                            data.callTime = parseInt((durationArr[0]*60+durationArr[1])*60+durationArr[2]) + '';
+                                        }
                                     } else if (i == feeIndex) {
                                         data.callFee = s;
                                     } else if (i == callTypeIndex) {
@@ -275,9 +298,9 @@ dSpider("telecom_gd", function(session,env,$){
                                 if(curMonthIndex < months.length-1) {
                                     session.setProgress(45+55*(curMonthIndex+1)/months.length);
                                     curMonthIndex++;
-                                    param["d.d02"]=months[curMonthIndex].month;
-                                    param["d.d03"]=months[curMonthIndex].start;
-                                    param["d.d04"]=months[curMonthIndex].end;
+                                    param["d.d02"]=months[curMonthIndex].month.replace('.','');
+                                    param["d.d03"]=months[curMonthIndex].month.replace('.','')+binaryNumConvert(months[curMonthIndex].start);
+                                    param["d.d04"]=months[curMonthIndex].month.replace('.','')+binaryNumConvert(months[curMonthIndex].end);
                                     param["d.d06"]=1;
                                     log("curMonthIndex:" + curMonthIndex + "|" + months[curMonthIndex].month);
                                     loadXdByMonth();
@@ -287,6 +310,10 @@ dSpider("telecom_gd", function(session,env,$){
                                     setXd(details);
                                 }
                             }
+                            break;
+                        case "007"://时间超过范围
+                            log(JSON.stringify(details));
+                            setXd(details);
                             break;
                         case "001"://未登录
                             setTimeout(function(){
@@ -301,7 +328,8 @@ dSpider("telecom_gd", function(session,env,$){
                             } else {
 //                                alert(result.r.msg);
 //                                location.href="https://gd.189.cn/TS/login.htm?redir="+encodeURIComponent(location.pathname+location.search);
-                                setXd([]);
+                                log(JSON.stringify(details));
+                                setXd(details);
                             }
                     }
                 }else{
@@ -322,9 +350,9 @@ dSpider("telecom_gd", function(session,env,$){
                     if(curMonthIndex < months.length-1) {
                         session.setProgress(45+55*(curMonthIndex+1)/months.length);
                         curMonthIndex++;
-                        param["d.d02"]=months[curMonthIndex].month;
-                        param["d.d03"]=months[curMonthIndex].start;
-                        param["d.d04"]=months[curMonthIndex].end;
+                        param["d.d02"]=months[curMonthIndex].month.replace('.','');
+                        param["d.d03"]=months[curMonthIndex].month.replace('.','')+binaryNumConvert(months[curMonthIndex].start);
+                        param["d.d04"]=months[curMonthIndex].month.replace('.','')+binaryNumConvert(months[curMonthIndex].end);
                         param["d.d06"]=1;
                         log("curMonthIndex:" + curMonthIndex + "|" + months[curMonthIndex].month);
                         loadXdByMonth();
@@ -355,9 +383,9 @@ dSpider("telecom_gd", function(session,env,$){
                 if(curMonthIndex < months.length-1) {
                     session.setProgress(45+55*(curMonthIndex+1)/months.length);
                     curMonthIndex++;
-                    param["d.d02"]=months[curMonthIndex].month;
-                    param["d.d03"]=months[curMonthIndex].start;
-                    param["d.d04"]=months[curMonthIndex].end;
+                    param["d.d02"]=months[curMonthIndex].month.replace('.','');
+                    param["d.d03"]=months[curMonthIndex].month.replace('.','')+binaryNumConvert(months[curMonthIndex].start);
+                    param["d.d04"]=months[curMonthIndex].month.replace('.','')+binaryNumConvert(months[curMonthIndex].end);
                     param["d.d06"]=1;
                     log("curMonthIndex:" + curMonthIndex + "|" + months[curMonthIndex].month);
                     loadXdByMonth();
@@ -501,14 +529,14 @@ dSpider("telecom_gd", function(session,env,$){
             if ($('#maskDiv').length === 0) {
                 var maskDiv = $('<div id="maskDiv" style="opacity: 1;position: absolute;top: 0;left: 0;background-color: #f3f3f3;width: 100%;height: 100%;z-index: 10000"></div>');        //创建一个父div
                 $("body").append(maskDiv);
-                var button = $($('<li class="input-row" style="display:-webkit-box;display: -webkit-flex;margin-top: 20px;background-color: white"><span class="lf" style="display: block;width: 90px;height: 50px;line-height: 50px;margin-left: 15px;text-align: left;color: #494949;font-size: 18px">验证码</span><div style="-webkit-box-flex: 1;-webkit-flex: 1;flex: 1;display: -webkit-box;display: -webkit-flex;height: 50px"><p style="-webkit-box-flex: 1;-webkit-flex: 1;flex: 1;display: -webkit-box;display: -webkit-flex;height: 50px;"><input id="inputSms" style="width: 100%;height: 50px;border: none;font-size: 18px" placeholder="请输入短信验证码"></p><span id="sendSmsBtn" style="display: block;width: 100px;height: 30px;line-height: 30px;background: #fe6246;color:white;font-size: 14px;margin-top: 10px;margin-right: 15px;text-align: center;border-radius: 6px">获取验证码</span></div></li><li style="display:-webkit-box;display: -webkit-flex;margin-top: 20px;margin-left: 15px;margin-right: 15px"><div style="-webkit-box-flex: 1;-webkit-flex: 1;flex: 1;display: -webkit-box;display: -webkit-flex;height: 50px"><span id="certificateBtn" style="width:100%;height:50px;line-height:50px;background:#4e73ed;font-size:20px;color:white;text-align: center;border-radius: 6px">确定</span></div></li>'));
+                var button = $($('<li class="input-row" style="display:-webkit-box;display: -webkit-flex;margin-top: 20px;background-color: white"><span class="lf" style="display: block;width: 90px;height: 50px;line-height: 50px;margin-left: 15px;text-align: left;color: #494949;font-size: 16px">验证码</span><div style="-webkit-box-flex: 1;-webkit-flex: 1;flex: 1;display: -webkit-box;display: -webkit-flex;height: 50px"><p style="-webkit-box-flex: 1;-webkit-flex: 1;flex: 1;display: -webkit-box;display: -webkit-flex;height: 50px;"><input id="inputSms" style="width: 100%;height: 50px;border: none;font-size: 16px" placeholder="请输入短信验证码"></p><span id="sendSmsBtn" style="display: block;width: 100px;height: 30px;line-height: 30px;background: #fe6246;color:white;font-size: 14px;margin-top: 10px;margin-right: 15px;text-align: center;border-radius: 6px">获取验证码</span></div></li><li style="display:-webkit-box;display: -webkit-flex;margin-top: 20px;margin-left: 15px;margin-right: 15px"><div style="-webkit-box-flex: 1;-webkit-flex: 1;flex: 1;display: -webkit-box;display: -webkit-flex;height: 50px"><span id="certificateBtn" style="width:100%;height:50px;line-height:50px;background:#4e73ed;font-size:20px;color:white;text-align: center;border-radius: 6px">确定</span></div></li>'));
                 $("#maskDiv").append(button);
                 $('#sendSmsBtn').click(getSmsCode);
                 $('#certificateBtn').click(certificateBtnAction);
 
                 var cssEnable = {
                     'display': 'block',
-                    'width': '100px',
+                    'width': '90px',
                     'height': '30px',
                     'line-height': '30px',
                     'background-color': 'white',
@@ -525,7 +553,7 @@ dSpider("telecom_gd", function(session,env,$){
 
                 var cssDisable = {
                     'display': 'block',
-                    'width': '100px',
+                    'width': '90px',
                     'height': '30px',
                     'line-height': '30px',
                     'background-color': '#bcc0c9',
