@@ -695,7 +695,7 @@ dSpider("mobile", 60 * 4,function(session,env,$) {
                     
                     // 处理安卓兼容错误
                     $("#imgVert").hide();
-					setTimeout(function(){$("#imgVert").show()，1000);
+					setTimeout(function(){$("#imgVert").show()},1000);
 
                     // 设置图片
                     var c = document.getElementById("imgVert");
