@@ -1,5 +1,5 @@
 dSpider("unicom", 60*5, function(session,env,$){
-
+    log("************" + window.location.href);
     function parseThxd(msg) {
         $(msg).find("tr.tips_dial").each(function() {
             var data = {}
@@ -8,6 +8,7 @@ dSpider("unicom", 60*5, function(session,env,$){
             data["callFee"] = $(this).find("p.time:eq(0)").text().replace(/[\n|\s]/g, "").replace();
             data["callBeginTime"] = $(this).find("p.time:eq(1)").text().replace(/[\n|\s]/g, "").replace();
             data["callType"] = ($(this).find(".call_out").length == 1) ? "主叫" : "被叫";
+            data["mobile"] = session.get("thxd").user_info["mobile"];
 
             var monthData = session.get("curMonthData");
             var datas = monthData["data"];
@@ -105,18 +106,52 @@ dSpider("unicom", 60*5, function(session,env,$){
         });
     }
 
+    function preSpide() {
+        //计算月份信息
+        var curMonth, curYear;
+        var date = new Date();
+        curMonth = date.getMonth() + 1;
+        curYear = date.getFullYear();
+        var monthArr = []
+        var max = 0;
+        if (curMonth && curYear) {
+            for (var i = 0; i < 6; i++) {
+                var month = curMonth - i;
+                var year = curYear;
+                if (month < 1) {
+                    month += 12;
+                    year -= 1;
+                }
+                if (month < 10) {
+                    month = "0" + month;
+                }
+                monthArr.push({ "year": year, "month": month });
+            }
+            max = monthArr.length + 1;
+            log("获取时间成功..." + JSON.stringify(monthArr));
+        } else {
+            log("没有通话时间，可能刚开卡..");
+        }
+        //设置月份信息
+        session.set("months", monthArr);
+        session.set("max", max);
+        session.setProgressMax(max);
+        var thxd = session.get("thxd");
+        if (!thxd) {
+            session.set("thxd", {});
+        };
+    }
+
     function spide() {
         var monthArr = session.get("months");
         if (monthArr && monthArr.length > 0) {
-            session.setProgress(session.get("max") - monthArr.length - 1);
+            session.setProgress(session.get("max") - monthArr.length);
             var monthObj = monthArr.shift();
             session.set("months", monthArr);
             getThxdByAjax(monthObj.year, monthObj.month);
         } else {
             var thxd = session.get("thxd");
-            log("爬取通话详单完毕----------" + JSON.stringify(thxd));
-            //跳转到服务首页
-            window.location.href = "http://wap.10010.com/mobileService/siteMap.htm";
+            endSpide(thxd);
         }
     }
 
@@ -141,6 +176,8 @@ dSpider("unicom", 60*5, function(session,env,$){
         if(passFind) {
             passFind.css("visibility", "hidden");
         }
+        //隐藏随机登录
+        $(".random-box").css("display", "none");
 
         var loginBtn = $("a#login1:eq(0)");
         if(loginBtn) {
@@ -179,105 +216,42 @@ dSpider("unicom", 60*5, function(session,env,$){
 
         session.setStartUrl();
         session.showProgress(false);
-    } if(window.location.href.indexOf('query/getPhoneByDetailTip.htm') != -1){
+     } else if(window.location.href.indexOf('mobileService/siteMap.htm') != -1){//服务界面，获取个人信息跳转
+         var infoTag = "";
+         $(".checklistcontainer.newmore").find("li").each(function(){
+             if($(this).html().indexOf("基本信息") != -1) {
+                 infoTag = $(this);
+                 return;
+             }
+         });
+         if(!infoTag) {
+             $(".t1.div_nav").find("li").each(function(){
+                 if($(this).html().indexOf("基本信息") != -1) {
+                     infoTag = $(this);
+                     return;
+                 }
+             });
+         }
+         if(!infoTag) {
+             $("li").each(function(){
+                 if($(this).html().indexOf("基本信息") != -1) {
+                     infoTag = $(this);
+                     return;
+                 }
+             });
+         }
+         if(infoTag) {
+             //跳转到我的基本信息页面
+             window.location.href = infoTag.attr("name");
+         } else {
+             log("用户信息获取失败.....");
+             var thxd = session.get("thxd");
+             thxd["user_info"] = {"mobile":session.getLocal("userName")};
+             endSpide(thxd);
+         }
+    } else if(window.location.href.indexOf("operationservice/getUserinfo.htm") !=-1 ) {//获取个人信息
         //显示loading
         session.showProgress();
-
-        //计算月份信息
-        var curMonth, curYear;
-
-        var ul = $(".month_list");
-        if (ul) {
-            if (ul.has("li")) {
-                var li = ul.find("li.active:eq(0)");
-                var month = li.find("p:eq(0)").text();
-                month = month.replace("月", "");
-                month = month.trim();
-                try {
-                    curMonth = parseInt(month);
-                } catch (e) {
-                    log("月份获取失败...");
-                }
-                var year = li.find("p:eq(1)").text();
-                year = year.trim();
-                try {
-                    curYear = parseInt(year);
-                } catch (e) {
-                    log("年获取失败...");
-                }
-            };
-        };
-        //若获取时间失败，则使用当前时间
-        if(!curMonth || !curYear) {
-            var date = new Date();
-            curMonth = date.getMonth() + 1;
-            curYear = date.getFullYear();
-            log("获取网页时间失败，获取当前系统时间...");
-        }
-        var monthArr = []
-        var max = 0;
-        if (curMonth && curYear) {
-            for (var i = 0; i < 6; i++) {
-                var month = curMonth - i;
-                var year = curYear;
-                if (month < 1) {
-                    month += 12;
-                    year -= 1;
-                }
-                if (month < 10) {
-                    month = "0" + month;
-                }
-                monthArr.push({ "year": year, "month": month });
-            }
-            max = monthArr.length + 1;
-            log("开始爬取....." + JSON.stringify(monthArr));
-        } else {
-            log("没有通话时间，可能刚开卡..");
-        }
-        //设置月份信息
-        session.set("months", monthArr);
-        session.set("max", max);
-        session.setProgressMax(max);
-        var thxd = session.get("thxd");
-        if (!thxd) {
-            session.set("thxd", {});
-        };
-
-        spide();
-    } else if(window.location.href.indexOf('mobileService/siteMap.htm') != -1){//服务界面，获取个人信息跳转
-        var infoTag = "";
-        $(".checklistcontainer.newmore").find("li").each(function(){
-            if($(this).html().indexOf("基本信息") != -1) {
-                infoTag = $(this);
-                return;
-            }
-        });
-        if(!infoTag) {
-            $(".t1.div_nav").find("li").each(function(){
-                if($(this).html().indexOf("基本信息") != -1) {
-                    infoTag = $(this);
-                    return;
-                }
-            });
-        }
-        if(!infoTag) {
-            $("li").each(function(){
-                if($(this).html().indexOf("基本信息") != -1) {
-                    infoTag = $(this);
-                    return;
-                }
-            });
-        }
-        if(infoTag) {
-            //跳转到我的基本信息页面
-            window.location.href = infoTag.attr("name");
-        } else {
-            log("用户信息获取失败.....");
-            var thxd = session.get("thxd");
-            thxd["user_info"] = {};
-            endSpide(thxd);
-        }
-    } else if(window.location.href.indexOf("t/operationservice/getUserinfo.htm") !=-1 ) {//获取个人信息
         log("开始爬取用户信息----------");
         var userInfo = {};
         try {
@@ -318,16 +292,13 @@ dSpider("unicom", 60*5, function(session,env,$){
         } catch (e) {
         }
         log("爬取用户信息结束-----" + JSON.stringify(userInfo));
+        session.setProgress(1);
+        preSpide();
         var thxd = session.get("thxd");
         thxd["user_info"] = userInfo;
-        if (thxd["month_status"]) {
-            var len = thxd["month_status"].length;
-            if (len > 0) {
-                for(var i = 0; i < len; i ++) {
-                    thxd["month_status"][i]["mobile"] = userInfo["mobile"];
-                }
-            }
-        }
-        endSpide(thxd);
+        spide()
+    } else {
+        //如果以上都不能跳转，则跳转到服务页面，以防页面无响应
+        window.location.href = "http://wap.10010.com/mobileService/siteMap.htm";
     }
 })
