@@ -264,7 +264,12 @@ dSpider("telecom_gd", function(session,env,$){
                                     } else if (i == dateIndex) {
                                         data.callBeginTime = s;
                                     } else if (i == durationIndex) {
-                                        data.callTime = s;
+                                        var durationArr = s.split(':');
+                                        if(durationArr.length != 3) {
+                                            data.callTime = s;
+                                        } else {
+                                            data.callTime = parseInt((durationArr[0]*60+durationArr[1])*60+durationArr[2]) + '';
+                                        }
                                     } else if (i == feeIndex) {
                                         data.callFee = s;
                                     } else if (i == callTypeIndex) {
