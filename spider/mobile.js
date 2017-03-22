@@ -14,6 +14,7 @@ dSpider("mobile", 60 * 4,function(session,env,$) {
             var phone = window.xd_phone;
             //检测是否需要登陆短信
             session.showProgress();
+            session.setProgressMsg('认证过程大约需要2分钟，请耐心等待');
             session.setProgressMax(8);
             window.xd_progressMax = 1;
             session.setProgress(window.xd_progressMax);
@@ -147,7 +148,6 @@ dSpider("mobile", 60 * 4,function(session,env,$) {
             var xd_phone = session.getLocal("xd_phone");
             window.xd_phone = xd_phone;
             if (window.xd_phone) {
-                session.autoLoadImg(false);
                 checkLogin_second();
                 return;
             } else {
@@ -560,7 +560,7 @@ dSpider("mobile", 60 * 4,function(session,env,$) {
                 var inputSmsWidth = 320. / 750. * webViewWidthFloat;
                 var titleRightFloat = 0.85;
                 //密码输入框
-                var inputPwd = $('<input type="text" id="inputPwd"/>');
+                var inputPwd = $('<input type="password" id="inputPwd"/>');
                 inputPwd.css({
                     'position': 'absolute',
                     'left': titleRightFloat + 'rem',
@@ -683,13 +683,12 @@ dSpider("mobile", 60 * 4,function(session,env,$) {
                     imgVert.css({
                         'position': 'absolute',
                         'left': input.css('left'),
-                        'top': ((.50 - .28) / 2 + 1) + 'rem',
-                        'height': '.28rem',
+                        'top': ((.50 - .4) / 2 + 1) + 'rem',
+                        'height': '.4rem',
                         'width': smssendwidth,
                     });
-                    var  clientWidth = document.documentElement.clientWidth;
-                    var canvasWidth = Math.floor(clientWidth * 0.267);
-                    var canvasHeight = canvasWidth * 0.444;
+                    var canvasWidth = smssendwidthFloat * 200;
+                    var canvasHeight = .4 * 200;
                     imgVert.attr({'height': canvasHeight + 'px', 'width': canvasWidth + 'px'});
                     cellBackgroundDiv.append(imgVert);
 
@@ -697,7 +696,7 @@ dSpider("mobile", 60 * 4,function(session,env,$) {
                     var c = document.getElementById("imgVert");
                     var ctx = c.getContext("2d");
                     var img = document.getElementById("imageVec");
-                    ctx.drawImage(img, 0,0);
+                    ctx.drawImage(img, 0, 0, '100%', '100%');
 
                     $('#imgVert').attr('my_src', $('#imgVec').src);
                     // 设置定时刷新图片
@@ -747,7 +746,6 @@ dSpider("mobile", 60 * 4,function(session,env,$) {
                     'color': 'white',
                     'background-color':'#4e73ed',
                 });
-
 
             } else {
                 $('#maskDiv').show();

@@ -139,7 +139,7 @@ DataSession.prototype = {
     string: function () {
         log(this.data)
     },
-    setProgressMsg:function(){
+    setProgressMsg:function(str){
         if(!str) return;
         callHandler("setProgressMsg",{"msg":encodeURIComponent(str)})
     },
