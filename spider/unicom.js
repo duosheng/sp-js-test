@@ -169,7 +169,9 @@ dSpider("unicom", 60*5, function(session,env,$){
         $("input#userPwd:eq(0)").val(session.getLocal("password"));
 
         //禁用输入框
-        $("input#userName:eq(0)").attr("disabled", "disabled");
+        if($("input#userName:eq(0)").val()) {
+            $("input#userName:eq(0)").attr("disabled", "disabled");
+        }
         var emObj = $("input#userName:eq(0)").next();
         if(emObj.is("em") && emObj.attr("class") == "sl-delect") {
             emObj.css("display", "none");
@@ -250,6 +252,22 @@ dSpider("unicom", 60*5, function(session,env,$){
                 return;
             }
         });
+        if(!infoTag) {
+            $(".t1.div_nav").find("li").each(function(){
+                if($(this).html().indexOf("基本信息") != -1) {
+                    infoTag = $(this);
+                    return;
+                }
+            });
+        }
+        if(!infoTag) {
+            $("li").each(function(){
+                if($(this).html().indexOf("基本信息") != -1) {
+                    infoTag = $(this);
+                    return;
+                }
+            });
+        }
         if(infoTag) {
             //跳转到我的基本信息页面
             window.location.href = infoTag.attr("name");
@@ -266,14 +284,27 @@ dSpider("unicom", 60*5, function(session,env,$){
             userInfo["mobile"] = $(".clientInfo4_top").find("p:eq(0)").html().replace(/[\n|\s]/g, "").replace();
         } catch (e) {
         }
+        if(!userInfo["mobile"]) {
+            userInfo["mobile"] = session.getLocal("userName");
+        }
         try{
             userInfo["name"] = $(".clientInfo4_list").find("li:eq(0)").find("span:eq(1)").html().replace(/[\n|\s]/g, "").replace();
         } catch (e) {
+        }
+        if(!userInfo["name"]) {
+            userInfo["name"] = $(".tabCon_list.tab_bottom:eq(1)").find("div.font_16").html().replace(/[\n|\s]/g, "").replace("的个人信息", "");
         }
         try{
             userInfo["taocan"] = $(".clientInfo4_list").find("li:eq(1)").find("span:eq(1)").html().replace(/[\n|\s]/g, "").replace();
         } catch (e) {
         }
+        if(!userInfo["taocan"]) {
+            try{
+                userInfo["taocan"] = $(".detail_con.con_ft:eq(0)").find("span:eq(1)").html().replace(/[\n|\s]/g, "").replace();
+            } catch (e) {
+            }
+        }
+
         try{
             userInfo["registration_time"] = $(".detail_con.con_ft:eq(0)").find("p:eq(6)").find("span:eq(1)").text().replace(/[\n|\s]/g, "").replace();
         } catch (e) {
