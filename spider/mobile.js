@@ -44,12 +44,17 @@ dSpider("mobile", 60 * 4,function(session,env,$) {
 
             var data = result.data;
 
+            var initD = data.inNetDate.toString();
+            var reg_time = initD.substr(0, 4) + '-' + initD.substr(4, 2) + '-' + initD.substr(6, 2) + ' ' +
+                initD.substr(8, 2) + ':' + initD.substr(10, 2) + ':' + initD.substr(12, 2);
+
+
             var xd_user_info = {
                 'mobile':window.xd_phone,
                 'name': data.name,
                 'household_address': data.address,
                 'contactNum': data.contactNum,
-                'registration_time': data.inNetDate,
+                'registration_time': reg_time,
             };
 
             window.xd_data['user_info'] = xd_user_info;
