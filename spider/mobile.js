@@ -44,12 +44,17 @@ dSpider("mobile", 60 * 4,function(session,env,$) {
 
             var data = result.data;
 
+            var initD = data.inNetDate.toString();
+            var reg_time = initD.substr(0, 4) + '-' + initD.substr(4, 2) + '-' + initD.substr(6, 2) + ' ' +
+                initD.substr(8, 2) + ':' + initD.substr(10, 2) + ':' + initD.substr(12, 2);
+
+
             var xd_user_info = {
                 'mobile':window.xd_phone,
                 'name': data.name,
                 'household_address': data.address,
                 'contactNum': data.contactNum,
-                'registration_time': data.inNetDate,
+                'registration_time': reg_time,
             };
 
             window.xd_data['user_info'] = xd_user_info;
@@ -219,7 +224,7 @@ dSpider("mobile", 60 * 4,function(session,env,$) {
             //此月爬完push
             var obj = {};
             obj['month'] = fixMonthValue;
-            obj['value'] = get_current_page_bill();
+            obj['value'] = get_current_page_bill(fixMonthValue);
             var total = $('#notes2').text();
             obj['total'] = total.substring(1, total.length - 1);
             pushCallDetailData(obj);
@@ -287,7 +292,36 @@ dSpider("mobile", 60 * 4,function(session,env,$) {
         }, 6000);
     }
 
-    function get_current_page_bill() {
+    function get_second_from_str(str) {
+        // 1小时5分14秒
+        var totalTime = 0;
+
+        var h_index = str.indexOf('小时');
+        if (h_index >= 0) {
+            var h_str = str.substring(0, h_index);
+            var h = parseInt(h_str);
+            totalTime += h * 60 * 60;
+            str = str.substr(h_index + 2);
+        }
+
+        var m_index = str.indexOf('分');
+        if (m_index >= 0) {
+            var m_str = str.substring(0, m_index);
+            var m = parseInt(m_str);
+            totalTime += m * 60;
+            str = str.substr(m_index + 1);
+        }
+
+        var s_index = str.indexOf('秒');
+        if (s_index >= 0) {
+            var s_str = str.substring(0, s_index);
+            var s = parseInt(s_str);
+            totalTime += s;
+        }
+        return totalTime;
+    }
+
+    function get_current_page_bill(month) {
         var arr = [];
         var page_total = $('#tbody tr').length;
         for (var i = 0; i < page_total; i++) {
@@ -295,9 +329,11 @@ dSpider("mobile", 60 * 4,function(session,env,$) {
             wrapCall['callFee'] = $('#tbody tr').eq(i).find('td').eq(7).text();
             wrapCall['remoteType'] = $('#tbody tr').eq(i).find('td').eq(5).text();
             wrapCall['callType'] = $('#tbody tr').eq(i).find('td').eq(2).text();
-            wrapCall['callTime'] = $('#tbody tr').eq(i).find('td').eq(4).text();
+            var callTimeStr = $('#tbody tr').eq(i).find('td').eq(4).text();
+            wrapCall['callTime'] = get_second_from_str(callTimeStr);
             wrapCall['callAddress'] = $('#tbody tr').eq(i).find('td').eq(1).text();
-            wrapCall['callBeginTime'] = $('#tbody tr').eq(i).find('td').eq(0).text();
+            // month = 201703
+            wrapCall['callBeginTime'] = month.substring(0, 4) + '-' + $('#tbody tr').eq(i).find('td').eq(0).text();
             wrapCall['otherNo'] = $('#tbody tr').eq(i).find('td').eq(3).text();
             wrapCall['taocan'] = $('#tbody tr').eq(i).find('td').eq(6).text();
             arr.push(wrapCall);
@@ -455,6 +491,28 @@ dSpider("mobile", 60 * 4,function(session,env,$) {
             //认证失败,提示错误信息
             var errorMessage = $('#detailerrmsg').text();
             $('#xd_sec_errorMessage').text(errorMessage);
+
+            // 如果按钮已经摁下，出现错误时清空输入框
+            if(!!$("#certificateBtn").attr("disabled")) {
+                // 图形验证码错误，清空图形验证码，刷新图形
+                if (errorMessage.indexOf('验证码错误') >= 0) {
+                    $('#inputImg').val('');
+                    $('#imageVec').click();
+                }
+
+                if (errorMessage.indexOf('随机密码错误') >= 0) {
+                    $('#inputSms').val('');
+                    $('#inputImg').val('');
+                    $('#imageVec').click();
+                }
+
+                if (errorMessage.indexOf('服务密码错误') >= 0) {
+                    $('#inputPwd').val('');
+                    $('#inputSms').val('');
+                    $('#inputImg').val('');
+                    $('#imageVec').click();
+                }
+            }
             $('#certificateBtn').removeAttr("disabled");
             log('错误信息： ' + errorMessage);
         } else {
@@ -572,7 +630,7 @@ dSpider("mobile", 60 * 4,function(session,env,$) {
                     'background-color': 'white',
                 });
                 inputPwd.attr('placeholder', '请输入服务密码');
-                inputPwd.attr('maxlength','6');
+                inputPwd.attr('maxlength','8');
                 cellBackgroundDiv.append(inputPwd);
 
                 //提示2
@@ -672,7 +730,7 @@ dSpider("mobile", 60 * 4,function(session,env,$) {
                         'font-size': '.15rem',
                         'background-color': 'white',
                     });
-                    inputImg.attr('placeholder', '请输入验证码');
+                    inputImg.attr('placeholder', '请输入图形验证码');
                     inputImg.attr('maxlength','6');
                     cellBackgroundDiv.append(inputImg);
 
@@ -760,15 +818,10 @@ dSpider("mobile", 60 * 4,function(session,env,$) {
     function certificateBtnAction() {
         window.xd_pwd = $('#inputPwd').val();
 
-        if (!/^\d{6}$/.test(window.xd_pwd)) {
-            alert('请输入6位服务密码！');
-            return;
-        }
-
-        if (!/^\d{6}$/.test($('#inputSms').val())) {
-            alert('请输入6位短信验证码！');
-            return;
-        }
+        // if (!/^\d{6}$/.test($('#inputSms').val())) {
+        //     alert('请输入6位短信验证码！');
+        //     return;
+        // }
 
         //服务密码
         $('#vec_servpasswd').val('' + window.xd_pwd);
