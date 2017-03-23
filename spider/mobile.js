@@ -486,6 +486,28 @@ dSpider("mobile", 60 * 4,function(session,env,$) {
             //认证失败,提示错误信息
             var errorMessage = $('#detailerrmsg').text();
             $('#xd_sec_errorMessage').text(errorMessage);
+
+            // 如果按钮已经摁下，出现错误时清空输入框
+            if(!!$("#certificateBtn").attr("disabled")) {
+                // 图形验证码错误，清空图形验证码，刷新图形
+                if (errorMessage.indexOf('验证码错误') >= 0) {
+                    $('#inputImg').val('');
+                    $('#imageVec').click();
+                }
+
+                if (errorMessage.indexOf('随机密码错误') >= 0) {
+                    $('#inputSms').val('');
+                    $('#inputImg').val('');
+                    $('#imageVec').click();
+                }
+
+                if (errorMessage.indexOf('服务密码错误') >= 0) {
+                    $('#inputPwd').val('');
+                    $('#inputSms').val('');
+                    $('#inputImg').val('');
+                    $('#imageVec').click();
+                }
+            }
             $('#certificateBtn').removeAttr("disabled");
             log('错误信息： ' + errorMessage);
         } else {
@@ -603,7 +625,7 @@ dSpider("mobile", 60 * 4,function(session,env,$) {
                     'background-color': 'white',
                 });
                 inputPwd.attr('placeholder', '请输入服务密码');
-                inputPwd.attr('maxlength','6');
+                inputPwd.attr('maxlength','8');
                 cellBackgroundDiv.append(inputPwd);
 
                 //提示2
@@ -703,7 +725,7 @@ dSpider("mobile", 60 * 4,function(session,env,$) {
                         'font-size': '.15rem',
                         'background-color': 'white',
                     });
-                    inputImg.attr('placeholder', '请输入验证码');
+                    inputImg.attr('placeholder', '请输入图形验证码');
                     inputImg.attr('maxlength','6');
                     cellBackgroundDiv.append(inputImg);
 
@@ -791,15 +813,10 @@ dSpider("mobile", 60 * 4,function(session,env,$) {
     function certificateBtnAction() {
         window.xd_pwd = $('#inputPwd').val();
 
-        if (!/^\d{6}$/.test(window.xd_pwd)) {
-            alert('请输入6位服务密码！');
-            return;
-        }
-
-        if (!/^\d{6}$/.test($('#inputSms').val())) {
-            alert('请输入6位短信验证码！');
-            return;
-        }
+        // if (!/^\d{6}$/.test($('#inputSms').val())) {
+        //     alert('请输入6位短信验证码！');
+        //     return;
+        // }
 
         //服务密码
         $('#vec_servpasswd').val('' + window.xd_pwd);
