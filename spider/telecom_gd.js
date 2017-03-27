@@ -299,7 +299,12 @@ dSpider("telecom_gd", function(session,env,$){
                                 detail.calldate = months[curMonthIndex].month;
                                 detail.cid = parseInt(new Date().getTime()/1000).toString();
                                 detail.data = datas;
-                                detail.status = 4;
+                                if(datas.length > 0) {
+                                    detail.status = 0;
+                                } else {
+                                    detail.status = 4;
+                                }
+
                                 details.push(detail);
                                 // log(JSON.stringify(datas)||'<tr><td class="empty">'+(result.msg||"暂无数据")+'</td></tr>');
                                 datas = [];
