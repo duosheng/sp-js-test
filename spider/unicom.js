@@ -114,7 +114,10 @@ dSpider("unicom", 60*5, function(session,env,$){
                 //保存数据
                 var data = session.get("curMonthData");
                 data["totalCount"] = window.totalrow;
-                data["status"] = 4;
+                data["status"] = 0;
+                if(!data.data) {
+                    data.data = [];
+                }
                 session.set("curMonthData", data);
 
                 //是否需要加载更多
@@ -124,6 +127,17 @@ dSpider("unicom", 60*5, function(session,env,$){
                     var thxd = session.get("thxd");
                     if(!thxd["month_status"]) {
                         thxd["month_status"] = [];
+                    }
+                    if(data.totalCount == 0) {
+                        data.status = 4;
+                    } else {
+                        if(data.data) {
+                            if(data.data.length < data.totalCount) {
+                                data.status = 5;
+                            }
+                        } else {
+                            data.status = 2;
+                        }
                     }
                     thxd["month_status"].push(data);
                     session.set("thxd", thxd);
@@ -154,27 +168,55 @@ dSpider("unicom", 60*5, function(session,env,$){
 
     function loadMore() {
         log("加载更多...")
-        var _this = $(this);
-        var beginrow = window.endrow;
-        window.endrow = window.beginrow + window.perrow;
-        if (window.endrow > window.totalrow) {
-            window.endrow = window.totalrow;
-        }
-        _this.html('<img src="http://img.client.10010.com/mobileService/view/client/images/loading.gif" width="16">');
-        var href = '/mobileService/view/client/query/xdcx/thxd_more_list.jsp?1=1&t=' + window.getrandom();
-        var params = '&beginrow=' + beginrow + '&endrow=' + window.endrow + '&pagenum=' + (window.pagenum + 1);
-        $('.moredetail' + window.pagenum).load(href + params, function(msg) {
-            parseThxd(msg);
-            var thxd = session.get("thxd");
-            if(!thxd["month_status"]) {
-                thxd["month_status"] = [];
+        var data = session.get("curMonthData");
+        if(data.totalCount > data.data.length) {
+            var beginrow  = data.data.length;
+            var _endrow = beginrow + perrow;
+            if(_endrow > totalrow){
+                _endrow = totalrow;
             }
-            thxd["month_status"].push(session.get("curMonthData"));
-            session.set("thxd", thxd);
-            session.set("curMonthData", "");
-            //继续爬取
-            spide();
-        });
+            var href = '/mobileService/view/client/query/xdcx/thxd_more_list.jsp?1=1&t=' + window.getrandom();
+            var params = '&beginrow=' + beginrow + '&endrow=' + _endrow + '&pagenum=' + (window.pagenum + 1);
+            $('.moredetail'+ window.pagenum).load(href + params, function(msg, status) {
+                if(status == "success" || status == "notmodified") {
+                    //window.pagenum = window.pagenum + 1;
+                    parseThxd(msg);
+                    var thxd = session.get("thxd");
+                    if(!thxd["month_status"]) {
+                        thxd["month_status"] = [];
+                    }
+                    var monthData = session.get("curMonthData");
+                    if(monthData.data.length < window.totalrow) {
+                        loadMore();
+                    } else {
+                        thxd["month_status"].push(monthData);
+                        session.set("thxd", thxd);
+                        session.set("curMonthData", "");
+                        //继续爬取
+                        spide();
+                    }
+                } else {
+                    var thxd = session.get("thxd");
+                    if(!thxd["month_status"]) {
+                        thxd["month_status"] = [];
+                    }
+                    var monthData = session.get("curMonthData");
+                    if(monthData) {
+                        if(monthData.data) {
+                            if(monthData.data.length < window.totalrow) {
+                                monthData.status = 5;
+                            }
+                        }
+                    }
+                    thxd["month_status"].push(monthData);
+                    session.set("thxd", thxd);
+                    session.set("curMonthData", "");
+                    //继续爬取
+                    spide();
+                }
+            });
+        }
+
     }
 
     function preSpide() {
