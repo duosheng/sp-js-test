@@ -160,6 +160,7 @@ dSpider("unicom", 60*5, function(session,env,$){
                 monthArr.push({ "year": year, "month": month });
             }
             max = monthArr.length + 1;
+            max = max * 10;
             log("获取时间成功..." + JSON.stringify(monthArr));
         } else {
             log("没有通话时间，可能刚开卡..");
@@ -177,7 +178,7 @@ dSpider("unicom", 60*5, function(session,env,$){
     function spide() {
         var monthArr = session.get("months");
         if (monthArr && monthArr.length > 0) {
-            session.setProgress(session.get("max") - monthArr.length);
+            setProgress(session.get("max") - monthArr.length * 10);
             var monthObj = monthArr.shift();
             session.set("months", monthArr);
             getThxdByAjax(monthObj.year, monthObj.month);
@@ -193,6 +194,10 @@ dSpider("unicom", 60*5, function(session,env,$){
         session.setProgress(session.get("max") - 0);
         session.finish();
         session.showProgress(false);
+    }
+
+    function setProgress(progress) {
+        session.setProgress(progress);
     }
 
     if(window.location.href.indexOf("/uac.10010.com/oauth2/new_auth") != -1) {
@@ -284,7 +289,9 @@ dSpider("unicom", 60*5, function(session,env,$){
     } else if(window.location.href.indexOf("operationservice/getUserinfo.htm") !=-1 ) {//获取个人信息
         //显示loading
         session.showProgress();
+        preSpide();
         log("开始爬取用户信息----------");
+        setProgress(3);
         var userInfo = {};
         try {
             userInfo["mobile"] = $(".clientInfo4_top").find("p:eq(0)").html().replace(/[\n|\s]/g, "").replace();
@@ -293,6 +300,7 @@ dSpider("unicom", 60*5, function(session,env,$){
         if(!userInfo["mobile"]) {
             userInfo["mobile"] = session.getLocal("userName");
         }
+        setProgress(4);
         try{
             userInfo["name"] = $(".clientInfo4_list").find("li:eq(0)").find("span:eq(1)").html().replace(/[\n|\s]/g, "").replace();
         } catch (e) {
@@ -300,6 +308,7 @@ dSpider("unicom", 60*5, function(session,env,$){
         if(!userInfo["name"]) {
             userInfo["name"] = $(".tabCon_list.tab_bottom:eq(1)").find("div.font_16").html().replace(/[\n|\s]/g, "").replace("的个人信息", "");
         }
+        setProgress(5);
         try{
             userInfo["taocan"] = $(".clientInfo4_list").find("li:eq(1)").find("span:eq(1)").html().replace(/[\n|\s]/g, "").replace();
         } catch (e) {
@@ -310,24 +319,54 @@ dSpider("unicom", 60*5, function(session,env,$){
             } catch (e) {
             }
         }
+        setProgress(6);
 
         try{
             userInfo["registration_time"] = $(".detail_con.con_ft:eq(0)").find("p:eq(6)").find("span:eq(1)").text().replace(/[\n|\s]/g, "").replace();
+            if(userInfo["registration_time"]) {
+                var t = userInfo["registration_time"].replace("年", "-").replace("月", "-").replace("日", " ");
+                var d = new Date(Date.parse(t));
+                var month = d.getMonth() + 1;
+                var day = d.getDate();
+                var hour = d.getHours();
+                var min = d.getMinutes();
+                var sec = d.getSeconds();
+                if(month < 10) {
+                    month = "0" + month;
+                }
+                if(day < 10) {
+                    day = "0" + day;
+                }
+                if(hour < 10) {
+                    hour = "0" + hour;
+                }
+                if(min < 10) {
+                    min = "0" + min;
+                }
+                if(sec < 10) {
+                    sec = "0" + sec;
+                }
+
+                userInfo["registration_time"] = d.getFullYear() + "-" + month + "-" + day + " " + hour + ":" + min + ":" + sec;
+            }
         } catch (e) {
         }
+        setProgress(7);
         try{
             userInfo["idcard_no"] = $(".detail_con.con_ft:eq(1)").find("p:eq(4)").find("span:eq(1)").text().replace(/[\n|\s]/g, "").replace();
         } catch (e) {
         }
+        setProgress(8);
         try{
             userInfo["household_address"] = $(".detail_con.con_ft:eq(1)").find("p:eq(18)").find("span:eq(1)").text().replace(/[\n|\s]/g, "").replace();
         } catch (e) {
         }
+        setProgress(9);
         log("爬取用户信息结束-----" + JSON.stringify(userInfo));
-        session.setProgress(1);
-        preSpide();
+
         var thxd = session.get("thxd");
         thxd["user_info"] = userInfo;
+        setProgress(10);
         spide()
     } else {
         //如果以上都不能跳转，则跳转到服务页面，以防页面无响应

@@ -167,6 +167,8 @@ dSpider("telecom_gd", function(session,env,$){
 
     var loginUser={};
 
+    var openTime;
+
     function loadXd() {
 
         var curDate = new Date();
@@ -185,10 +187,14 @@ dSpider("telecom_gd", function(session,env,$){
             month.month = $(this).text();
             var dayArr = month.month.split('.');
             var firstDay = 1, lastDay = 30;
-            if (dayArr[1] == curMonth) {
+            if (dayArr[0] == curYear && dayArr[1] == curMonth) {
                 lastDay = curDay;
             } else {
                 lastDay = new Date(dayArr[0], dayArr[1], 0).getDate();
+            }
+
+            if(openTime && openTime.length >= 8 && dayArr[0] == openTime.substring(0,4) && dayArr[1] == openTime.substring(4,6)) {
+                firstDay = openTime.substring(6,8);
             }
 
             month.start = firstDay;
@@ -198,6 +204,10 @@ dSpider("telecom_gd", function(session,env,$){
         });
         log(JSON.stringify(months));
         curMonthIndex = 0;
+        if(months.length == 0) {
+            setXd([]);
+            return;
+        }
 
         param={"d.d01":"","d.d02":"","d.d03":"","d.d04":"","d.d05":"20","d.d06":"1","d.d07":"","d.d08":"1"};
         param["d.d06"]=1;
@@ -207,8 +217,6 @@ dSpider("telecom_gd", function(session,env,$){
         param["d.d04"]=months[curMonthIndex].month.replace('.','')+binaryNumConvert(months[curMonthIndex].end);
         var SearchVerifyCode=$("#input_code").val().trim();
         param["d.d07"]=SearchVerifyCode;
-
-
         loadXdByMonth();
     }
 
@@ -414,8 +422,8 @@ dSpider("telecom_gd", function(session,env,$){
         }
         if(!userInfo.mobile) {
             userInfo.mobile=session.getLocal("phoneNo");
+            thxd.user_info = userInfo;
         }
-
         session.set("thxd", thxd);
 
         session.setProgress(100);
@@ -446,9 +454,24 @@ dSpider("telecom_gd", function(session,env,$){
                             session.setProgress(45);
                             // callback();
                             log(JSON.stringify(loginUser));
+
+                            var thxd = session.get("thxd");
+                            if(!thxd) {
+                                thxd = {};
+                            }
+                            var userInfo = thxd.user_info;
+                            if(!userInfo) {
+                                userInfo = {};
+                            }
+                            if(!userInfo.mobile) {
+                                userInfo.mobile=loginUser.account;
+                            }
+                            thxd.user_info = userInfo;
+                            session.set("thxd", thxd);
+
                             // getSmsCode(loginUser.latnId,loginUser.account);
 //                            showMask(true);
-                            xdInit();
+                            getOpenTime();
                             break;
 //                        case "001"://未登录
                         default://其它
@@ -469,6 +492,66 @@ dSpider("telecom_gd", function(session,env,$){
                 log("ajax请求失败!readyState:"+err.readyState+",textStatus:"+textStatus);
             },
             complete:function(){
+            }
+        });
+    }
+
+    /**
+     * 查询登录用户开户时间，组建查询时间表
+     */
+    function getOpenTime(){
+        $.ajax({
+            url:"/J/J10037.j?a.c=0&a.u=user&a.p=pass&a.s=ECSS",
+            type:'get',
+            dataType:"json",
+            data:{},
+            success:function(result){
+                if(result&&result.b&&result.b.c==="00"){//查询成功
+                    switch(result.r.code){
+                        case "000":
+                            var dateAry=result.r.r01;
+                            $.each(dateAry,function(){
+                                if(loginUser.account==this.r0102&&loginUser.currNumBusiType==this.r0101){
+                                    openTime=this.r0104;
+                                }
+                            });
+
+                            if(openTime && openTime.length >= 8) {
+                                var thxd = session.get("thxd");
+                                if(!thxd) {
+                                    thxd = {};
+                                }
+                                var userInfo = thxd.user_info;
+                                if(!userInfo) {
+                                    userInfo = {};
+                                }
+
+                                if(openTime.length == 14) {
+                                    userInfo.registration_time = openTime.substring(0,4) + '-' + openTime.substring(4,6)
+                                                    + '-' + openTime.substring(6,8) + ' ' + openTime.substring(8,10)
+                                                     + ':' + openTime.substring(10,12) + ':' + openTime.substring(12,14);
+                                } else {
+                                    userInfo.registration_time = openTime.substring(0,4) + '-' + openTime.substring(4,6)
+                                                    + '-' + openTime.substring(6,8) + ' 00:00:00';
+                                }
+                                thxd.user_info = userInfo;
+                                session.set("thxd", thxd);
+                            }
+
+                            log("after getopenTime:" + JSON.stringify(thxd));
+                            xdInit();
+                            break;
+                        default://其它
+                            xdInit();
+                    }
+                }else{
+                    xdInit();
+                    log("getOpenTime 详单查询初始化失败，请重试！");
+                }
+            },
+            error:function(err,textStatus){
+                console.log("getOpenTime ajax请求失败!readyState:"+err.readyState+",textStatus:"+textStatus);
+                xdInit();
             }
         });
     }
@@ -597,7 +680,6 @@ dSpider("telecom_gd", function(session,env,$){
 
     window.countdown = 60;
     function settime() {
-        log("time:" + window.countdown);
         var obj = $('#sendSmsBtn')[0];
         if (window.countdown === 60) {
             $('#sendSmsBtn').css(obj.cssDisable);
