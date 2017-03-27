@@ -265,6 +265,7 @@ dSpider("mobile", 60 * 3,function(session,env,$) {
             obj['month'] = fixMonthValue;
             obj['value'] = [];
             obj['total'] = 0;
+            obj['status'] = 4;
             pushCallDetailData(obj);
             window.xd_progressMax++;
             session.setProgress(window.xd_progressMax);
@@ -393,6 +394,7 @@ dSpider("mobile", 60 * 3,function(session,env,$) {
             window.xd_callBill.push(monthData);
         }
 
+        // 非0和undefined
         if (data.status){
             monthData['status'] = data.status;
         }
