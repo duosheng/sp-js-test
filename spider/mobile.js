@@ -1,4 +1,4 @@
-dSpider("mobile", 60 * 4,function(session,env,$) {
+dSpider("mobile", 60 * 3,function(session,env,$) {
 
     function hideElement(element) {
         if (element.length > 0) {
@@ -389,7 +389,7 @@ dSpider("mobile", 60 * 4,function(session,env,$) {
             monthData['totalCount'] = data.total;
             monthData['mobile'] = window.xd_phone;
             monthData['cid'] = xd_cid;
-            monthData['status'] = 4;
+            monthData['status'] = 0;
             window.xd_callBill.push(monthData);
         }
 
@@ -525,12 +525,6 @@ dSpider("mobile", 60 * 4,function(session,env,$) {
     }
 
     function showMask(isShow) {
-
-        if (!isShow) {
-            session.showProgress();
-        } else {
-            session.showProgress(false);
-        }
 
         if (isShow) {
             if ($('#maskDiv').length == 0) {
@@ -812,6 +806,12 @@ dSpider("mobile", 60 * 4,function(session,env,$) {
             if ($('#maskDiv').lensgth != 0) {
                 $('#maskDiv').hide();
             }
+        }
+
+        if (!isShow) {
+            session.showProgress();
+        } else {
+            session.showProgress(false);
         }
     }
 
