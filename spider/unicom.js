@@ -22,8 +22,38 @@ function parseToSecond(data) {
     return totalSecond;
 }
 
+//格式化日期
+function formatDate(date) {
+    var d = new Date(Date.parse(date));
+    var month = d.getMonth() + 1;
+    var day = d.getDate();
+    var hour = d.getHours();
+    var min = d.getMinutes();
+    var sec = d.getSeconds();
+    if(month < 10) {
+        month = "0" + month;
+    }
+    if(day < 10) {
+        day = "0" + day;
+    }
+    if(hour < 10) {
+        hour = "0" + hour;
+    }
+    if(min < 10) {
+        min = "0" + min;
+    }
+    if(sec < 10) {
+        sec = "0" + sec;
+    }
+    return d.getFullYear() + "-" + month + "-" + day + " " + hour + ":" + min + ":" + sec;
+}
+
 dSpider("unicom", 60*5, function(session,env,$){
     log("************" + window.location.href);
+    function setProgress(progress) {
+        session.setProgress(progress);
+    }
+
     function parseThxd(msg) {
         $(msg).find("tr.tips_dial").each(function() {
             var monthData = session.get("curMonthData");
@@ -40,7 +70,7 @@ dSpider("unicom", 60*5, function(session,env,$){
                 data["callTime"] = parseToSecond(callTime);
             }
             if(beginTime){
-                data["callBeginTime"] = monthData.calldate.substring(0,4) + "-" +beginTime.replace("月", "-").replace("日", " ");
+                data["callBeginTime"] = formatDate(monthData.calldate.substring(0,4) + "-" +beginTime.replace("月", "-").replace("日", " "));
             }
 
             var datas = monthData["data"];
@@ -50,6 +80,15 @@ dSpider("unicom", 60*5, function(session,env,$){
             datas.push(data);
             monthData["data"] = datas;
             session.set("curMonthData", monthData);
+
+            //更新progress
+            var progress = 10 * (datas.length / window.totalrow);
+            var mArr = session.get("months");
+            var _max = session.get("max");
+            if(mArr) {
+                setProgress(session.get("max") - (mArr.length + 1) * 10 + parseInt(progress));
+            }
+
             log("获取一条数据：" + JSON.stringify(data));
         })
     }
@@ -70,8 +109,8 @@ dSpider("unicom", 60*5, function(session,env,$){
             //cache: false,
             success: function(msg) {
                 log("请求" + month + "月份数据成功....");
-                parseThxd(msg);
                 $('#pageNew').html(msg);
+                parseThxd(msg);
                 //保存数据
                 var data = session.get("curMonthData");
                 data["totalCount"] = window.totalrow;
@@ -196,11 +235,7 @@ dSpider("unicom", 60*5, function(session,env,$){
         session.showProgress(false);
     }
 
-    function setProgress(progress) {
-        session.setProgress(progress);
-    }
-
-    if(window.location.href.indexOf("/uac.10010.com/oauth2/new_auth") != -1) {
+    if(window.location.href.indexOf("uac.10010.com/oauth2/new_auth") != -1) {
         var footer = $("div.footer:eq(0)");
         if (footer) {
             footer.css("visibility", "hidden");
@@ -325,29 +360,7 @@ dSpider("unicom", 60*5, function(session,env,$){
             userInfo["registration_time"] = $(".detail_con.con_ft:eq(0)").find("p:eq(6)").find("span:eq(1)").text().replace(/[\n|\s]/g, "").replace();
             if(userInfo["registration_time"]) {
                 var t = userInfo["registration_time"].replace("年", "-").replace("月", "-").replace("日", " ");
-                var d = new Date(Date.parse(t));
-                var month = d.getMonth() + 1;
-                var day = d.getDate();
-                var hour = d.getHours();
-                var min = d.getMinutes();
-                var sec = d.getSeconds();
-                if(month < 10) {
-                    month = "0" + month;
-                }
-                if(day < 10) {
-                    day = "0" + day;
-                }
-                if(hour < 10) {
-                    hour = "0" + hour;
-                }
-                if(min < 10) {
-                    min = "0" + min;
-                }
-                if(sec < 10) {
-                    sec = "0" + sec;
-                }
-
-                userInfo["registration_time"] = d.getFullYear() + "-" + month + "-" + day + " " + hour + ":" + min + ":" + sec;
+                userInfo["registration_time"] = formatDate(t);
             }
         } catch (e) {
         }
