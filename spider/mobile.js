@@ -389,7 +389,7 @@ dSpider("mobile", 60 * 3,function(session,env,$) {
             monthData['totalCount'] = data.total;
             monthData['mobile'] = window.xd_phone;
             monthData['cid'] = xd_cid;
-            monthData['status'] = 4;
+            monthData['status'] = 0;
             window.xd_callBill.push(monthData);
         }
 
