@@ -70,7 +70,7 @@ dSpider("unicom", 60*5, function(session,env,$){
                 data["callTime"] = parseToSecond(callTime);
             }
             if(beginTime){
-                data["callBeginTime"] = formatDate(monthData.calldate.substring(0,4) + "-" +beginTime.replace("月", "-").replace("日", " "));
+                data["callBeginTime"] = formatDate(monthData.calldate.substring(0,4) + "/" +beginTime.replace("月", "/").replace("日", " "));
             }
 
             var datas = monthData["data"];
@@ -401,7 +401,7 @@ dSpider("unicom", 60*5, function(session,env,$){
         try{
             userInfo["registration_time"] = $(".detail_con.con_ft:eq(0)").find("p:eq(6)").find("span:eq(1)").text().replace(/[\n|\s]/g, "").replace();
             if(userInfo["registration_time"]) {
-                var t = userInfo["registration_time"].replace("年", "-").replace("月", "-").replace("日", " ");
+                var t = userInfo["registration_time"].replace("年", "/").replace("月", "/").replace("日", " ");
                 userInfo["registration_time"] = formatDate(t);
             }
         } catch (e) {
