@@ -200,6 +200,9 @@ dSpider("mobile", 60 * 3,function(session,env,$) {
     function startSpiderMonthData(month, index) {
 
         // alert('' + month + '月 ' + index);
+        if (index == 1) {
+            window.jQuery(".gs-page").eq(0).click();
+        }
 
         var fixMonthValue = (function fixMonthValue(month) {
             var str = month;
@@ -244,7 +247,7 @@ dSpider("mobile", 60 * 3,function(session,env,$) {
                 }
                 $('#month-data li').eq(month).click();
                 setTimeout(function () {
-                    startSpiderMonthData(month, index);
+                    startSpiderMonthData(month, 1);
                 }, 3000);
             } else {
                 var nextIndex = parseInt(xd_page1);
@@ -277,20 +280,19 @@ dSpider("mobile", 60 * 3,function(session,env,$) {
             }
             $('#month-data li').eq(month).click();
             setTimeout(function () {
-                startSpiderMonthData(month, index);
+                startSpiderMonthData(month, 1);
             }, 3000);
             return;
         }
 
         //还没出来，网络较差
-        if ($('a.gs-search').is(':visible')) {
-            window.jQuery(".gs-page").eq(index - 1).click();
-        } else {
+        if (!$('a.gs-search').is(':visible')) {
+
             $('#month-data li').eq(month).click();
+            setTimeout(function () {
+                startSpiderMonthData(month, index);
+            }, 5000);
         }
-        setTimeout(function () {
-            startSpiderMonthData(month, index);
-        }, 6000);
     }
 
     function get_second_from_str(str) {
