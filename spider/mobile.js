@@ -200,9 +200,6 @@ dSpider("mobile", 60 * 3,function(session,env,$) {
     function startSpiderMonthData(month, index) {
 
         // alert('' + month + '月 ' + index);
-        if (index == 1) {
-            window.jQuery(".gs-page").eq(0).click();
-        }
 
         var fixMonthValue = (function fixMonthValue(month) {
             var str = month;
@@ -247,7 +244,7 @@ dSpider("mobile", 60 * 3,function(session,env,$) {
                 }
                 $('#month-data li').eq(month).click();
                 setTimeout(function () {
-                    startSpiderMonthData(month, 1);
+                    startSpiderMonthData(month, index);
                 }, 3000);
             } else {
                 var nextIndex = parseInt(xd_page1);
@@ -291,7 +288,6 @@ dSpider("mobile", 60 * 3,function(session,env,$) {
         } else {
             $('#month-data li').eq(month).click();
         }
-
         setTimeout(function () {
             startSpiderMonthData(month, index);
         }, 6000);
@@ -351,12 +347,11 @@ dSpider("mobile", 60 * 3,function(session,env,$) {
         if (window.xd_month_progress_count == 2) {
             window.xd_data['month_status'] = window.xd_callBill;
             session.upload(window.xd_data);
-            session.finish();
-            // session.set('xd_hasEndSpider', 1);
-            // setTimeout(function () {
-            //     log('点击退出按钮，清除缓存');
-            //     window.jQuery("#logout").click();
-            // }, 1000);
+            session.set('xd_hasEndSpider', 1);
+            setTimeout(function () {
+                log('点击退出按钮，清除缓存');
+                window.jQuery("#logout").click();
+            }, 1000);
         }
     }
 
@@ -892,10 +887,10 @@ dSpider("mobile", 60 * 3,function(session,env,$) {
     }
 
     // -------------------------------------------
-    // var hasEndSpider = session.get('xd_hasEndSpider');
-    // if (hasEndSpider == 1) {
-    //     session.finish();
-    // }
+    var hasEndSpider = session.get('xd_hasEndSpider');
+    if (hasEndSpider == 1) {
+        session.finish();
+    }
 
     checkLogin_first();
 
