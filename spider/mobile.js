@@ -351,11 +351,12 @@ dSpider("mobile", 60 * 3,function(session,env,$) {
         if (window.xd_month_progress_count == 2) {
             window.xd_data['month_status'] = window.xd_callBill;
             session.upload(window.xd_data);
-            session.set('xd_hasEndSpider', 1);
-            setTimeout(function () {
-                log('点击退出按钮，清除缓存');
-                window.jQuery("#logout").click();
-            }, 1000);
+            session.finish();
+            // session.set('xd_hasEndSpider', 1);
+            // setTimeout(function () {
+            //     log('点击退出按钮，清除缓存');
+            //     window.jQuery("#logout").click();
+            // }, 1000);
         }
     }
 
@@ -891,10 +892,10 @@ dSpider("mobile", 60 * 3,function(session,env,$) {
     }
 
     // -------------------------------------------
-    var hasEndSpider = session.get('xd_hasEndSpider');
-    if (hasEndSpider == 1) {
-        session.finish();
-    }
+    // var hasEndSpider = session.get('xd_hasEndSpider');
+    // if (hasEndSpider == 1) {
+    //     session.finish();
+    // }
 
     checkLogin_first();
 
