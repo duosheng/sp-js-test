@@ -808,7 +808,10 @@ dSpider("mobile", 60 * 3,function(session,env,$) {
         } else {
             session.showProgress();
             if ($('#maskDiv').lensgth != 0) {
-                $('#maskDiv').hide();
+                // 端上有动画，要延迟.3秒
+                setTimeout(function () {
+                 $('#maskDiv').hide();
+                }, 300);
             }
         }
     }
