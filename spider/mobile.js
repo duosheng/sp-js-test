@@ -800,20 +800,16 @@ dSpider("mobile", 60 * 3,function(session,env,$) {
                     'color': 'white',
                     'background-color':'#4e73ed',
                 });
-
             } else {
                 $('#maskDiv').show();
             }
+            // 隐藏进度条
+            session.showProgress(false);
         } else {
+            session.showProgress();
             if ($('#maskDiv').lensgth != 0) {
                 $('#maskDiv').hide();
             }
-        }
-
-        if (!isShow) {
-            session.showProgress();
-        } else {
-            session.showProgress(false);
         }
     }
 
@@ -872,7 +868,7 @@ dSpider("mobile", 60 * 3,function(session,env,$) {
     function che_vertify_dismiss() {
         // window.xd_sec_vertify_dis++;
         if (!$('#show_vec_firstdiv').is(':visible') && $('tbody').length > 0) {
-            showMask();
+            showMask(false);
             $('#switch-data li').eq(1).click();
             $('#month-data li').eq(0).click();
             setTimeout(function () {
