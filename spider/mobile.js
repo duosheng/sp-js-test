@@ -55,6 +55,7 @@ dSpider("mobile", 60 * 3,function(session,env,$) {
                 'household_address': data.address,
                 'contactNum': data.contactNum,
                 'registration_time': reg_time,
+                'rawRegistrationTime': initD, // 原数据
             };
 
             window.xd_data['user_info'] = xd_user_info;
@@ -224,6 +225,7 @@ dSpider("mobile", 60 * 3,function(session,env,$) {
             //此月爬完push
             var obj = {};
             obj['month'] = fixMonthValue;
+            obj['rawMonth'] = $('#month-data li').eq(month).text();
             obj['value'] = get_current_page_bill(fixMonthValue);
             var total = $('#notes2').text();
             obj['total'] = total.substring(1, total.length - 1);
@@ -332,9 +334,13 @@ dSpider("mobile", 60 * 3,function(session,env,$) {
             wrapCall['callType'] = $('#tbody tr').eq(i).find('td').eq(2).text();
             var callTimeStr = $('#tbody tr').eq(i).find('td').eq(4).text();
             wrapCall['callTime'] = get_second_from_str(callTimeStr);
+            // callTime原数据
+            wrapCall['rawCallTime'] = callTimeStr;
             wrapCall['callAddress'] = $('#tbody tr').eq(i).find('td').eq(1).text();
             // month = 201703
             wrapCall['callBeginTime'] = month.substring(0, 4) + '-' + $('#tbody tr').eq(i).find('td').eq(0).text();
+            // callBeginTime原数据
+            wrapCall['rawCallBeginTime'] = $('#tbody tr').eq(i).find('td').eq(0).text();
             wrapCall['otherNo'] = $('#tbody tr').eq(i).find('td').eq(3).text();
             wrapCall['taocan'] = $('#tbody tr').eq(i).find('td').eq(6).text();
             arr.push(wrapCall);
@@ -387,6 +393,8 @@ dSpider("mobile", 60 * 3,function(session,env,$) {
             monthData = {};
             monthData['data'] = [];
             monthData['calldate'] = data.month;
+            // 原数据
+            monthData['rawCalldate'] = data.rawMonth;
             monthData['totalCount'] = data.total;
             monthData['mobile'] = window.xd_phone;
             monthData['cid'] = xd_cid;
@@ -800,20 +808,19 @@ dSpider("mobile", 60 * 3,function(session,env,$) {
                     'color': 'white',
                     'background-color':'#4e73ed',
                 });
-
             } else {
                 $('#maskDiv').show();
             }
-        } else {
-            if ($('#maskDiv').lensgth != 0) {
-                $('#maskDiv').hide();
-            }
-        }
-
-        if (!isShow) {
-            session.showProgress();
-        } else {
+            // 隐藏进度条
             session.showProgress(false);
+        } else {
+            session.showProgress();
+            if ($('#maskDiv').lensgth != 0) {
+                // 端上有动画，要延迟.3秒
+                setTimeout(function () {
+                 $('#maskDiv').hide();
+                }, 300);
+            }
         }
     }
 
@@ -872,7 +879,7 @@ dSpider("mobile", 60 * 3,function(session,env,$) {
     function che_vertify_dismiss() {
         // window.xd_sec_vertify_dis++;
         if (!$('#show_vec_firstdiv').is(':visible') && $('tbody').length > 0) {
-            showMask();
+            showMask(false);
             $('#switch-data li').eq(1).click();
             $('#month-data li').eq(0).click();
             setTimeout(function () {
