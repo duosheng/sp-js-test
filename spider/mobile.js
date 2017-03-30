@@ -343,7 +343,9 @@ dSpider("mobile", 60 * 3,function(session,env,$) {
             wrapCall['rawCallBeginTime'] = $('#tbody tr').eq(i).find('td').eq(0).text();
             wrapCall['otherNo'] = $('#tbody tr').eq(i).find('td').eq(3).text();
             wrapCall['taocan'] = $('#tbody tr').eq(i).find('td').eq(6).text();
-            arr.push(wrapCall);
+            if (wrapCall['callBeginTime'].indexOf(month) >= 0) {
+                arr.push(wrapCall);
+            }
         }
         return arr;
     }
@@ -412,6 +414,10 @@ dSpider("mobile", 60 * 3,function(session,env,$) {
                 var call = data.value[i];
                 monthData.data.push(call);
             }
+        }
+
+        if (data.status == 0 && monthData.data.length == 0) {
+            data.status = 2;
         }
     }
 
