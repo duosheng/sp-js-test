@@ -271,6 +271,7 @@ dSpider("telecom_gd", function(session,env,$){
                                         data.otherNo = s;
                                     } else if (i == dateIndex) {
                                         data.callBeginTime = s;
+                                        data.rawCallBeginTime = s;
                                     } else if (i == durationIndex) {
                                         var durationArr = s.split(':');
                                         if(durationArr.length != 3) {
@@ -278,6 +279,7 @@ dSpider("telecom_gd", function(session,env,$){
                                         } else {
                                             data.callTime = parseInt((durationArr[0]*60+durationArr[1])*60+durationArr[2]) + '';
                                         }
+                                        data.rawCallTime = s;
                                     } else if (i == feeIndex) {
                                         data.callFee = s;
                                     } else if (i == callTypeIndex) {
@@ -297,6 +299,7 @@ dSpider("telecom_gd", function(session,env,$){
                                 log("load success:" + months[curMonthIndex].month);
                                 detail = {};
                                 detail.calldate = months[curMonthIndex].month;
+                                detail.rawCallDate = months[curMonthIndex].month;
                                 detail.cid = parseInt(new Date().getTime()/1000).toString();
                                 detail.data = datas;
                                 if(datas.length > 0) {
@@ -350,6 +353,7 @@ dSpider("telecom_gd", function(session,env,$){
                     log("load fail:" + months[curMonthIndex].month);
                     detail = {};
                     detail.calldate = months[curMonthIndex].month;
+                    detail.rawCallDate = months[curMonthIndex].month;
                     detail.cid = parseInt(new Date().getTime()/1000).toString();
                     detail.data = datas;
                     if(datas.length > 0) {
@@ -383,6 +387,7 @@ dSpider("telecom_gd", function(session,env,$){
                 log("load error:" + months[curMonthIndex].month);
                 detail = {};
                 detail.calldate = months[curMonthIndex].month;
+                detail.rawCallDate = months[curMonthIndex].month;
                 detail.cid = parseInt(new Date().getTime()/1000).toString();
                 detail.data = datas;
                 if(datas.length > 0) {
@@ -521,7 +526,7 @@ dSpider("telecom_gd", function(session,env,$){
                                 }
                             });
 
-                            if(openTime && openTime.length >= 8) {
+                            if(openTime) {
                                 var thxd = session.get("thxd");
                                 if(!thxd) {
                                     thxd = {};
@@ -535,10 +540,11 @@ dSpider("telecom_gd", function(session,env,$){
                                     userInfo.registration_time = openTime.substring(0,4) + '-' + openTime.substring(4,6)
                                                     + '-' + openTime.substring(6,8) + ' ' + openTime.substring(8,10)
                                                      + ':' + openTime.substring(10,12) + ':' + openTime.substring(12,14);
-                                } else {
+                                } else if(openTime.length >= 8) {
                                     userInfo.registration_time = openTime.substring(0,4) + '-' + openTime.substring(4,6)
                                                     + '-' + openTime.substring(6,8) + ' 00:00:00';
                                 }
+                                userInfo.rawRegistrationTime = openTime;
                                 thxd.user_info = userInfo;
                                 session.set("thxd", thxd);
                             }
