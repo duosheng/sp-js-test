@@ -277,7 +277,7 @@ dSpider("telecom_gd", function(session,env,$){
                                         if(durationArr.length != 3) {
                                             data.callTime = s;
                                         } else {
-                                            data.callTime = parseInt((durationArr[0]*60+durationArr[1])*60+durationArr[2]) + '';
+                                            data.callTime = (parseInt(durationArr[0])*60+parseInt(durationArr[1]))*60+parseInt(durationArr[2])+'';
                                         }
                                         data.rawCallTime = s;
                                     } else if (i == feeIndex) {
@@ -298,7 +298,7 @@ dSpider("telecom_gd", function(session,env,$){
                             } else {
                                 log("load success:" + months[curMonthIndex].month);
                                 detail = {};
-                                detail.calldate = months[curMonthIndex].month;
+                                detail.calldate = months[curMonthIndex].month.replace('.','');
                                 detail.rawCallDate = months[curMonthIndex].month;
                                 detail.cid = parseInt(new Date().getTime()/1000).toString();
                                 detail.data = datas;
@@ -352,7 +352,7 @@ dSpider("telecom_gd", function(session,env,$){
                     alert("清单查询初始化，请重试！");
                     log("load fail:" + months[curMonthIndex].month);
                     detail = {};
-                    detail.calldate = months[curMonthIndex].month;
+                    detail.calldate = months[curMonthIndex].month.replace('.','');
                     detail.rawCallDate = months[curMonthIndex].month;
                     detail.cid = parseInt(new Date().getTime()/1000).toString();
                     detail.data = datas;
@@ -386,7 +386,7 @@ dSpider("telecom_gd", function(session,env,$){
 
                 log("load error:" + months[curMonthIndex].month);
                 detail = {};
-                detail.calldate = months[curMonthIndex].month;
+                detail.calldate = months[curMonthIndex].month.replace('.','');
                 detail.rawCallDate = months[curMonthIndex].month;
                 detail.cid = parseInt(new Date().getTime()/1000).toString();
                 detail.data = datas;
