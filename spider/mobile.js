@@ -345,7 +345,7 @@ dSpider("mobile", 60 * 3,function(session,env,$) {
             wrapCall['taocan'] = $('#tbody tr').eq(i).find('td').eq(6).text();
             log(month);
             log(wrapCall['callBeginTime']);
-            var month_page = month.substring(0, 4) + '-' + month.substring(4, 2);
+            var month_page = month.substr(0, 4) + '-' + month.substr(4, 2);
             if (wrapCall['callBeginTime'].indexOf(month_page) >= 0) {
                 arr.push(wrapCall);
             }
