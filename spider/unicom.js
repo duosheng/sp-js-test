@@ -66,9 +66,11 @@ dSpider("unicom", 60*5, function(session,env,$){
             data["callType"] = ($(this).find(".call_out").length == 1) ? "主叫" : "被叫";
             data["mobile"] = session.get("thxd").user_info["mobile"];
 
+            data["rawCallTime"] = callTime;
             if(callTime) {
                 data["callTime"] = parseToSecond(callTime);
             }
+            data["rawCallBeginTime"] = beginTime;
             if(beginTime){
                 data["callBeginTime"] = formatDate(monthData.calldate.substring(0,4) + "/" +beginTime.replace("月", "/").replace("日", " "));
             }
@@ -98,6 +100,7 @@ dSpider("unicom", 60*5, function(session,env,$){
         //session.upload("开始爬取【" + month + "】月份通话详单：")
         var curMonthData = {};
         curMonthData["calldate"] = year + "" + month;
+        curMonthData["rawCallDate"] = curMonthData.calldate;
         curMonthData["cid"] = parseInt(new Date().getTime()/1000).toString();
         session.set("curMonthData", curMonthData);
         $.ajax({
@@ -399,9 +402,9 @@ dSpider("unicom", 60*5, function(session,env,$){
         setProgress(6);
 
         try{
-            userInfo["registration_time"] = $(".detail_con.con_ft:eq(0)").find("p:eq(6)").find("span:eq(1)").text().replace(/[\n|\s]/g, "").replace();
-            if(userInfo["registration_time"]) {
-                var t = userInfo["registration_time"].replace("年", "/").replace("月", "/").replace("日", " ");
+            userInfo["rawRegistrationTime"] = $(".detail_con.con_ft:eq(0)").find("p:eq(6)").find("span:eq(1)").text().replace(/[\n|\s]/g, "").replace();
+            if(userInfo["rawRegistrationTime"]) {
+                var t = userInfo["rawRegistrationTime"].replace("年", "/").replace("月", "/").replace("日", " ");
                 userInfo["registration_time"] = formatDate(t);
             }
         } catch (e) {
