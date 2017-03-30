@@ -417,7 +417,7 @@ dSpider("mobile", 60 * 3,function(session,env,$) {
         }
 
         if (data.status == 0 && monthData.data.length == 0) {
-            data.status = 2;
+            monthData['status'] = 2;
         }
     }
 
