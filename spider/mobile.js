@@ -1,4 +1,4 @@
-dSpider("mobile", 60 * 3,function(session,env,$) {
+dSpider("mobile", 60 * 5,function(session,env,$) {
 
     function hideElement(element) {
         if (element.length > 0) {
@@ -125,14 +125,14 @@ dSpider("mobile", 60 * 3,function(session,env,$) {
                 $('#account_nav').click(function () {
                     if (prePhone) {
                         if (!$('#p_pwd').val()) {
-                            needVerifyCode();
+                            window.jQuery("#p_phone_account").blur();
                         }
                     }
                 });
 
                 $('#p_phone').val(prePhone);
                 $("#p_phone").attr({"disabled":true});
-                needVerifyCode();
+                window.jQuery("#p_phone").blur();
             }
 
             $('#submit_bt').click(function () {
@@ -177,14 +177,14 @@ dSpider("mobile", 60 * 3,function(session,env,$) {
         }, 3000);
     }
 
-    function checkDataRepetition() {
+    function checkDataRepetition(checkMonth) {
         //标记上第一个，防止爬取重复
         if ($('#tbody').attr('data-marked') == null) {
             // 新的，可以爬取
             $('#tbody').attr('data-marked', true);
             return true;
         } else {
-            $('#month-data li').eq(month).click();
+            $('#month-data li').eq(checkMonth).click();
             //查看是不是已经有此月份了
             for (var i = 0; i < window.xd_callBill.length; i++) {
                 var obj = window.xd_callBill[i];
@@ -213,7 +213,7 @@ dSpider("mobile", 60 * 3,function(session,env,$) {
         if ($('#tbody').is(':visible')) {
             log('有详单记录');
 
-            var check = checkDataRepetition();
+            var check = checkDataRepetition(month);
             if (check == false) {
                 // 数据爬取重复
                 setTimeout(function () {
