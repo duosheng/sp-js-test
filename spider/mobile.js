@@ -238,7 +238,9 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
             var obj = {};
             obj['month'] = fixMonthValue;
             obj['rawMonth'] = $('#month-data li').eq(month).text();
-            obj['value'] = get_current_page_bill(fixMonthValue);
+            var spiderdata = get_current_page_bill(fixMonthValue);
+            obj['value'] = spiderdata.dataArr;
+            obj['status'] = spiderdata.status;
             var total = $('#notes2').text();
             obj['total'] = total.substring(1, total.length - 1);
             pushCallDetailData(obj);
@@ -338,6 +340,7 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
 
     function get_current_page_bill(month) {
         var arr = [];
+        var state = 0;
         var page_total = $('#tbody tr').length;
         for (var i = 0; i < page_total; i++) {
             var wrapCall = {};
@@ -360,9 +363,15 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
             var month_page = month.substr(0, 4) + '-' + month.substr(4, 2);
             if (wrapCall['callBeginTime'].indexOf(month_page) >= 0) {
                 arr.push(wrapCall);
+            } else {
+                // 网页没有刷新
+                state = 2;
             }
         }
-        return arr;
+        return {
+            "status" : state,
+            "dataArr" : arr,
+        };
     }
 
 //整理详单数据
