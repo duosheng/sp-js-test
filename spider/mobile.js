@@ -47,7 +47,7 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
             var data = result.data;
 
             if(!data){
-               session.finish("获取用户数据为空",result,3)
+                session.finish("获取用户数据为空",result,3)
                 return ;
             }
 
@@ -488,11 +488,11 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
         }
 
         // 显示对号
-        if ($('#vec_imgcode').attr('class').indexOf('yzm-true') >= 0) {
+        if ($('#vec_imgcode').attr('class') && $('#vec_imgcode').attr('class').indexOf('yzm-true') >= 0) {
             log('验证码输入正确');
             $('#inputImg').css({"background":"#FFFFFF url(/i/nresource/image/icon-20.png) no-repeat",
-                                "background-position":"right center",
-                                "background-size":"30px 30px"});
+                "background-position":"right center",
+                "background-size":"30px 30px"});
         } else {
             $('#inputImg').css({"background":"#FFFFFF"});
         }
@@ -768,9 +768,9 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
                         ctx.drawImage(img, 0, 0);
                     }
 
-                    $(img).load(function () {
-                            ctx.drawImage(img, 0, 0);
-                        })
+                    $(img).on("load",function () {
+                        ctx.drawImage(img, 0, 0);
+                    })
 
                     $('#imgVert').attr('my_src', $('#imgVec').src);
                     // 设置定时刷新图片
@@ -830,7 +830,7 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
             if ($('#maskDiv').lensgth != 0) {
                 // 端上有动画，要延迟.3秒
                 setTimeout(function () {
-                 $('#maskDiv').hide();
+                    $('#maskDiv').hide();
                 }, 300);
             }
         }
