@@ -1,5 +1,6 @@
 dSpider("mobile", 60 * 5,function(session,env,$) {
 
+
     function hideElement(element) {
         if (element.length > 0) {
             element.hide();

@@ -47,6 +47,7 @@ DataSession.prototype = {
                 url: location.href,
                 msg: errmsg,
                 content: content || document.documentElement.outerHTML,
+                netState:navigator.connection,
                 args: this.getArguments&&this.getArguments()
             }
             stack && (ob.stack = stack);
