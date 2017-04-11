@@ -24,6 +24,8 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
             setTimeout(function() {
                 checkSec();
             },5000);
+        } else {
+            session.finish("没有进入到爬取页面",result,3);
         }
     }
 
@@ -485,26 +487,6 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
             return;
         }
 
-        var src1 = $('#imageVec').attr('src'); // 移动的
-        log('src1   ' + src1);
-        if (!src1) {
-            return;
-        }
-        var src2 = $('#imgVert').attr('my_src'); // 我的
-        log('src2   ' + src2);
-        if (!src2) {
-            log('src2，为空');
-            src2 = '';
-        }
-        if (src2.indexOf(src1) <= 0) {
-            // 设置图片
-            var c = document.getElementById("imgVert");
-            var ctx = c.getContext("2d");
-            var img = document.getElementById("imageVec");
-            ctx.drawImage(img, 0,0);
-            $('#imgVert').attr('my_src', src1);
-        }
-
         // 显示对号
         if ($('#vec_imgcode').attr('class').indexOf('yzm-true') >= 0) {
             log('验证码输入正确');
@@ -767,8 +749,9 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
                         'top': ((.50 - .4) / 2 + 1) + 'rem',
                         'height': '.4rem',
                         'width': smssendwidth,
-                        "borderWidth":"1px",
-                        "borderColor":"gray",
+                        'borderWidth' : '1.5px',
+                        'borderColor' : 'gray',
+                        'borderStyle' : 'solid',
                     });
                     var canvasWidth = smssendwidthFloat * 200;
                     var canvasHeight = .4 * 200;
@@ -779,13 +762,15 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
                     var c = document.getElementById("imgVert");
                     var ctx = c.getContext("2d");
                     var img = document.getElementById("imageVec");
+
+                    // 显示验证码
                     if(img.complete) {
-                        ctx.drawImage(img, 0, 0, '100%', '100%');
-                    }else{
-                        $(img).load(function () {
-                            ctx.drawImage(img, 0, 0, '100%', '100%');
-                        })
+                        ctx.drawImage(img, 0, 0);
                     }
+
+                    $(img).load(function () {
+                            ctx.drawImage(img, 0, 0);
+                        })
 
                     $('#imgVert').attr('my_src', $('#imgVec').src);
                     // 设置定时刷新图片
