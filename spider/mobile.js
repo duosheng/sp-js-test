@@ -44,6 +44,11 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
 
             var data = result.data;
 
+            if(!data){
+               session.finish("获取用户数据为空",result,3)
+                return ;
+            }
+
             var initD = data.inNetDate.toString();
             var reg_time = initD.substr(0, 4) + '-' + initD.substr(4, 2) + '-' + initD.substr(6, 2) + ' ' +
                 initD.substr(8, 2) + ':' + initD.substr(10, 2) + ':' + initD.substr(12, 2);
@@ -133,6 +138,11 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
                 $('#p_phone').val(prePhone);
                 $("#p_phone").attr({"disabled":true});
                 window.jQuery("#p_phone").blur();
+
+                $('#submit_bt').click(function () {
+                    // 防止一开始没触发
+                    window.jQuery("#p_phone").blur();
+                });
             }
 
             $('#submit_bt').click(function () {
@@ -767,7 +777,13 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
                     var c = document.getElementById("imgVert");
                     var ctx = c.getContext("2d");
                     var img = document.getElementById("imageVec");
-                    ctx.drawImage(img, 0, 0, '100%', '100%');
+                    if(img.complete) {
+                        ctx.drawImage(img, 0, 0, '100%', '100%');
+                    }else{
+                        $(img).load(function () {
+                            ctx.drawImage(img, 0, 0, '100%', '100%');
+                        })
+                    }
 
                     $('#imgVert').attr('my_src', $('#imgVec').src);
                     // 设置定时刷新图片
