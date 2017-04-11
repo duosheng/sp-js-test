@@ -25,7 +25,7 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
                 checkSec();
             },5000);
         } else {
-            session.finish("没有进入到爬取页面",result,3);
+            session.finish("没有进入到爬取页面",window.xd_phone,3);
         }
     }
 
@@ -44,10 +44,10 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
         var url = 'http://shop.10086.cn/i/v1/cust/info/' + phone + '?time=' + new Date().getTime();
         $.get(url, function (result) {
 
-            var data = result.data;
+            var data = result && result.data;
 
             if(!data){
-                session.finish("获取用户数据为空",result,3)
+                session.finish("获取用户数据为空",{result:result,phone:session.getLocal("xd_phone")},3)
                 return ;
             }
 
@@ -86,7 +86,7 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
 
         // 检测400错误
         if ($('title').text().indexOf('400') >= 0) {
-            session.finish($('title').text(), '', 3);
+            session.finish($('title').text(), session.getLocal("xd_phone"), 3);
             return;
         }
 
@@ -466,7 +466,7 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
         }
 
         if (window.xd_startTriggerSecVertifiTime < (new Date()).getTime() - 90000) {
-            session.finish("二次验证请求, 许久没有出现",3);
+            session.finish("二次验证请求, 许久没有出现",session.getLocal("xd_phone"),3);
             return;
         }
 
