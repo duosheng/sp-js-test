@@ -15,7 +15,7 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
             //检测是否需要登陆短信
             session.showProgress();
             session.setProgressMsg('认证过程大约需要2分钟，请耐心等待');
-            session.setProgressMax(8);
+            session.setProgressMax(9);
             window.xd_progressMax = 1;
             session.setProgress(window.xd_progressMax);
             window.xd_data = {};
@@ -467,7 +467,7 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
                 $('#sendSmsBtn').click(function () {
                     // 验证是否超过50秒
                     var olddata = parseInt(session.get("firstSMSTime"));
-                    if (olddata + 50000 > new Date().getTime()) {
+                    if (olddata + 60000 > new Date().getTime()) {
                         alert('对不起，短信随机码暂时不能发送，请一分钟以后再试！');
                         return;
                     }
@@ -767,6 +767,8 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
                         'top': ((.50 - .4) / 2 + 1) + 'rem',
                         'height': '.4rem',
                         'width': smssendwidth,
+                        "borderWidth":"1px",
+                        "borderColor":"gray",
                     });
                     var canvasWidth = smssendwidthFloat * 200;
                     var canvasHeight = .4 * 200;
@@ -922,6 +924,7 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
     // -------------------------------------------
     var hasEndSpider = session.get('xd_hasEndSpider');
     if (hasEndSpider == 1) {
+        session.setProgress(9);
         session.finish();
     }
 
