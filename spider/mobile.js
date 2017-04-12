@@ -1,5 +1,7 @@
 dSpider("mobile", 60 * 5,function(session,env,$) {
 
+    //常量
+    var SessionLogTypeNotReporte = -1;// log不上报
 
     function hideElement(element) {
         if (element.length > 0) {
@@ -23,10 +25,20 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
             window.xd_month_progress_count = 0;
 
             setTimeout(function() {
+
+                // // TODO 测试
+                // window.xd_month_progress_count = 0;
+                // $('#switch-data li').eq(1).click();
+                // $('#month-data li').eq(1).click();
+                //
+                // setTimeout(function() {
+                //     startSpiderMonthData(1, 1);
+                // }, 4000);
+
                 checkSec();
             },5000);
         } else {
-            session.finish("没有进入到爬取页面","",3);
+            session.finish("没有进入到爬取页面",3);
         }
     }
 
@@ -87,7 +99,7 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
 
         // 检测400错误
         if ($('title').text().indexOf('400') >= 0) {
-            session.finish($('title').text(), "", 3);
+            session.finish($('title').text(), 3);
             return;
         }
 
@@ -187,7 +199,7 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
             } else {
                 spiderData2();
             }
-        }, 3000);
+        }, 4000);
     }
 
     function checkDataRepetition(checkMonth) {
@@ -214,6 +226,17 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
     function startSpiderMonthData(month, index) {
 
         // alert('' + month + '月 ' + index);
+
+        // 会出现第三次认证的问题
+        if ($('#show_vec_firstdiv').is(':visible')) {
+            log('展示二次验证。多次认证');
+            window.third_callbill_month = month;
+            showMask(true);
+            $('#sendSmsBtn').click(function () {
+                $('#stc-send-sms').click();
+            });
+            return;
+        }
 
         var fixMonthValue = (function fixMonthValue(month) {
             var str = month;
@@ -359,8 +382,8 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
             wrapCall['rawCallBeginTime'] = $('#tbody tr').eq(i).find('td').eq(0).text();
             wrapCall['otherNo'] = $('#tbody tr').eq(i).find('td').eq(3).text();
             wrapCall['taocan'] = $('#tbody tr').eq(i).find('td').eq(6).text();
-            log(month);
-            log(wrapCall['callBeginTime']);
+            log('month: ' + month, SessionLogTypeNotReporte);
+            log('callBeginTime: ' wrapCall['callBeginTime'], SessionLogTypeNotReporte);
             var month_page = month.substr(0, 4) + '-' + month.substr(4, 2);
             if (wrapCall['callBeginTime'].indexOf(month_page) >= 0) {
                 arr.push(wrapCall);
@@ -467,7 +490,7 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
         }
 
         if (window.xd_startTriggerSecVertifiTime < (new Date()).getTime() - 90000) {
-            session.finish("二次验证请求, 许久没有出现","",3);
+            session.finish("二次验证请求, 许久没有出现",3);
             return;
         }
 
@@ -499,7 +522,7 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
 
         // 显示对号
         if ($('#vec_imgcode').attr('class') && $('#vec_imgcode').attr('class').indexOf('yzm-true') >= 0) {
-            log('验证码输入正确');
+            log('验证码输入正确', SessionLogTypeNotReporte);
             $('#inputImg').css({"background":"#FFFFFF url(/i/nresource/image/icon-20.png) no-repeat",
                 "background-position":"right center",
                 "background-size":"30px 30px"});
@@ -535,7 +558,7 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
                 }
             }
             $('#certificateBtn').removeAttr("disabled");
-            log('错误信息： ' + errorMessage);
+            log('错误信息： ' + errorMessage, SessionLogTypeNotReporte);
         } else {
             $('#xd_sec_errorMessage').text('');
         }
@@ -796,7 +819,6 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
                         log('验证码： ' + $('#inputImg').val());
                         $('#vec_imgcode').val('' + $('#inputImg').val());
                         window.jQuery('#vec_imgcode').keyup();
-                        log('验证码验证');
                     });
                 }
 
@@ -849,11 +871,6 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
     function certificateBtnAction() {
         window.xd_pwd = $('#inputPwd').val();
 
-        // if (!/^\d{6}$/.test($('#inputSms').val())) {
-        //     alert('请输入6位短信验证码！');
-        //     return;
-        // }
-
         //服务密码
         $('#vec_servpasswd').val('' + window.xd_pwd);
         // 随机密码
@@ -897,9 +914,30 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
             , 1000);
     }
 
-    // window.xd_sec_vertify_dis = 0;
     function che_vertify_dismiss() {
-        // window.xd_sec_vertify_dis++;
+
+        if (window.xd_month_progress_count != undefined) {
+            //这是第二次进来的
+
+            if (!$('#show_vec_firstdiv').is(':visible')) {
+                showMask(false);
+                if (window.third_callbill_month != undefined) {
+
+                    $('#month-data li').eq(window.third_callbill_month).click();
+                    setTimeout(function () {
+                        //继续爬取
+                        startSpiderMonthData(window.third_callbill_month, 1);
+                    }, 5000);
+                }
+                return;
+            }
+
+            if (!$('#detailerrmsg').is(':visible')) {
+                setTimeout(function() {che_vertify_dismiss();}, 500);
+            }
+            return;
+        }
+
         if (!$('#show_vec_firstdiv').is(':visible') && $('tbody').length > 0) {
             showMask(false);
             $('#switch-data li').eq(1).click();
