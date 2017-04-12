@@ -224,7 +224,7 @@ function dSpider(sessionKey,timeOut, callback) {
                                 if(v=="_blank") return "_self"
                             })
                         })
-                        log("dSpider start!")
+                        session.log("dSpider start!",-1)
                         extras.config=typeof _config==="object"?_config:"{}";
                         callback(session, extras, $);
                     }))

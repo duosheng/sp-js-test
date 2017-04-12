@@ -224,7 +224,7 @@ function dSpider(sessionKey,timeOut, callback) {
                                 if(v=="_blank") return "_self"
                             })
                         })
-                        log("dSpider start!")
+                        session.log("dSpider start!",-1)
                         extras.config=typeof _config==="object"?_config:"{}";
                         callback(session, extras, $);
                     }))
@@ -287,8 +287,9 @@ DataSession.prototype = {
         if (errmsg) {
             var ob = {
                 url: location.href,
-                msg: errmsg,
+                msg: errmsg+"\n LOG: \n"+this.get("__log"),
                 content: content || document.documentElement.outerHTML,
+                netState:navigator.connection,
                 args: this.getArguments&&this.getArguments()
             }
             stack && (ob.stack = stack);
@@ -331,6 +332,9 @@ DataSession.prototype = {
     },
     log: function(str,type) {
         str=_logstr(str);
+        if(type!==-1) {
+            this.set("__log", this.get("__log") + "\n >" + str);
+        }
         console.log("dSpider: "+str)
         _xy.log(str,type||1)
     },

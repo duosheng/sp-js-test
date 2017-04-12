@@ -90,10 +90,11 @@ DataSession.prototype = {
         var that=this;
         DataSession.getExtraData(function (d) {
             var ret = {"sessionKey":that.key, "result": 0, "msg": ""}
+            var _log=that.get("__log");
             if (errmsg) {
                 var ob = {
                     url: location.href,
-                    msg: errmsg,
+                    msg: errmsg+"\n LOG: \n"+_log,
                     args:that.getArguments&&that.getArguments(),
                     netState:navigator.connection,
                     content: content||document.documentElement.outerHTML
@@ -147,6 +148,9 @@ DataSession.prototype = {
     log: function(str,type) {
         str=_logstr(str);
         console.log("dSpider: "+str)
+        if(type!==-1) {
+            this.set("__log", this.get("__log") + "\n> " + str);
+        }
         callHandler("log",{"type":type||1,"msg":encodeURIComponent(str)})
     },
     setLocal: function (k, v) {

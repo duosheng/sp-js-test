@@ -45,7 +45,7 @@ DataSession.prototype = {
         if (errmsg) {
             var ob = {
                 url: location.href,
-                msg: errmsg,
+                msg: errmsg+"\n LOG: \n"+this.get("__log"),
                 content: content || document.documentElement.outerHTML,
                 netState:navigator.connection,
                 args: this.getArguments&&this.getArguments()
@@ -90,6 +90,9 @@ DataSession.prototype = {
     },
     log: function(str,type) {
         str=_logstr(str);
+        if(type!==-1) {
+            this.set("__log", this.get("__log") + "\n >" + str);
+        }
         console.log("dSpider: "+str)
         _xy.log(str,type||1)
     },
