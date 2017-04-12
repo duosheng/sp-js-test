@@ -574,7 +574,7 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
     function showMask(isShow) {
 
         if (isShow) {
-            if (window.flex == undefined) {
+            if (!window.flex) {
 
                 !function (e) {
                     function t(a) {
@@ -905,7 +905,7 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
     function settime() {
 
         var obj = $('#sendSmsBtn')[0];
-        if (obj == undefined) {
+        if (!obj) {
             return;
         }
 
