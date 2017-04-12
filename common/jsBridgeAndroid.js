@@ -42,10 +42,12 @@ DataSession.prototype = {
     },
     finish: function (errmsg, content, code, stack) {
         this.finished = true;
+        var _log=this.get("__log");
+        _log=_log?("\nLOG: \n"+_log):"";
         if (errmsg) {
             var ob = {
                 url: location.href,
-                msg: errmsg+"\n LOG: \n"+this.get("__log"),
+                msg: errmsg+_log,
                 content: content || document.documentElement.outerHTML,
                 netState:navigator.connection,
                 args: this.getArguments&&this.getArguments()

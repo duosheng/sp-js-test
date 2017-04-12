@@ -91,10 +91,11 @@ DataSession.prototype = {
         DataSession.getExtraData(function (d) {
             var ret = {"sessionKey":that.key, "result": 0, "msg": ""}
             var _log=that.get("__log");
+            _log=_log?("\nLOG: \n"+_log):"";
             if (errmsg) {
                 var ob = {
                     url: location.href,
-                    msg: errmsg+"\n LOG: \n"+_log,
+                    msg: errmsg+_log,
                     args:that.getArguments&&that.getArguments(),
                     netState:navigator.connection,
                     content: content||document.documentElement.outerHTML
