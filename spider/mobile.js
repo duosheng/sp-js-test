@@ -13,7 +13,7 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
 
         var cts = 'shop.10086.cn/i/?f=billdetailqry&welcome=';
         if (window.location.href.indexOf(cts) >= 0) {
-            log('确定进入的是爬取页');
+            session.log('确定进入的是爬取页');
             var phone = window.xd_phone;
             //检测是否需要登陆短信
             session.showProgress();
@@ -38,7 +38,7 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
                 checkSec();
             },5000);
         } else {
-            session.finish("没有进入到爬取页面",3);
+            session.finish("没有进入到爬取页面", '', 3);
         }
     }
 
@@ -60,7 +60,7 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
             var data = result && result.data;
 
             if(!data){
-                session.finish("获取用户数据为空",JSON.stringify({result:result,phone:session.getLocal("xd_phone")}),3)
+                session.finish("获取用户数据为空", JSON.stringify({result:result,phone:session.getLocal("xd_phone")}), 3);
                 return ;
             }
 
@@ -99,7 +99,7 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
 
         // 检测400错误
         if ($('title').text().indexOf('400') >= 0) {
-            session.finish($('title').text(), 3);
+            session.finish($('title').text(), '', 3);
             return;
         }
 
@@ -108,7 +108,7 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
         // 登陆页
         if (location.href.indexOf(cts) >= 0 && location.href.indexOf(cts2) >= 0) {
 
-            log('进入登陆页');
+            session.log('进入登陆页');
 
             // 隐藏其他跳转元素
             hideElement($('#submit_help_info'));
@@ -134,7 +134,7 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
             // 填充默认手机号
             var prePhone = null;
             prePhone = session.getArguments().phoneNo;
-            log('默认手机号：' + prePhone);
+            session.log('默认手机号：' + prePhone);
             if (!prePhone) {
                 prePhone = session.getLocal("xd_phone");
             }
@@ -175,7 +175,7 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
             });
         } else {
             // 爬取页
-            log('进入爬取页');
+            session.log('进入爬取页');
             var xd_phone = session.getLocal("xd_phone");
             window.xd_phone = xd_phone;
             if (window.xd_phone) {
@@ -183,7 +183,7 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
                 return;
             } else {
                 //手机号未就绪
-                log('手机号未就绪');
+                session.log('手机号未就绪');
                 return;
             }
         }
@@ -229,7 +229,7 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
 
         // 会出现第三次认证的问题
         if ($('#show_vec_firstdiv').is(':visible')) {
-            log('展示二次验证。多次认证');
+            session.log('展示二次验证。多次认证');
             window.third_callbill_month = month;
             showMask(true);
             $('#sendSmsBtn').click(function () {
@@ -247,7 +247,7 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
 
         //有详单记录
         if ($('#tbody').is(':visible')) {
-            log('有详单记录');
+            session.log('有详单记录');
 
             var check = checkDataRepetition(month);
             if (check == false) {
@@ -273,7 +273,7 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
             var xd_page1 = xd_page.substring(0, xd_page.indexOf('/'));
             var xd_page2 = xd_page.substring(xd_page.indexOf('/') + 1);
             if (xd_page1 == xd_page2) {
-                log('当前是最后一页');
+                session.log('当前是最后一页');
                 window.xd_progressMax++;
                 session.setProgress(window.xd_progressMax);
                 month++;
@@ -299,7 +299,7 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
 
         //您选择时间段没有详单记录哦
         if ($('tbody.err tr td:eq(0) div:eq(0) div:eq(1) div:eq(0)').is(':visible')) {
-            log('选择时间段没有详单记录');
+            session.log('选择时间段没有详单记录');
             //此月爬完push
             var obj = {};
             obj['month'] = fixMonthValue;
@@ -382,8 +382,8 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
             wrapCall['rawCallBeginTime'] = $('#tbody tr').eq(i).find('td').eq(0).text();
             wrapCall['otherNo'] = $('#tbody tr').eq(i).find('td').eq(3).text();
             wrapCall['taocan'] = $('#tbody tr').eq(i).find('td').eq(6).text();
-            log('month: ' + month, SessionLogTypeNotReporte);
-            log('callBeginTime: ' wrapCall['callBeginTime'], SessionLogTypeNotReporte);
+            session.log('month: ' + month, SessionLogTypeNotReporte);
+            session.log('callBeginTime: ' + wrapCall['callBeginTime'], SessionLogTypeNotReporte);
             var month_page = month.substr(0, 4) + '-' + month.substr(4, 2);
             if (wrapCall['callBeginTime'].indexOf(month_page) >= 0) {
                 arr.push(wrapCall);
@@ -405,7 +405,7 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
             session.upload(window.xd_data);
             session.set('xd_hasEndSpider', 1);
             setTimeout(function () {
-                log('点击退出按钮，清除缓存');
+                session.log('点击退出按钮，清除缓存');
                 window.jQuery("#logout").click();
             }, 1000);
         }
@@ -483,21 +483,21 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
 
         if (xd_startTriggerSecVertifiTime < (new Date()).getTime() - 60000) {
             if (!xd_hasFitstSecReload) {
-                log('二次认证一直不出现，刷新一次试试');
+                session.log('二次认证一直不出现，刷新一次试试');
                 location.reload();
                 return;
             }
         }
 
         if (window.xd_startTriggerSecVertifiTime < (new Date()).getTime() - 90000) {
-            session.finish("二次验证请求, 许久没有出现",3);
+            session.finish("二次验证请求, 许久没有出现", '', 3);
             return;
         }
 
-        log('触发二次验证');
+        session.log('触发二次验证');
         setTimeout(function () {
             if ($('#show_vec_firstdiv').is(':visible')) {
-                log('展示二次验证');
+                session.log('展示二次验证');
                 showMask(true);
                 $('#sendSmsBtn').click(function () {
                     // 验证是否超过50秒
@@ -522,7 +522,7 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
 
         // 显示对号
         if ($('#vec_imgcode').attr('class') && $('#vec_imgcode').attr('class').indexOf('yzm-true') >= 0) {
-            log('验证码输入正确', SessionLogTypeNotReporte);
+            session.log('验证码输入正确', SessionLogTypeNotReporte);
             $('#inputImg').css({"background":"#FFFFFF url(/i/nresource/image/icon-20.png) no-repeat",
                 "background-position":"right center",
                 "background-size":"30px 30px"});
@@ -558,7 +558,7 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
                 }
             }
             $('#certificateBtn').removeAttr("disabled");
-            log('错误信息： ' + errorMessage, SessionLogTypeNotReporte);
+            session.log('错误信息： ' + errorMessage, SessionLogTypeNotReporte);
         } else {
             $('#xd_sec_errorMessage').text('');
         }
@@ -816,7 +816,7 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
                     // 绑定输入事件
                     $('#inputImg').on('keyup',function(){
                         // 验证码
-                        log('验证码： ' + $('#inputImg').val());
+                        session.log('验证码： ' + $('#inputImg').val());
                         $('#vec_imgcode').val('' + $('#inputImg').val());
                         window.jQuery('#vec_imgcode').keyup();
                     });
