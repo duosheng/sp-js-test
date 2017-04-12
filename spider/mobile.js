@@ -905,6 +905,10 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
     function settime() {
 
         var obj = $('#sendSmsBtn')[0];
+        if (obj == undefined) {
+            return;
+        }
+
         if (window.countdown == 60) {
             $('#sendSmsBtn').css(obj.cssDisable);
         }
