@@ -27,7 +27,7 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
             setTimeout(function() {
 
                 // // TODO 测试
-                // window.xd_month_progress_count = 0;
+                // window.xd_month_progress_count = 1;
                 // $('#switch-data li').eq(1).click();
                 // $('#month-data li').eq(1).click();
                 //
@@ -231,11 +231,14 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
         if ($('#show_vec_firstdiv').is(':visible')) {
             session.log('展示二次验证。多次认证');
             window.third_callbill_month = month;
+            window.third_callbill_vertify = true;
             showMask(true);
             $('#sendSmsBtn').click(function () {
                 $('#stc-send-sms').click();
             });
             return;
+        } else {
+            window.third_callbill_vertify = false;
         }
 
         var fixMonthValue = (function fixMonthValue(month) {
@@ -571,290 +574,299 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
     function showMask(isShow) {
 
         if (isShow) {
-            if ($('#maskDiv').length == 0) {
+            if (window.flex == undefined) {
 
-                !function(e){function t(a){if(i[a])return i[a].exports;
-                    var n=i[a]={exports:{},id:a,loaded:!1};
-                    return e[a].call(n.exports,n,n.exports,t),n.loaded=!0,n.exports}var i={};
-                    return t.m=e,t.c=i,t.p="",t(0)}([function(e,t){"use strict";
-                    Object.defineProperty(t,"__esModule",{value:!0});
-                    var i=window;t["default"]=i.flex=function(e,t){
-                        var a=e||100,n=t||1,r=i.document,o=navigator.userAgent;
-                        var d=o.match(/Android[\S\s]+AppleWebkit\/(\d{3})/i),l=o.match(/U3\/((\d+|\.){5,})/i);
-                        var c=l&&parseInt(l[1].split(".").join(""),10)>=80;
-                        var p=navigator.appVersion.match(/(iphone|ipad|ipod)/gi),s=i.devicePixelRatio||1;
-                        p||d&&d[1]>534||c||(s=1);
-                        var u=1/s,m=r.querySelector('meta[name="viewport"]');
-                        m||(m=r.createElement("meta"),m.setAttribute("name","viewport"),r.head.appendChild(m));
+                !function (e) {
+                    function t(a) {
+                        if (i[a])return i[a].exports;
+                        var n = i[a] = {exports: {}, id: a, loaded: !1};
+                        return e[a].call(n.exports, n, n.exports, t), n.loaded = !0, n.exports
+                    }
+
+                    var i = {};
+                    return t.m = e, t.c = i, t.p = "", t(0)
+                }([function (e, t) {
+                    "use strict";
+                    Object.defineProperty(t, "__esModule", {value: !0});
+                    var i = window;
+                    t["default"] = i.flex = function (e, t) {
+                        var a = e || 100, n = t || 1, r = i.document, o = navigator.userAgent;
+                        var d = o.match(/Android[\S\s]+AppleWebkit\/(\d{3})/i), l = o.match(/U3\/((\d+|\.){5,})/i);
+                        var c = l && parseInt(l[1].split(".").join(""), 10) >= 80;
+                        var p = navigator.appVersion.match(/(iphone|ipad|ipod)/gi), s = i.devicePixelRatio || 1;
+                        p || d && d[1] > 534 || c || (s = 1);
+                        var u = 1 / s, m = r.querySelector('meta[name="viewport"]');
+                        m || (m = r.createElement("meta"), m.setAttribute("name", "viewport"), r.head.appendChild(m));
                         var sss = "width=device-width,user-scalable=no,initial-scale=";
-                        m.setAttribute("content",sss+u+",maximum-scale="+u+",minimum-scale="+u);
-                        r.documentElement.style.fontSize=a/2*s*n+"px"},e.exports=t["default"]}]);
+                        m.setAttribute("content", sss + u + ",maximum-scale=" + u + ",minimum-scale=" + u);
+                        r.documentElement.style.fontSize = a / 2 * s * n + "px"
+                    }, e.exports = t["default"]
+                }]);
                 flex(200, 1);
+            }
 
-                setTimeout(function () {
-                    window.scrollTo(0, 0);
-                }, 500);
+            setTimeout(function () {
+                window.scrollTo(0, 0);
+            }, 500);
 
-                var leftGapFloat = .15;
-                var leftGap = leftGapFloat + 'rem';
-                var webViewWidthFloat = screen.width / 100.;
-                var webViewWidth = webViewWidthFloat + 'rem';
+            var leftGapFloat = .15;
+            var leftGap = leftGapFloat + 'rem';
+            var webViewWidthFloat = screen.width / 100.;
+            var webViewWidth = webViewWidthFloat + 'rem';
 
-                var maskDiv = $('<div></div>');        //创建一个父div
-                maskDiv.attr('id', 'maskDiv');        //给父div设置id
-                $("body").append(maskDiv);
-                $("#maskDiv").css({
-                    'opacity': 1,
-                    'position': 'fixed',
-                    'top': 0,
-                    'left': 0,
-                    'background-color': '#f6f6f6',
-                    'width': '100%',
-                    'height': '100%',
-                    'z-index': 214748364,
-                });
+            var maskDiv = $('<div></div>');        //创建一个父div
+            maskDiv.attr('id', 'maskDiv');        //给父div设置id
+            $("body").append(maskDiv);
+            $("#maskDiv").css({
+                'opacity': 1,
+                'position': 'fixed',
+                'top': 0,
+                'left': 0,
+                'background-color': '#f6f6f6',
+                'width': '100%',
+                'height': '100%',
+                'z-index': 214748364,
+            });
 
-                // cell 背景
-                var cellBackgroundDiv = $('<div><div/>');
-                var cellStyle = {
-                    'position': 'absolute',
-                    'top': '.08rem',
-                    'left': '0rem',
-                    'width': webViewWidth,
-                    'height': '1rem',
-                    'background-color': '#ffffff',
-                };
-                cellBackgroundDiv.css(cellStyle);
-                $("#maskDiv").append(cellBackgroundDiv);
+            // cell 背景
+            var cellBackgroundDiv = $('<div><div/>');
+            var cellStyle = {
+                'position': 'absolute',
+                'top': '.08rem',
+                'left': '0rem',
+                'width': webViewWidth,
+                'height': '1rem',
+                'background-color': '#ffffff',
+            };
+            cellBackgroundDiv.css(cellStyle);
+            $("#maskDiv").append(cellBackgroundDiv);
 
-                // cell 间隔线
-                var cellSeparator = $('<div><div/>');
-                cellSeparator.css({
-                    'position': 'absolute',
-                    'top': '.5rem',
-                    'left': leftGap,
-                    'width': (webViewWidthFloat - leftGapFloat) + 'rem',
-                    'height':'0.015rem',
-                    'background-color': '#d4d7dd',
-                });
-                cellBackgroundDiv.append(cellSeparator);
+            // cell 间隔线
+            var cellSeparator = $('<div><div/>');
+            cellSeparator.css({
+                'position': 'absolute',
+                'top': '.5rem',
+                'left': leftGap,
+                'width': (webViewWidthFloat - leftGapFloat) + 'rem',
+                'height':'0.015rem',
+                'background-color': '#d4d7dd',
+            });
+            cellBackgroundDiv.append(cellSeparator);
 
-                //提示1
-                var title1 = $($('<p><p/>'));
-                title1.text('服务密码');
-                title1.css({
-                    'position': 'absolute',
-                    'line-height':'.5rem',
-                    'left': leftGap,
-                    'top': 0,
-                    'height': '.5rem',
-                    'width': '.7rem',
-                    'font-size': '.15rem',
-                });
-                cellBackgroundDiv.append(title1);
+            //提示1
+            var title1 = $($('<p><p/>'));
+            title1.text('服务密码');
+            title1.css({
+                'position': 'absolute',
+                'line-height':'.5rem',
+                'left': leftGap,
+                'top': 0,
+                'height': '.5rem',
+                'width': '.7rem',
+                'font-size': '.15rem',
+            });
+            cellBackgroundDiv.append(title1);
 
-                var inputSmsWidth = 320. / 750. * webViewWidthFloat;
-                var titleRightFloat = 0.85;
-                //密码输入框
-                var inputPwd = $('<input type="password" id="inputPwd"/>');
-                inputPwd.css({
+            var inputSmsWidth = 320. / 750. * webViewWidthFloat;
+            var titleRightFloat = 0.85;
+            //密码输入框
+            var inputPwd = $('<input type="password" id="inputPwd"/>');
+            inputPwd.css({
+                'position': 'absolute',
+                'left': titleRightFloat + 'rem',
+                'top': '.1rem',
+                'height': '.3rem',
+                'line-height':'.3rem',
+                'width': inputSmsWidth + 'rem',
+                'font-size': '.15rem',
+                'background-color': 'white',
+            });
+            inputPwd.attr('placeholder', '请输入服务密码');
+            inputPwd.attr('maxlength','8');
+            cellBackgroundDiv.append(inputPwd);
+
+            //提示2
+            var title2 = $($('<p><p/>'));
+            title2.text('随机密码');
+            title2.css({
+                'position': 'absolute',
+                'line-height':'.5rem',
+                'left': leftGap,
+                'top': '.5rem',
+                'height': '.5rem',
+                'width': '.7rem',
+                'font-size': '.15rem',
+            });
+            cellBackgroundDiv.append(title2);
+
+            //短信输入框
+            var inputSms = $('<input type="text" id="inputSms"/>');
+            inputSms.css({
+                'position': 'absolute',
+                'left': titleRightFloat + 'rem',
+                'top': '.61rem',
+                'height': '.29rem',
+                'line-height':'.29rem',
+                'width': inputSmsWidth + 'rem',
+                'font-size': '.15rem',
+                'background-color': 'white',
+            });
+            inputSms.attr('placeholder', '请输入短信验证码');
+            inputSms.attr('maxlength','6');
+            cellBackgroundDiv.append(inputSms);
+
+            //发送短信
+            var smssendwidthFloat = 194. / 750. * webViewWidthFloat;
+            var smssendwidth = smssendwidthFloat + 'rem';
+            var input = $('<input type="button" id="sendSmsBtn" value="获取验证码"/>');
+            input.click(settime);
+            var cssEnable = {
+                'position': 'absolute',
+                'border-radius':'0.025rem',
+                'border-style':'solid',
+                'border-color':'#4e73ed',
+                'border-width':'0.01rem',
+                'left': webViewWidthFloat - leftGapFloat - smssendwidthFloat + 'rem',
+                'top': ((.50 - .28) / 2 + .5) + 'rem',
+                'height': '.28rem',
+                'width': smssendwidth,
+                'font-size': '.13rem',
+                'background-color':"white",
+                'color': '#4e73ed',
+            };
+
+            var cssDisable = {
+                'position': 'absolute',
+                'border-radius':'0.025rem',
+                'border-style':'none',
+                'left': webViewWidthFloat - leftGapFloat - smssendwidthFloat + 'rem',
+                'top': ((.50 - .28) / 2 + .5) + 'rem',
+                'height': '.28rem',
+                'width': smssendwidth,
+                'font-size': '.13rem',
+                'background-color':"#bcc0c9",
+                'color': 'white',
+            };
+
+            input[0].cssEnable = cssEnable;
+            input[0].cssDisable = cssDisable;
+            input.css(cssEnable);
+            cellBackgroundDiv.append(input);
+
+            var errormessageTop = 0.08 + 1;
+            // 如果有图形验证码
+            if($('#imageVec').length > 0) {
+                var errormessageTop = 0.08 + 1.5;
+
+                // 增大背景
+                cellBackgroundDiv.css('height', '1.5rem');
+                // 多加一条线
+                var cellSeparator2 = cellSeparator.clone();
+                cellSeparator2.css({'top':'1rem'});
+                cellBackgroundDiv.append(cellSeparator2);
+
+                //提示3
+                var title3 = title1.clone();
+                title3.text('验证码');
+                title3.css({'top': '1rem'});
+                cellBackgroundDiv.append(title3);
+                // 图形验证码输入
+                var inputImg = $('<input type="text" id="inputImg"/>');
+                inputImg.css({
                     'position': 'absolute',
                     'left': titleRightFloat + 'rem',
-                    'top': '.1rem',
-                    'height': '.3rem',
-                    'line-height':'.3rem',
-                    'width': inputSmsWidth + 'rem',
-                    'font-size': '.15rem',
-                    'background-color': 'white',
-                });
-                inputPwd.attr('placeholder', '请输入服务密码');
-                inputPwd.attr('maxlength','8');
-                cellBackgroundDiv.append(inputPwd);
-
-                //提示2
-                var title2 = $($('<p><p/>'));
-                title2.text('随机密码');
-                title2.css({
-                    'position': 'absolute',
-                    'line-height':'.5rem',
-                    'left': leftGap,
-                    'top': '.5rem',
-                    'height': '.5rem',
-                    'width': '.7rem',
-                    'font-size': '.15rem',
-                });
-                cellBackgroundDiv.append(title2);
-
-                //短信输入框
-                var inputSms = $('<input type="text" id="inputSms"/>');
-                inputSms.css({
-                    'position': 'absolute',
-                    'left': titleRightFloat + 'rem',
-                    'top': '.61rem',
+                    'top': '1.11rem',
                     'height': '.29rem',
                     'line-height':'.29rem',
                     'width': inputSmsWidth + 'rem',
                     'font-size': '.15rem',
                     'background-color': 'white',
                 });
-                inputSms.attr('placeholder', '请输入短信验证码');
-                inputSms.attr('maxlength','6');
-                cellBackgroundDiv.append(inputSms);
+                inputImg.attr('placeholder', '请输入图形验证码');
+                inputImg.attr('maxlength','6');
+                cellBackgroundDiv.append(inputImg);
 
-                //发送短信
-                var smssendwidthFloat = 194. / 750. * webViewWidthFloat;
-                var smssendwidth = smssendwidthFloat + 'rem';
-                var input = $('<input type="button" id="sendSmsBtn" value="获取验证码"/>');
-                input.click(settime);
-                var cssEnable = {
+                // 添加图片
+                var item = '<canvas id="imgVert">' +
+                    'Your browser does not support the HTML5 canvas tag. </canvas>';
+                var imgVert = $(item);
+                imgVert.css({
                     'position': 'absolute',
-                    'border-radius':'0.025rem',
-                    'border-style':'solid',
-                    'border-color':'#4e73ed',
-                    'border-width':'0.01rem',
-                    'left': webViewWidthFloat - leftGapFloat - smssendwidthFloat + 'rem',
-                    'top': ((.50 - .28) / 2 + .5) + 'rem',
-                    'height': '.28rem',
+                    'left': input.css('left'),
+                    'top': ((.50 - .4) / 2 + 1) + 'rem',
+                    'height': '.4rem',
                     'width': smssendwidth,
-                    'font-size': '.13rem',
-                    'background-color':"white",
-                    'color': '#4e73ed',
-                };
+                    'borderWidth' : '1.5px',
+                    'borderColor' : 'gray',
+                    'borderStyle' : 'solid',
+                });
+                var canvasWidth = smssendwidthFloat * 200;
+                var canvasHeight = .4 * 200;
+                imgVert.attr({'height': canvasHeight + 'px', 'width': canvasWidth + 'px'});
+                cellBackgroundDiv.append(imgVert);
 
-                var cssDisable = {
-                    'position': 'absolute',
-                    'border-radius':'0.025rem',
-                    'border-style':'none',
-                    'left': webViewWidthFloat - leftGapFloat - smssendwidthFloat + 'rem',
-                    'top': ((.50 - .28) / 2 + .5) + 'rem',
-                    'height': '.28rem',
-                    'width': smssendwidth,
-                    'font-size': '.13rem',
-                    'background-color':"#bcc0c9",
-                    'color': 'white',
-                };
+                // 设置图片
+                var c = document.getElementById("imgVert");
+                var ctx = c.getContext("2d");
+                var img = document.getElementById("imageVec");
 
-                input[0].cssEnable = cssEnable;
-                input[0].cssDisable = cssDisable;
-                input.css(cssEnable);
-                cellBackgroundDiv.append(input);
-
-                var errormessageTop = 0.08 + 1;
-                // 如果有图形验证码
-                if($('#imageVec').length > 0) {
-                    var errormessageTop = 0.08 + 1.5;
-
-                    // 增大背景
-                    cellBackgroundDiv.css('height', '1.5rem');
-                    // 多加一条线
-                    var cellSeparator2 = cellSeparator.clone();
-                    cellSeparator2.css({'top':'1rem'});
-                    cellBackgroundDiv.append(cellSeparator2);
-
-                    //提示3
-                    var title3 = title1.clone();
-                    title3.text('验证码');
-                    title3.css({'top': '1rem'});
-                    cellBackgroundDiv.append(title3);
-                    // 图形验证码输入
-                    var inputImg = $('<input type="text" id="inputImg"/>');
-                    inputImg.css({
-                        'position': 'absolute',
-                        'left': titleRightFloat + 'rem',
-                        'top': '1.11rem',
-                        'height': '.29rem',
-                        'line-height':'.29rem',
-                        'width': inputSmsWidth + 'rem',
-                        'font-size': '.15rem',
-                        'background-color': 'white',
-                    });
-                    inputImg.attr('placeholder', '请输入图形验证码');
-                    inputImg.attr('maxlength','6');
-                    cellBackgroundDiv.append(inputImg);
-
-                    // 添加图片
-                    var item = '<canvas id="imgVert">' +
-                        'Your browser does not support the HTML5 canvas tag. </canvas>';
-                    var imgVert = $(item);
-                    imgVert.css({
-                        'position': 'absolute',
-                        'left': input.css('left'),
-                        'top': ((.50 - .4) / 2 + 1) + 'rem',
-                        'height': '.4rem',
-                        'width': smssendwidth,
-                        'borderWidth' : '1.5px',
-                        'borderColor' : 'gray',
-                        'borderStyle' : 'solid',
-                    });
-                    var canvasWidth = smssendwidthFloat * 200;
-                    var canvasHeight = .4 * 200;
-                    imgVert.attr({'height': canvasHeight + 'px', 'width': canvasWidth + 'px'});
-                    cellBackgroundDiv.append(imgVert);
-
-                    // 设置图片
-                    var c = document.getElementById("imgVert");
-                    var ctx = c.getContext("2d");
-                    var img = document.getElementById("imageVec");
-
-                    // 显示验证码
-                    if(img.complete) {
-                        ctx.drawImage(img, 0, 0);
-                    }
-
-                    $(img).on("load",function () {
-                        ctx.drawImage(img, 0, 0);
-                    })
-
-                    $('#imgVert').attr('my_src', $('#imgVec').src);
-                    // 设置定时刷新图片
-                    refreshImgVertify();
-
-                    // 绑定原图片事件
-                    $('#imgVert').click(function () {
-                        $('#imageVec').click();
-                    });
-                    // 绑定输入事件
-                    $('#inputImg').on('keyup',function(){
-                        // 验证码
-                        session.log('验证码： ' + $('#inputImg').val());
-                        $('#vec_imgcode').val('' + $('#inputImg').val());
-                        window.jQuery('#vec_imgcode').keyup();
-                    });
+                // 显示验证码
+                if(img.complete) {
+                    ctx.drawImage(img, 0, 0);
                 }
 
-                //错误提示
-                var errorMessage = $($('<p id="xd_sec_errorMessage"><p/>'));
-                $("#maskDiv").append(errorMessage);
-                $('#xd_sec_errorMessage').css({
-                    'position': 'absolute',
-                    'left': leftGap,
-                    'top': errormessageTop + 'rem',
-                    'height': '.2rem',
-                    'width': '3rem',
-                    'line-height':'.2rem',
-                    'font-size': '0.1rem',
-                    'color': 'red',
-                });
+                $(img).on("load",function () {
+                    ctx.drawImage(img, 0, 0);
+                })
 
-                //认证
-                var certificateBtn = $('<input type="button" id="certificateBtn" value="去认证"/>');
-                certificateBtn.click(certificateBtnAction);
-                $("#maskDiv").append(certificateBtn);
+                $('#imgVert').attr('my_src', $('#imgVec').src);
+                // 设置定时刷新图片
+                refreshImgVertify();
 
-                $('#certificateBtn').css({
-                    'position': 'absolute',
-                    'border-radius':'0.025rem',
-                    'left': leftGap,
-                    'top': errormessageTop + .2 + 'rem',
-                    'height': '.5rem',
-                    'width': (webViewWidthFloat - leftGapFloat * 2) + 'rem',
-                    'font-size': '.17rem',
-                    'color': 'white',
-                    'background-color':'#4e73ed',
+                // 绑定原图片事件
+                $('#imgVert').click(function () {
+                    $('#imageVec').click();
                 });
-            } else {
-                $('#maskDiv').show();
+                // 绑定输入事件
+                $('#inputImg').on('keyup',function(){
+                    // 验证码
+                    session.log('验证码： ' + $('#inputImg').val());
+                    $('#vec_imgcode').val('' + $('#inputImg').val());
+                    window.jQuery('#vec_imgcode').keyup();
+                });
             }
+
+            //错误提示
+            var errorMessage = $($('<p id="xd_sec_errorMessage"><p/>'));
+            $("#maskDiv").append(errorMessage);
+            $('#xd_sec_errorMessage').css({
+                'position': 'absolute',
+                'left': leftGap,
+                'top': errormessageTop + 'rem',
+                'height': '.2rem',
+                'width': '3rem',
+                'line-height':'.2rem',
+                'font-size': '0.1rem',
+                'color': 'red',
+            });
+
+            //认证
+            var certificateBtn = $('<input type="button" id="certificateBtn" value="去认证"/>');
+            certificateBtn.click(certificateBtnAction);
+            $("#maskDiv").append(certificateBtn);
+
+            $('#certificateBtn').css({
+                'position': 'absolute',
+                'border-radius':'0.025rem',
+                'left': leftGap,
+                'top': errormessageTop + .2 + 'rem',
+                'height': '.5rem',
+                'width': (webViewWidthFloat - leftGapFloat * 2) + 'rem',
+                'font-size': '.17rem',
+                'color': 'white',
+                'background-color':'#4e73ed',
+            });
+
             // 隐藏进度条
             session.showProgress(false);
         } else {
@@ -862,7 +874,7 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
             if ($('#maskDiv').lensgth != 0) {
                 // 端上有动画，要延迟.3秒
                 setTimeout(function () {
-                    $('#maskDiv').hide();
+                    $("#maskDiv").remove();
                 }, 300);
             }
         }
@@ -916,19 +928,15 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
 
     function che_vertify_dismiss() {
 
-        if (window.xd_month_progress_count != undefined) {
+        if (!!window.third_callbill_vertify) {
             //这是第二次进来的
-
             if (!$('#show_vec_firstdiv').is(':visible')) {
                 showMask(false);
-                if (window.third_callbill_month != undefined) {
-
-                    $('#month-data li').eq(window.third_callbill_month).click();
-                    setTimeout(function () {
-                        //继续爬取
-                        startSpiderMonthData(window.third_callbill_month, 1);
-                    }, 5000);
-                }
+                $('#month-data li').eq(window.third_callbill_month).click();
+                setTimeout(function () {
+                    //继续爬取
+                    startSpiderMonthData(window.third_callbill_month, 1);
+                }, 5000);
                 return;
             }
 
