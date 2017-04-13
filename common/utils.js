@@ -21,7 +21,7 @@ $.onload=function(cb){
     if(document.readyState=="complete"){
         cb();
     }else {
-        $(window).load(function(){
+        window.addEventListener("load",function(){
             cb();
         })
     }

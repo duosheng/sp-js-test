@@ -60,11 +60,9 @@ DataSession.prototype = {
     },
 
     get: function (key) {
-        log("get called")
         return this.data[key];
     },
     set: function (key, value) {
-        log("set called")
         this.data[key]=value;
         this._save();
     },
