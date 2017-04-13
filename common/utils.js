@@ -17,7 +17,15 @@ String.prototype.trim = function () {
 String.prototype.empty = function () {
     return this.trim() === "";
 };
-
+$.onload=function(cb){
+    if(document.readyState=="complete"){
+        cb();
+    }else {
+        $(window).load(function(){
+            cb();
+        })
+    }
+}
 function _logstr(str){
     str=str||" "
     return typeof str=="object"?JSON.stringify(str):(new String(str)).toString()
