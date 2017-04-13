@@ -973,9 +973,7 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
         session.finish();
     }
 
-    $.onload(function(){
-        checkLogin_first();
-    })
+    checkLogin_first();
 
     //设置当前页是登陆页
     if ($('#forget_btn').length && $('#forget_btn').length > 0) {
