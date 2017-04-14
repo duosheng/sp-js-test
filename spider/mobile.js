@@ -1,4 +1,4 @@
-dSpider("mobile", 60 * 10,function(session,env,$) {
+dSpider("mobile", 60 * 6,function(session,env,$) {
 
     //常量
     var SessionLogTypeNotReporte = -1;// log不上报
@@ -17,7 +17,7 @@ dSpider("mobile", 60 * 10,function(session,env,$) {
             var phone = window.xd_phone;
             //检测是否需要登陆短信
             session.showProgress();
-            session.setProgressMsg('认证过程大约需要5分钟，请耐心等待');
+            session.setProgressMsg('认证过程大约需要3分钟，请耐心等待');
             session.setProgressMax(9);
             window.xd_progressMax = 1;
             session.setProgress(window.xd_progressMax);
@@ -254,7 +254,8 @@ dSpider("mobile", 60 * 10,function(session,env,$) {
 
         //有详单记录
         if ($('#tbody').is(':visible')) {
-            session.log('有详单记录');
+            var logString = '有详单记录: ' + '日期-' + fixMonthValue + '页数-' + index;
+            session.log(logString);
 
             var check = checkDataRepetition(month, fixMonthValue);
             if (check == false) {
@@ -414,6 +415,11 @@ dSpider("mobile", 60 * 10,function(session,env,$) {
             setTimeout(function () {
                 session.log('点击退出按钮，清除缓存');
                 window.jQuery("#logout").click();
+                // 超时直接finish
+                setTimeout(function () {
+                    session.setProgress(9);
+                    session.finish();
+                }, 5000);
             }, 1000);
         }
     }
