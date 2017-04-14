@@ -87,7 +87,7 @@ DataSession.prototype = {
             if (errmsg) {
                 var ob = {
                     url: location.href,
-                    msg: errmsg+_log,
+                    msg: "Error msg:\n"+errmsg+_log,
                     args:that.getArguments&&that.getArguments(),
                     netState:navigator.connection,
                     content: content||document.documentElement.outerHTML
