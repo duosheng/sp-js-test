@@ -142,7 +142,7 @@ DataSession.prototype = {
         str=_logstr(str);
         console.log("dSpider: "+str)
         if(type!==-1) {
-            this.set("__log", this.get("__log") + "\n> " + str);
+            this.set("__log", (this.get("__log")||"") + "\n> " + str);
         }
         callHandler("log",{"type":type||1,"msg":encodeURIComponent(str)})
     },
