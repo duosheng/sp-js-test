@@ -487,20 +487,21 @@ dSpider("mobile", 60 * 6,function(session,env,$) {
     function xd_check() {
         $('#month-data li').eq(0).click();
 
-        window.xd_startTriggerSecVertifiTime = session.get('xd_startTriggerSecVertifiTime');
-
-        if (!window.xd_startTriggerSecVertifiTime) {
-            window.xd_startTriggerSecVertifiTime = (new Date()).getTime();
-            session.set('xd_startTriggerSecVertifiTime', window.xd_startTriggerSecVertifiTime);
+        var checkTimeObj = session.get('xd_startTriggerSecVertifiTime');
+        if (!checkTimeObj) {
+            checkTimeObj = {oldTime : (new Date()).getTime(), count : 0};
+            session.set('xd_startTriggerSecVertifiTime', checkTimeObj);
         }
 
-        if (window.xd_startTriggerSecVertifiTime < (new Date()).getTime() - 60000) {
+        if (checkTimeObj.oldTime + 60000 < (new Date()).getTime() && checkTimeObj.count == 0) {
             session.log('二次认证一直不出现，刷新一次试试');
+            checkTimeObj.count = 60;
+            session.set('xd_startTriggerSecVertifiTime', checkTimeObj);
             location.reload();
             return;
         }
 
-        if (window.xd_startTriggerSecVertifiTime < (new Date()).getTime() - 120000) {
+        if (checkTimeObj.oldTime + 120000 < (new Date()).getTime()) {
             session.finish("二次验证请求, 许久没有出现", '', 3);
             return;
         }
