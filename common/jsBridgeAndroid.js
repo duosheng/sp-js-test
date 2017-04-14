@@ -93,7 +93,7 @@ DataSession.prototype = {
     log: function(str,type) {
         str=_logstr(str);
         if(type!==-1) {
-            this.set("__log", (this.get("__log")||"") + ">" + str+"\n");
+            this.set("__log", (this.get("__log")||"") + "> " + str+"\n");
         }
         console.log("dSpider: "+str)
         _xy.log(str,type||1)

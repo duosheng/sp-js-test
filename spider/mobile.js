@@ -524,7 +524,7 @@ dSpider("mobile", 60 * 6,function(session,env,$) {
                 return;
             }
             xd_check();
-        }, 6000);
+        }, 15000);
     }
 
     function refreshImgVertify() {
