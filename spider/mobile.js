@@ -33,7 +33,7 @@ dSpider("mobile", 60 * 6,function(session,env,$) {
             if ($('.all-site-loading div').is(':visible')) {
                 setTimeout(function() {
                     checkSec();
-                },20000);
+                },15000);
                 return;
             } else {
                 xd_check();
@@ -493,7 +493,7 @@ dSpider("mobile", 60 * 6,function(session,env,$) {
             session.set('xd_startTriggerSecVertifiTime', checkTimeObj);
         }
 
-        if (checkTimeObj.oldTime + 60000 < (new Date()).getTime() && checkTimeObj.count == 0) {
+        if (checkTimeObj.oldTime + 59000 < (new Date()).getTime() && checkTimeObj.count == 0) {
             session.log('二次认证一直不出现，刷新一次试试');
             checkTimeObj.count = 60;
             session.set('xd_startTriggerSecVertifiTime', checkTimeObj);
@@ -501,7 +501,7 @@ dSpider("mobile", 60 * 6,function(session,env,$) {
             return;
         }
 
-        if (checkTimeObj.oldTime + 120000 < (new Date()).getTime()) {
+        if (checkTimeObj.oldTime + 119000 < (new Date()).getTime()) {
             session.finish("二次验证请求, 许久没有出现", '', 3);
             return;
         }
