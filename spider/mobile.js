@@ -202,18 +202,19 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
         }, 4000);
     }
 
-    function checkDataRepetition(checkMonth) {
+    function checkDataRepetition(month, fixMonth) {
         //标记上第一个，防止爬取重复
         if ($('#tbody').attr('data-marked') == null) {
             // 新的，可以爬取
             $('#tbody').attr('data-marked', true);
             return true;
         } else {
-            $('#month-data li').eq(checkMonth).click();
+            $('#month-data li').eq(month).click();
             //查看是不是已经有此月份了
             for (var i = 0; i < window.xd_callBill.length; i++) {
+
                 var obj = window.xd_callBill[i];
-                if (obj.calldate.indexOf(fixMonthValue) >= 0) {
+                if (obj.calldate.indexOf(fixMonth) >= 0) {
                     //有此月份
                     window.xd_callBill.pop(obj);
                     break;
@@ -252,7 +253,7 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
         if ($('#tbody').is(':visible')) {
             session.log('有详单记录');
 
-            var check = checkDataRepetition(month);
+            var check = checkDataRepetition(month, fixMonthValue);
             if (check == false) {
                 // 数据爬取重复
                 setTimeout(function () {
