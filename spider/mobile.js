@@ -1,10 +1,14 @@
 dSpider("mobile", 60 * 6,function(session,env,$) {
 
-    //常量
+    // 常量
     var SessionLogTypeNotReporte = -1;  // log不上报
     var SessionProgressMax = 7;         // 最大进度
     var SessionSpiderMonthCount = 3;         // 爬取的月份，6个月为5，最大是5
 
+    // other
+    window.countdown = 60;              // 验证码的倒计时
+
+    // 函数
     function hideElement(element) {
         if (element.length > 0) {
             element.hide();
@@ -26,19 +30,15 @@ dSpider("mobile", 60 * 6,function(session,env,$) {
             window.xd_data = {};
             window.xd_month_progress_count = 0;
 
-            setTimeout(function() {
+            if ($('.all-site-loading div').is(':visible')) {
+                setTimeout(function() {
+                    checkSec();
+                },20000);
+                return;
+            } else {
+                xd_check();
+            }
 
-                // // TODO 测试
-                // window.xd_month_progress_count = 1;
-                // $('#switch-data li').eq(1).click();
-                // $('#month-data li').eq(1).click();
-                //
-                // setTimeout(function() {
-                //     startSpiderMonthData(1, 1);
-                // }, 4000);
-
-                checkSec();
-            },10000);
         } else {
             //等8秒重定向时间
             setTimeout(function() {
@@ -487,24 +487,20 @@ dSpider("mobile", 60 * 6,function(session,env,$) {
     function xd_check() {
         $('#month-data li').eq(0).click();
 
-        var xd_startTriggerSecVertifiTime = session.get('xd_startTriggerSecVertifiTime');
-        var xd_hasFitstSecReload = true;
+        window.xd_startTriggerSecVertifiTime = session.get('xd_startTriggerSecVertifiTime');
 
-        if (!xd_startTriggerSecVertifiTime) {
-            xd_hasFitstSecReload = false;
-            xd_startTriggerSecVertifiTime = (new Date()).getTime();
-            session.set('xd_startTriggerSecVertifiTime', xd_startTriggerSecVertifiTime);
+        if (!window.xd_startTriggerSecVertifiTime) {
+            window.xd_startTriggerSecVertifiTime = (new Date()).getTime();
+            session.set('xd_startTriggerSecVertifiTime', window.xd_startTriggerSecVertifiTime);
         }
 
-        if (xd_startTriggerSecVertifiTime < (new Date()).getTime() - 60000) {
-            if (!xd_hasFitstSecReload) {
-                session.log('二次认证一直不出现，刷新一次试试');
-                location.reload();
-                return;
-            }
+        if (window.xd_startTriggerSecVertifiTime < (new Date()).getTime() - 60000) {
+            session.log('二次认证一直不出现，刷新一次试试');
+            location.reload();
+            return;
         }
 
-        if (window.xd_startTriggerSecVertifiTime < (new Date()).getTime() - 90000) {
+        if (window.xd_startTriggerSecVertifiTime < (new Date()).getTime() - 120000) {
             session.finish("二次验证请求, 许久没有出现", '', 3);
             return;
         }
@@ -913,7 +909,6 @@ dSpider("mobile", 60 * 6,function(session,env,$) {
         }, 1000);
     }
 
-    window.countdown = 60;
     function settime() {
 
         var obj = $('#sendSmsBtn')[0];
