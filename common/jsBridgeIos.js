@@ -26,20 +26,17 @@ function callHandler(){
 
 function DataSession(key) {
     this.key = key;
-    log("start called")
     this.finished=false;
     callHandler("start", {"sessionKey":key})
 }
 
 DataSession.getExtraData = function (f) {
-    log("getExtraData called")
     callHandler("getExtraData", null, function (data) {
         f && f(JSON.parse(data || "{}"))
     })
 }
 
 DataSession.getArguments= function (f) {
-    log("getArguments called")
     callHandler("getArguments", null, function (data) {
         f && f(data)
     })
@@ -68,17 +65,14 @@ DataSession.prototype = {
     },
 
     showProgress: function (isShow) {
-        log("showProgress called")
         isShow=isShow === undefined ? true : !!isShow;
         _resetTimer(isShow)
         callHandler("showProgress", {"show":isShow});
     },
     setProgressMax: function (max) {
-        log("setProgressMax called")
         callHandler("setProgressMax", {"progress":max});
     },
     setProgress: function (progress) {
-        log("setProgress called")
         callHandler("setProgress", {"progress":progress});
     },
     setStartUrl:function(){
@@ -153,13 +147,11 @@ DataSession.prototype = {
         callHandler("log",{"type":type||1,"msg":encodeURIComponent(str)})
     },
     setLocal: function (k, v) {
-        log("save called")
         this.local[k]=v;
         callHandler("save", {"key": this.key, "value": JSON.stringify(this.local)})
     },
 
     getLocal: function (k) {
-        log("read called")
         return this.local[k];
     }
 
