@@ -518,7 +518,7 @@ dSpider("mobile", 60 * 10,function(session,env,$) {
                 return;
             }
             xd_check();
-        }, 6000);
+        }, 15000);
     }
 
     function refreshImgVertify() {
