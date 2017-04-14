@@ -1,7 +1,9 @@
 dSpider("mobile", 60 * 6,function(session,env,$) {
 
     //常量
-    var SessionLogTypeNotReporte = -1;// log不上报
+    var SessionLogTypeNotReporte = -1;  // log不上报
+    var SessionProgressMax = 7;         // 最大进度
+    var SessionSpiderMonthCount = 3;         // 爬取的月份，6个月为5，最大是5
 
     function hideElement(element) {
         if (element.length > 0) {
@@ -18,7 +20,7 @@ dSpider("mobile", 60 * 6,function(session,env,$) {
             //检测是否需要登陆短信
             session.showProgress();
             session.setProgressMsg('认证过程大约需要3分钟，请耐心等待');
-            session.setProgressMax(9);
+            session.setProgressMax(SessionProgressMax);
             window.xd_progressMax = 1;
             session.setProgress(window.xd_progressMax);
             window.xd_data = {};
@@ -285,7 +287,7 @@ dSpider("mobile", 60 * 6,function(session,env,$) {
                 window.xd_progressMax++;
                 session.setProgress(window.xd_progressMax);
                 month++;
-                if (month > 5) {
+                if (month > SessionSpiderMonthCount) {
                     window.xd_month_progress_count++;
                     xdProcessData();
                     return;
@@ -318,7 +320,7 @@ dSpider("mobile", 60 * 6,function(session,env,$) {
             window.xd_progressMax++;
             session.setProgress(window.xd_progressMax);
             month++;
-            if (month > 5) {
+            if (month > SessionSpiderMonthCount) {
                 window.xd_month_progress_count++;
                 xdProcessData();
                 return;
@@ -417,7 +419,7 @@ dSpider("mobile", 60 * 6,function(session,env,$) {
                 window.jQuery("#logout").click();
                 // 超时直接finish
                 setTimeout(function () {
-                    session.setProgress(9);
+                    session.setProgress(SessionProgressMax);
                     session.finish();
                 }, 5000);
             }, 1000);
@@ -979,7 +981,7 @@ dSpider("mobile", 60 * 6,function(session,env,$) {
     // -------------------------------------------
     var hasEndSpider = session.get('xd_hasEndSpider');
     if (hasEndSpider == 1) {
-        session.setProgress(9);
+        session.setProgress(SessionProgressMax);
         session.finish();
     }
 
