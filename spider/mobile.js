@@ -1,4 +1,4 @@
-dSpider("mobile", 60 * 5,function(session,env,$) {
+dSpider("mobile", 60 * 10,function(session,env,$) {
 
     //常量
     var SessionLogTypeNotReporte = -1;// log不上报
@@ -36,9 +36,12 @@ dSpider("mobile", 60 * 5,function(session,env,$) {
                 // }, 4000);
 
                 checkSec();
-            },5000);
+            },10000);
         } else {
-            session.finish("没有进入到爬取页面", '', 3);
+            //等8秒重定向时间
+            setTimeout(function() {
+                session.finish("没有进入到爬取页面", '', 3);
+            },8000);
         }
     }
 
