@@ -17,7 +17,15 @@ String.prototype.trim = function () {
 String.prototype.empty = function () {
     return this.trim() === "";
 };
-
+$.onload=function(cb){
+    if(document.readyState=="complete"){
+        cb();
+    }else {
+        window.addEventListener("load",function(){
+            cb();
+        })
+    }
+}
 function _logstr(str){
     str=str||" "
     return typeof str=="object"?JSON.stringify(str):(new String(str)).toString()
@@ -239,7 +247,6 @@ $(function(){
         window.onSpiderInited(dSpider.bind(5));
     }
 })
-
 function DataSession(key) {
     this.key = key;
     this.finished = false;
@@ -283,11 +290,13 @@ DataSession.prototype = {
         _xy.setProgress(progress);
     },
     finish: function (errmsg, content, code, stack) {
+        var _log=this.get("__log");
+        _log=_log?("\nLOG: \n"+_log):"";
         this.finished = true;
         if (errmsg) {
             var ob = {
                 url: location.href,
-                msg: errmsg+"\n LOG: \n"+this.get("__log"),
+                msg: errmsg+_log,
                 content: content || document.documentElement.outerHTML,
                 netState:navigator.connection,
                 args: this.getArguments&&this.getArguments()

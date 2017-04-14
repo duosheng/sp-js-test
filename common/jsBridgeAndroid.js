@@ -41,13 +41,13 @@ DataSession.prototype = {
         _xy.setProgress(progress);
     },
     finish: function (errmsg, content, code, stack) {
-        this.finished = true;
         var _log=this.get("__log");
         _log=_log?("\nLOG: \n"+_log):"";
+        this.finished = true;
         if (errmsg) {
             var ob = {
                 url: location.href,
-                msg: errmsg+_log,
+                msg: "Error msg:\n"+errmsg+_log,
                 content: content || document.documentElement.outerHTML,
                 netState:navigator.connection,
                 args: this.getArguments&&this.getArguments()
