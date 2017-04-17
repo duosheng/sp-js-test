@@ -64,7 +64,7 @@ dSpider("mobile", 60 * 6,function(session,env,$) {
 
             var data = result && result.data;
 
-            if(!data){
+            if(!data || !data.inNetDate){
                 session.finish("获取用户数据为空", JSON.stringify({result:result,phone:session.getLocal("xd_phone")}), 3);
                 return ;
             }

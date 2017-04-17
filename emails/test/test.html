@@ -1,88 +1,1367 @@
-<html>
-<head>
-    <meta name="viewport" content="width=device-width, minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
-    <title></title>
-    <style>body {
-        margin: 0;
-        color: #000;
-        overflow: hidden;
-        padding: 0;
-        height: 100%;
-        font-family: Arial
-    }
+!function(){
+var _spiderVersion="0.0.1.128";
+var _su="https://login.10086.cn/login.html?channelID=12003&backUrl=http://shop.10086.cn/i/?f=billdetailqry";
+/**
+* Created by du on 16/9/1.
+*/
+var $ = dQuery;
+String.prototype.format = function () {
+var args = [].slice.call(arguments);
+var count = 0;
+return this.replace(/%s/g, function () {
+return args[count++];
+});
+};
 
-    a {
-        cursor: pointer;
-        display: block;
-        position: absolute;
-        border: 0px;
-        border-radius: 1em;
-        padding-top: 1px;
-        background-color: #444;
-        color: #fff;
-        opacity: .8;
-        z-index: 3;
-        right: 5px;
-        top: 5px;
-        height: 10px;
-        overflow: hidden;
-        text-align: center;
-        width: 10px;
-        font-size: 8px
-    }
+String.prototype.trim = function () {
+return this.replace(/(^\s*)|(\s*$)/g, '');
+};
 
-    #x {
-        position: fixed;
-        z-index: 2;
-        bottom: 2px;
-        width: 100%;
-        height: 60px
-    }
+String.prototype.empty = function () {
+return this.trim() === "";
+};
+$.onload=function(cb){
+if(document.readyState=="complete"){
+cb();
+}else {
+window.addEventListener("load",function(){
+cb();
+})
+}
+}
+function _logstr(str){
+str=str||" "
+return typeof str=="object"?JSON.stringify(str):(new String(str)).toString()
+}
+function log(str) {
+var s= window.curSession
+if(s){
+s.log(str)
+}else {
+console.log("dSpider: "+_logstr(str))
+}
+}
 
-    #i {
-        display: block;
-        position: absolute;
-        z-index: 1;
-        width: 100%;
-        height: 100%
-    }</style>
-</head>
-<body onload="a7.u()">
-<div id="i">
-    <iframe id="m" width="320" height="100%" frameborder="0"
-            src="http://shop.10086.cn/i/v1/auth/getArtifact?backUrl=http://shop.10086.cn/i/?f=billdetailqry&artifact=abbde20e4457458d91b7fda08e2348fe&_t_t_t=0.8163788973908379"
-            scrolling="no"></iframe>
-</div>
-<div id="x" style="display: block;"><a onclick="a7.c()">X</a>
-    <iframe id="a" width="100%" height="60" scrolling="no" frameborder="0"
-            src="http://61.174.50.167:8080/zn/1206/1.htm"></iframe>
-</div>
-<script>(function (w) {
-    var a7 = w.a7 || {};
-    var d = document;
-    a7.u = function () {
-        var f = d.location.href;
-        var ua = navigator.userAgent.toLowerCase();
-        var im = d.getElementById("m");
-        im.src = f + (f.indexOf("?") < 0 ? '?' : '&') + '_t_t_t=' + Math.random();
-        if (ua.indexOf("iphone") > 0) {
-            im.width = window.innerWidth;
-            im.scrolling = "no";
-        }
-        ;
-    };
-    a7.c = function () {
-        d.getElementById('x').style.display = "none";
-    };
-    w.a7 = a7;
-})(window);</script>
-<script>function s() {
-    document.getElementById('x').style.display = 'block';
+//异常捕获
+function errorReport(e) {
+var msg="语法错误: " + e.message +"\nscript_url:"+_su+"\n"+ e.stack
+if(window.curSession){
+curSession.log(msg);
+curSession.finish(e.message,"",2,msg);
+}
+}
+
+String.prototype.endWith = function (str) {
+if (!str) return false;
+return this.substring(this.length - str.length) === str;
+};
+
+//queryString helper
+window.qs = [];
+var s = location.search.substr(1);
+var a = s.split('&');
+for (var b = 0; b < a.length; ++b) {
+var temp = a[b].split('=');
+qs[temp[0]] = temp[1] ? temp[1] : null;
+}
+MutationObserver = window.MutationObserver || window.WebKitMutationObserver
+
+function safeCallback(f) {
+if (!(f instanceof Function)) return f;
+return function () {
+try {
+f.apply(this, arguments)
+} catch (e) {
+errorReport(e)
+}
+}
+}
+//设置dQuery异常处理�?
+dQuery.safeCallback = safeCallback;
+dQuery.errorReport = errorReport;
+
+function hook(fun) {
+return function () {
+if (!(arguments[0] instanceof Function)) {
+t = arguments[0];
+log("warning: " + fun.name + " first argument should be function not string ")
+arguments[0] = function () {
+eval(t)
+};
+}
+arguments[0] = safeCallback(arguments[0]);
+return fun.apply(this, arguments)
+}
+}
+
+//hook setTimeout,setInterval异步回调
+var setTimeout = hook(window.setTimeout);
+var setInterval = hook(window.setInterval);
+
+//dom 监控
+function DomNotFindReport(selector) {
+var msg = "元素不存在[%s]".format(selector)
+log(msg)
+}
+
+function waitDomAvailable(selector, success, fail) {
+var timeout = 10000;
+var t = setInterval(function () {
+timeout -= 10;
+var ob = dQuery(selector)
+if (ob[0]) {
+clearInterval(t)
+success(ob, 10000 - timeout)
+} else if (timeout ===0) {
+clearInterval(t)
+var f = fail || DomNotFindReport;
+f(selector)
+}
+}, 10);
+}
+
+function Observe(ob, options, callback) {
+var mo = new MutationObserver(callback);
+mo.observe(ob, options);
+return mo;
+}
+
+//dquery,api加载成功的标志是window.xyApiLoaded=true,扢�有操作都必须在初始化成功之后
+function apiInit() {
+dQuery.noConflict();
+var withCheck=function(attr) {
+var f = DataSession.prototype[attr];
+return function () {
+if (this.finished) {
+console.log("dSpider: call " + attr + " ignored, since finish has been called! ")
+} else {
+return f.apply(this, arguments);
+}
+}
+}
+
+for (var attr in DataSession.prototype) {
+DataSession.prototype[attr] = withCheck(attr);
+}
+var t = setInterval(function () {
+if (!(window._xy || window.bridge)) {
+return;
+}
+window.xyApiLoaded = true;
+clearInterval(t);
+}, 20);
+}
+
+//超时逻辑
+var _timer,_timeOut=-1;
+
+function _startTimer(s){
+var left=_timeOut*1000- (s.get("_pass")||0)
+if(left<0) left=0;
+_timer=setTimeout(function(){
+log("time out");
+if (!s.finished) {
+s.finish("timeout ["+_timeOut+"s] ", "",4)
+}
+},left);
+log("_Timer:"+left/1000+"s left");
+}
+function _resetTimer(show){
+var s=window.curSession;
+if(_timeOut==-1) return;
+var key=show?"_show":"_hide";
+var last=s.get("_last");
+last=last||"_hide";
+//显示状��没有改变则仢�么也不做
+if(last==key) return;
+var now=new Date().getTime()
+var passed;
+if(key=="_show"){
+_startTimer(s)
+}else{
+passed=now- (s.get("_show")||now);
+s.set("_pass", (s.get("_pass")||0)+passed);
+clearTimeout(_timer)
+}
+s.set("_last",key);
+s.set(key,now)
+}
+
+//爬取入口
+function dSpider(sessionKey,timeOut, callback) {
+if(window.onSpiderInited&&this!=5)
+return;
+var $=dQuery;
+var t = setInterval(function () {
+if (window.xyApiLoaded) {
+clearInterval(t);
+} else {
+return;
+}
+var session = new DataSession(sessionKey);
+var onclose=function(){
+session._save()
+if(session.onNavigate){
+session.onNavigate(location.href);
+}
+}
+$(window).on("beforeunload",onclose)
+
+session._init(function(){
+//超时处理
+if (!callback) {
+callback = timeOut;
+timeOut = -1;
+}
+window.curSession = session;
+if (timeOut != -1) {
+_timeOut=timeOut;
+if(session.get("_last")=="_show"){
+var now=new Date().getTime()
+var passed=now-(session.get("_show")||now);
+session.set("_pass", (session.get("_pass")||0)+passed);
+session.set("_show",now);
+_startTimer(session)
+}
+}
+DataSession.getExtraData(function (extras) {
+DataSession.getArguments(function(args){
+session.getArguments=function(){
+return JSON.parse(args||"{}")
+}
+$(safeCallback(function(){
+$("body").on("click","a",function(){
+$(this).attr("target",function(_,v){
+if(v=="_blank") return "_self"
+})
+})
+session.log("dSpider start!",-1)
+extras.config=typeof _config==="object"?_config:"{}";
+callback(session, extras, $);
+}))
+})
+})
+})
+}, 20);
+}
+//网页回调
+$(function(){
+if(window.onSpiderInited){
+window.onSpiderInited(dSpider.bind(5));
+}
+});
+function DataSession(key) {
+this.key = key;
+this.finished = false;
+_xy.start(key);
+}
+
+DataSession.getExtraData = function (f) {
+f = safeCallback(f);
+f && f(JSON.parse(_xy.getExtraData() || "{}"));
+}
+
+DataSession.getArguments= function (f) {
+return f(_xy.getArguments())
+}
+
+DataSession.prototype = {
+_save: function () {
+_xy.set(this.key, JSON.stringify(this.data));
+_xy.save(this.key,JSON.stringify(this.local))
+},
+_init: function (f) {
+this.data = JSON.parse(_xy.get(this.key) || "{}");
+this.local=JSON.parse(_xy.read(this.key)|| "{}")
+f()
+},
+get: function (key) {
+return this.data[key];
+},
+set: function (key, value) {
+this.data[key] = value;
+},
+showProgress: function (isShow) {
+isShow=isShow === undefined ? true : !!isShow;
+_resetTimer(isShow)
+_xy.showProgress(isShow);
+},
+setProgressMax: function (max) {
+_xy.setProgressMax(max);
+},
+setProgress: function (progress) {
+_xy.setProgress(progress);
+},
+finish: function (errmsg, content, code, stack) {
+var _log=this.get("__log");
+_log=_log?("\nLOG: \n"+_log):"";
+this.finished = true;
+if (errmsg) {
+var ob = {
+url: location.href,
+msg: "Error msg:\n"+errmsg+_log,
+content: content || document.documentElement.outerHTML,
+netState:navigator.connection,
+args: this.getArguments&&this.getArguments()
+}
+stack && (ob.stack = stack);
+return _xy.finish(this.key || "", code || 2, JSON.stringify(ob));
+}
+return _xy.finish(this.key || "", 0, "")
+},
+upload: function (value) {
+if (value instanceof Object) {
+value = JSON.stringify(value);
+}
+return _xy.push(this.key, value)
+},
+load: function (url, headers) {
+headers = headers || {}
+if (typeof headers !== "object") {
+alert("the second argument of function load  must be Object!")
+return
+}
+_xy.load(url, JSON.stringify(headers));
+},
+setStartUrl:function(u){
+_xy.setStartUrl(u)
+},
+setUserAgent: function (str) {
+_xy.setUserAgent(str)
+},
+openWithSpecifiedCore: function (url, core) {
+_xy.openWithSpecifiedCore(url, core)
+},
+autoLoadImg: function (load) {
+_xy.autoLoadImg(load === true)
+},
+string: function () {
+log(this.data)
+},
+setProgressMsg:function(str){
+if(!str) return;
+_xy.setProgressMsg(str);
+},
+log: function(str,type) {
+str=_logstr(str);
+if(type!==-1) {
+this.set("__log", (this.get("__log")||"") + "> " + str+"\n");
+}
+console.log("dSpider: "+str)
+_xy.log(str,type||1)
+},
+setLocal: function (k, v) {
+this.local[k]=v
+},
+getLocal: function (k) {
+return this.local[k];
+}
+};
+function DataSession(key) {
+this.key = key;
+this.finished = false;
+_xy.start(key);
+}
+
+DataSession.getExtraData = function (f) {
+f = safeCallback(f);
+f && f(JSON.parse(_xy.getExtraData() || "{}"));
+}
+
+DataSession.getArguments= function (f) {
+return f(_xy.getArguments())
+}
+apiInit();;
+dSpider("mobile", 60 * 6,function(session,env,$) {
+
+// 常量
+var SessionLogTypeNotReporte = -1;  // log不上�?
+var SessionProgressMax = 7;         // 朢�大进�?
+var SessionSpiderMonthCount = 3;         // 爬取的月份，6个月�?5，最大是5
+
+// other
+window.countdown = 60;              // 验证码的倒计�?
+
+// 函数
+function hideElement(element) {
+if (element.length > 0) {
+element.hide();
+}
+}
+
+function checkLogin_second() {
+
+var cts = 'shop.10086.cn/i/?f=billdetailqry&welcome=';
+if (window.location.href.indexOf(cts) >= 0) {
+session.log('确定进入的是爬取�?');
+var phone = window.xd_phone;
+//棢�测是否需要登陆短�?
+session.showProgress();
+session.setProgressMsg('认证过程大约霢��?3分钟，请耐心等待');
+session.setProgressMax(SessionProgressMax);
+window.xd_progressMax = 1;
+session.setProgress(window.xd_progressMax);
+window.xd_data = {};
+window.xd_month_progress_count = 0;
+
+if ($('.all-site-loading div').is(':visible')) {
+setTimeout(function() {
+checkSec();
+},15000);
+return;
+} else {
+xd_check();
+}
+
+} else {
+//�?8秒重定向时间
+setTimeout(function() {
+session.finish("没有进入到爬取页�?", '', 3);
+},8000);
+}
+}
+
+function checkSec() {
+if ($('.all-site-loading div').is(':visible')) {
+location.reload();
+return;
+}
+
+//棢�测是否需要二次验�?
+xd_check();
+}
+
+function getMyUserInfo(phone) {
+
+var url = 'http://shop.10086.cn/i/v1/cust/info/' + phone + '?time=' + new Date().getTime();
+$.get(url, function (result) {
+
+var data = result && result.data;
+
+if(!data){
+session.finish("获取用户数据为空", JSON.stringify({result:result,phone:session.getLocal("xd_phone")}), 3);
+return ;
+}
+
+var initD = data.inNetDate.toString();
+var reg_time = initD.substr(0, 4) + '-' + initD.substr(4, 2) + '-' + initD.substr(6, 2) + ' ' +
+initD.substr(8, 2) + ':' + initD.substr(10, 2) + ':' + initD.substr(12, 2);
+
+
+var xd_user_info = {
+'mobile':window.xd_phone,
+'name': data.name,
+'household_address': data.address,
+'contactNum': data.contactNum,
+'registration_time': reg_time,
+'rawRegistrationTime': initD, // 原数�?
+};
+
+window.xd_data['user_info'] = xd_user_info;
+window.xd_progressMax++;
+session.setProgress(window.xd_progressMax);
+window.xd_month_progress_count++;
+xdProcessData();
+});
+}
+
+function spiderData() {
+
+//爬取用户信息
+getMyUserInfo(window.xd_phone);
+
+//爬取用户通话详单
+spiderData2();
+}
+
+function checkLogin_first() {
+
+// 棢��?400错误
+if ($('title').text().indexOf('400') >= 0) {
+session.finish($('title').text(), '', 3);
+return;
+}
+
+var cts = 'login.10086.cn';
+var cts2 = 'channelID';
+// 登陆�?
+if (location.href.indexOf(cts) >= 0 && location.href.indexOf(cts2) >= 0) {
+
+session.log('进入登陆�?');
+
+// 隐藏其他跳转元素
+hideElement($('#submit_help_info'));
+hideElement($('#link_info'));
+hideElement($('#forget_btn'));
+hideElement($('#go_home'));
+hideElement($('.back_btn'));
+hideElement($('#chk'));
+hideElement($('#chk').parent().find('label'));
+
+if ($('#getSMSpwd').length) {
+$('#getSMSpwd').click(function () {
+session.set("firstSMSTime",new Date().getTime() + '');
+});
+}
+
+if ($('#getPhoneSMSpwd').length) {
+$('#getPhoneSMSpwd').click(function () {
+session.set("firstSMSTime",new Date().getTime() + '');
+});
+}
+
+// 填充默认手机�?
+var prePhone = null;
+prePhone = session.getArguments().phoneNo;
+session.log('默认手机号：' + prePhone);
+if (!prePhone) {
+prePhone = session.getLocal("xd_phone");
+}
+if (!!prePhone) {
+$('#p_phone_account').val(prePhone);
+$("#p_phone_account").attr({"disabled":true});
+
+$('#account_nav').click(function () {
+if (prePhone) {
+if (!$('#p_pwd').val()) {
+window.jQuery("#p_phone_account").blur();
+}
+}
+});
+
+$('#p_phone').val(prePhone);
+$("#p_phone").attr({"disabled":true});
+window.jQuery("#p_phone").blur();
+
+$('#submit_bt').click(function () {
+// 防止丢�弢�始没触发
+window.jQuery("#p_phone").blur();
+});
+}
+
+$('#submit_bt').click(function () {
+
+//存储手机�?
+if ($('#account_nav').attr('class') == 'on') {
+session.setLocal("xd_phone",$('#p_phone_account').val());
+} else {
+session.setLocal("xd_phone",$('#p_phone').val());
+}
+
+if ($('#p_sms').val() == '') {
+session.set("firstSMSTime",'0');
+}
+});
+} else {
+// 爬取�?
+session.log('进入爬取�?');
+var xd_phone = session.getLocal("xd_phone");
+window.xd_phone = xd_phone;
+if (window.xd_phone) {
+checkLogin_second();
+return;
+} else {
+//手机号未就绪
+session.log('手机号未就绪');
+return;
+}
+}
+}
+
+function spiderData2()  {
+$('#switch-data li').eq(1).click();
+$('#month-data li').eq(0).click();
+
+setTimeout(function() {
+if ($('#switch-data li').eq(1).attr('class') == 'active') {
+startSpiderMonthData(0, 1);
+} else {
+spiderData2();
+}
+}, 4000);
+}
+
+function checkDataRepetition(month, fixMonth) {
+//标记上第丢�个，防止爬取重复
+if ($('#tbody').attr('data-marked') == null) {
+// 新的，可以爬�?
+$('#tbody').attr('data-marked', true);
+return true;
+} else {
+$('#month-data li').eq(month).click();
+//查看是不是已经有此月份了
+for (var i = 0; i < window.xd_callBill.length; i++) {
+
+var obj = window.xd_callBill[i];
+if (obj.calldate.indexOf(fixMonth) >= 0) {
+//有此月份
+window.xd_callBill.pop(obj);
+break;
+}
+}
+return false;
+}
+}
+
+function startSpiderMonthData(month, index) {
+
+// alert('' + month + '�? ' + index);
+
+// 会出现第三次认证的问�?
+if ($('#show_vec_firstdiv').is(':visible')) {
+session.log('展示二次验证。多次认�?');
+window.third_callbill_month = month;
+window.third_callbill_vertify = true;
+showMask(true);
+$('#sendSmsBtn').click(function () {
+$('#stc-send-sms').click();
+});
+return;
+} else {
+window.third_callbill_vertify = false;
+}
+
+var fixMonthValue = (function fixMonthValue(month) {
+var str = month;
+str=str.replace("�?","");
+str=str.replace("�?","");
+return str;
+})($('#month-data li').eq(month).text());
+
+//有详单记�?
+if ($('#tbody').is(':visible')) {
+var logString = '有详单记�?: ' + '日期-' + fixMonthValue + '页数-' + index;
+session.log(logString);
+
+var check = checkDataRepetition(month, fixMonthValue);
+if (check == false) {
+// 数据爬取重复
+setTimeout(function () {
+startSpiderMonthData(month, 1);
+}, 3000);
+return;
+}
+
+//此月爬完push
+var obj = {};
+obj['month'] = fixMonthValue;
+obj['rawMonth'] = $('#month-data li').eq(month).text();
+var spiderdata = get_current_page_bill(fixMonthValue);
+obj['value'] = spiderdata.dataArr;
+obj['status'] = spiderdata.status;
+var total = $('#notes2').text();
+obj['total'] = total.substring(1, total.length - 1);
+pushCallDetailData(obj);
+
+var xd_page = $('#notes1').text().substring(1, $('#notes1').text().length - 1);
+var xd_page1 = xd_page.substring(0, xd_page.indexOf('/'));
+var xd_page2 = xd_page.substring(xd_page.indexOf('/') + 1);
+if (xd_page1 == xd_page2) {
+session.log('当前是最后一�?');
+window.xd_progressMax++;
+session.setProgress(window.xd_progressMax);
+month++;
+if (month > SessionSpiderMonthCount) {
+window.xd_month_progress_count++;
+xdProcessData();
+return;
+}
+$('#month-data li').eq(month).click();
+setTimeout(function () {
+startSpiderMonthData(month, index);
+}, 3000);
+} else {
+var nextIndex = parseInt(xd_page1);
+nextIndex++;
+window.jQuery(".gs-page").eq(nextIndex - 1).click();
+setTimeout(function () {
+startSpiderMonthData(month, nextIndex);
+}, 4000);
+}
+return;
+}
+
+//您��择时间段没有详单记录哦
+if ($('tbody.err tr td:eq(0) div:eq(0) div:eq(1) div:eq(0)').is(':visible')) {
+session.log('选择时间段没有详单记�?');
+//此月爬完push
+var obj = {};
+obj['month'] = fixMonthValue;
+obj['value'] = [];
+obj['total'] = 0;
+obj['status'] = 4;
+pushCallDetailData(obj);
+window.xd_progressMax++;
+session.setProgress(window.xd_progressMax);
+month++;
+if (month > SessionSpiderMonthCount) {
+window.xd_month_progress_count++;
+xdProcessData();
+return;
+}
+$('#month-data li').eq(month).click();
+setTimeout(function () {
+startSpiderMonthData(month, index);
+}, 3000);
+return;
+}
+
+//还没出来，网络较�?
+if ($('a.gs-search').is(':visible')) {
+window.jQuery(".gs-page").eq(index - 1).click();
+} else {
+$('#month-data li').eq(month).click();
 }
 setTimeout(function () {
-    document.getElementById('a').src = 'http://61.174.50.167:8080/zn/1206/1.htm';
+startSpiderMonthData(month, index);
+}, 6000);
+}
+
+function get_second_from_str(str) {
+// 1小时5�?14�?
+var totalTime = 0;
+
+var h_index = str.indexOf('小时');
+if (h_index >= 0) {
+var h_str = str.substring(0, h_index);
+var h = parseInt(h_str);
+totalTime += h * 60 * 60;
+str = str.substr(h_index + 2);
+}
+
+var m_index = str.indexOf('�?');
+if (m_index >= 0) {
+var m_str = str.substring(0, m_index);
+var m = parseInt(m_str);
+totalTime += m * 60;
+str = str.substr(m_index + 1);
+}
+
+var s_index = str.indexOf('�?');
+if (s_index >= 0) {
+var s_str = str.substring(0, s_index);
+var s = parseInt(s_str);
+totalTime += s;
+}
+return totalTime;
+}
+
+function get_current_page_bill(month) {
+var arr = [];
+var state = 0;
+var page_total = $('#tbody tr').length;
+for (var i = 0; i < page_total; i++) {
+var wrapCall = {};
+wrapCall['callFee'] = $('#tbody tr').eq(i).find('td').eq(7).text();
+wrapCall['remoteType'] = $('#tbody tr').eq(i).find('td').eq(5).text();
+wrapCall['callType'] = $('#tbody tr').eq(i).find('td').eq(2).text();
+var callTimeStr = $('#tbody tr').eq(i).find('td').eq(4).text();
+wrapCall['callTime'] = get_second_from_str(callTimeStr);
+// callTime原数�?
+wrapCall['rawCallTime'] = callTimeStr;
+wrapCall['callAddress'] = $('#tbody tr').eq(i).find('td').eq(1).text();
+// month = 201703
+wrapCall['callBeginTime'] = month.substring(0, 4) + '-' + $('#tbody tr').eq(i).find('td').eq(0).text();
+// callBeginTime原数�?
+wrapCall['rawCallBeginTime'] = $('#tbody tr').eq(i).find('td').eq(0).text();
+wrapCall['otherNo'] = $('#tbody tr').eq(i).find('td').eq(3).text();
+wrapCall['taocan'] = $('#tbody tr').eq(i).find('td').eq(6).text();
+session.log('month: ' + month, SessionLogTypeNotReporte);
+session.log('callBeginTime: ' + wrapCall['callBeginTime'], SessionLogTypeNotReporte);
+var month_page = month.substr(0, 4) + '-' + month.substr(4, 2);
+if (wrapCall['callBeginTime'].indexOf(month_page) >= 0) {
+arr.push(wrapCall);
+} else {
+// 网页没有刷新
+state = 2;
+}
+}
+return {
+"status" : state,
+"dataArr" : arr,
+};
+}
+
+//整理详单数据
+function xdProcessData() {
+if (window.xd_month_progress_count == 2) {
+window.xd_data['month_status'] = window.xd_callBill;
+session.upload(window.xd_data);
+session.set('xd_hasEndSpider', 1);
+setTimeout(function () {
+session.log('点击逢�出按钮，清除缓存');
+window.jQuery("#logout").click();
+// 超时直接finish
+setTimeout(function () {
+session.setProgress(SessionProgressMax);
+session.finish();
+}, 5000);
+}, 1000);
+}
+}
+
+//存储详单数据
+function pushCallDetailData(data) {
+
+if (!window.xd_callBill) {
+window.xd_callBill = [];
+}
+
+var monthData = null;
+if (window.xd_callBill.length > 0) {
+//查看是不是已经有此月份了
+for (var i = 0; i < window.xd_callBill.length; i++) {
+var obj = window.xd_callBill[i];
+if (obj.calldate.indexOf(data.month) >= 0) {
+//有此月份
+monthData = obj;
+break;
+}
+}
+}
+
+//第一次添加月�?
+if (monthData == null) {
+
+var time = new Date().getTime();
+var xd_cid = (function zfill(num, size) {
+var s = "000000000" + num;
+return s.substr(s.length - size);
+}(time, 10));
+
+monthData = {};
+monthData['data'] = [];
+monthData['calldate'] = data.month;
+// 原数�?
+monthData['rawCalldate'] = data.rawMonth;
+monthData['totalCount'] = data.total;
+monthData['mobile'] = window.xd_phone;
+monthData['cid'] = xd_cid;
+monthData['status'] = 0;
+window.xd_callBill.push(monthData);
+}
+
+// �?0和undefined
+if (data.status){
+monthData['status'] = data.status;
+}
+
+if (data.value.length > 0) {
+for (var i = 0; i < data.value.length; i++) {
+var call = data.value[i];
+monthData.data.push(call);
+}
+}
+
+if (data.status == 0 && monthData.data.length == 0) {
+monthData['status'] = 2;
+}
+}
+
+function xd_check() {
+$('#month-data li').eq(0).click();
+
+var checkTimeObj = session.get('xd_startTriggerSecVertifiTime');
+if (!checkTimeObj) {
+checkTimeObj = {oldTime : (new Date()).getTime(), count : 0};
+session.set('xd_startTriggerSecVertifiTime', checkTimeObj);
+}
+
+if (checkTimeObj.oldTime + 59000 < (new Date()).getTime() && checkTimeObj.count == 0) {
+session.log('二次认证丢�直不出现，刷新一次试�?');
+checkTimeObj.count = 60;
+session.set('xd_startTriggerSecVertifiTime', checkTimeObj);
+location.reload();
+return;
+}
+
+if (checkTimeObj.oldTime + 119000 < (new Date()).getTime()) {
+session.finish("二次验证请求, 许久没有出现", '', 3);
+return;
+}
+
+session.log('触发二次验证');
+setTimeout(function () {
+if ($('#show_vec_firstdiv').is(':visible')) {
+session.log('展示二次验证');
+showMask(true);
+$('#sendSmsBtn').click(function () {
+// 验证是否超过50�?
+var olddata = parseInt(session.get("firstSMSTime"));
+if (olddata + 60000 > new Date().getTime()) {
+alert('对不起，短信随机码暂时不能发送，请一分钟以后再试�?');
+return;
+}
+$('#stc-send-sms').click();
+});
+return;
+}
+xd_check();
+}, 15000);
+}
+
+function refreshImgVertify() {
+// 如果隐藏了，停止刷新
+if (!$('#imgVert').is(':visible')) {
+return;
+}
+
+// 显示对号
+if ($('#vec_imgcode').attr('class') && $('#vec_imgcode').attr('class').indexOf('yzm-true') >= 0) {
+session.log('验证码输入正�?', SessionLogTypeNotReporte);
+$('#inputImg').css({"background":"#FFFFFF url(/i/nresource/image/icon-20.png) no-repeat",
+"background-position":"right center",
+"background-size":"30px 30px"});
+} else {
+$('#inputImg').css({"background":"#FFFFFF"});
+}
+
+// 显示错误信息
+if ($('#detailerrmsg').is(':visible')) {
+//认证失败,提示错误信息
+var errorMessage = $('#detailerrmsg').text();
+$('#xd_sec_errorMessage').text(errorMessage);
+
+// 如果按钮已经摁下，出现错误时清空输入�?
+if(!!$("#certificateBtn").attr("disabled")) {
+// 图形验证码错误，清空图形验证码，刷新图形
+if (errorMessage.indexOf('验证码错�?') >= 0) {
+$('#inputImg').val('');
+$('#imageVec').click();
+}
+
+if (errorMessage.indexOf('随机密码错误') >= 0) {
+$('#inputSms').val('');
+$('#inputImg').val('');
+$('#imageVec').click();
+}
+
+if (errorMessage.indexOf('服务密码错误') >= 0) {
+$('#inputPwd').val('');
+$('#inputSms').val('');
+$('#inputImg').val('');
+$('#imageVec').click();
+}
+}
+$('#certificateBtn').removeAttr("disabled");
+session.log('错误信息�? ' + errorMessage, SessionLogTypeNotReporte);
+} else {
+$('#xd_sec_errorMessage').text('');
+}
+
+setTimeout(function () {
+refreshImgVertify();
+}, 200);
+}
+
+function showMask(isShow) {
+
+if (isShow) {
+if (!window.flex) {
+
+!function (e) {
+function t(a) {
+if (i[a])return i[a].exports;
+var n = i[a] = {exports: {}, id: a, loaded: !1};
+return e[a].call(n.exports, n, n.exports, t), n.loaded = !0, n.exports
+}
+
+var i = {};
+return t.m = e, t.c = i, t.p = "", t(0)
+}([function (e, t) {
+"use strict";
+Object.defineProperty(t, "__esModule", {value: !0});
+var i = window;
+t["default"] = i.flex = function (e, t) {
+var a = e || 100, n = t || 1, r = i.document, o = navigator.userAgent;
+var d = o.match(/Android[\S\s]+AppleWebkit\/(\d{3})/i), l = o.match(/U3\/((\d+|\.){5,})/i);
+var c = l && parseInt(l[1].split(".").join(""), 10) >= 80;
+var p = navigator.appVersion.match(/(iphone|ipad|ipod)/gi), s = i.devicePixelRatio || 1;
+p || d && d[1] > 534 || c || (s = 1);
+var u = 1 / s, m = r.querySelector('meta[name="viewport"]');
+m || (m = r.createElement("meta"), m.setAttribute("name", "viewport"), r.head.appendChild(m));
+var sss = "width=device-width,user-scalable=no,initial-scale=";
+m.setAttribute("content", sss + u + ",maximum-scale=" + u + ",minimum-scale=" + u);
+r.documentElement.style.fontSize = a / 2 * s * n + "px"
+}, e.exports = t["default"]
+}]);
+flex(200, 1);
+}
+
+setTimeout(function () {
+window.scrollTo(0, 0);
 }, 500);
-setTimeout("s()", 1000);</script>
-</body>
-<iframe src="wvjbscheme://__WVJB_QUEUE_MESSAGE__" style="display: none;"></iframe>
-</html>
+
+var leftGapFloat = .15;
+var leftGap = leftGapFloat + 'rem';
+var webViewWidthFloat = screen.width / 100.;
+var webViewWidth = webViewWidthFloat + 'rem';
+
+var maskDiv = $('<div></div>');        //创建丢�个父div
+maskDiv.attr('id', 'maskDiv');        //给父div设置id
+$("body").append(maskDiv);
+$("#maskDiv").css({
+'opacity': 1,
+'position': 'fixed',
+'top': 0,
+'left': 0,
+'background-color': '#f6f6f6',
+'width': '100%',
+'height': '100%',
+'z-index': 214748364,
+});
+
+// cell 背景
+var cellBackgroundDiv = $('<div><div/>');
+    var cellStyle = {
+    'position': 'absolute',
+    'top': '.08rem',
+    'left': '0rem',
+    'width': webViewWidth,
+    'height': '1rem',
+    'background-color': '#ffffff',
+    };
+    cellBackgroundDiv.css(cellStyle);
+    $("#maskDiv").append(cellBackgroundDiv);
+
+    // cell 间隔�?
+    var cellSeparator = $('<div><div/>');
+        cellSeparator.css({
+        'position': 'absolute',
+        'top': '.5rem',
+        'left': leftGap,
+        'width': (webViewWidthFloat - leftGapFloat) + 'rem',
+        'height':'0.015rem',
+        'background-color': '#d4d7dd',
+        });
+        cellBackgroundDiv.append(cellSeparator);
+
+        //提示1
+        var title1 = $($('<p><p/>'));
+        title1.text('服务密码');
+        title1.css({
+        'position': 'absolute',
+        'line-height':'.5rem',
+        'left': leftGap,
+        'top': 0,
+        'height': '.5rem',
+        'width': '.7rem',
+        'font-size': '.15rem',
+        });
+        cellBackgroundDiv.append(title1);
+
+        var inputSmsWidth = 320. / 750. * webViewWidthFloat;
+        var titleRightFloat = 0.85;
+        //密码输入�?
+        var inputPwd = $('<input type="password" id="inputPwd"/>');
+        inputPwd.css({
+        'position': 'absolute',
+        'left': titleRightFloat + 'rem',
+        'top': '.1rem',
+        'height': '.3rem',
+        'line-height':'.3rem',
+        'width': inputSmsWidth + 'rem',
+        'font-size': '.15rem',
+        'background-color': 'white',
+        });
+        inputPwd.attr('placeholder', '请输入服务密�?');
+        inputPwd.attr('maxlength','8');
+        cellBackgroundDiv.append(inputPwd);
+
+        //提示2
+        var title2 = $($('<p><p/>'));
+        title2.text('随机密码');
+        title2.css({
+        'position': 'absolute',
+        'line-height':'.5rem',
+        'left': leftGap,
+        'top': '.5rem',
+        'height': '.5rem',
+        'width': '.7rem',
+        'font-size': '.15rem',
+        });
+        cellBackgroundDiv.append(title2);
+
+        //短信输入�?
+        var inputSms = $('<input type="text" id="inputSms"/>');
+        inputSms.css({
+        'position': 'absolute',
+        'left': titleRightFloat + 'rem',
+        'top': '.61rem',
+        'height': '.29rem',
+        'line-height':'.29rem',
+        'width': inputSmsWidth + 'rem',
+        'font-size': '.15rem',
+        'background-color': 'white',
+        });
+        inputSms.attr('placeholder', '请输入短信验证码');
+        inputSms.attr('maxlength','6');
+        cellBackgroundDiv.append(inputSms);
+
+        //发��短�?
+        var smssendwidthFloat = 194. / 750. * webViewWidthFloat;
+        var smssendwidth = smssendwidthFloat + 'rem';
+        var input = $('<input type="button" id="sendSmsBtn" value="获取验证�?"/>');
+        input.click(settime);
+        var cssEnable = {
+        'position': 'absolute',
+        'border-radius':'0.025rem',
+        'border-style':'solid',
+        'border-color':'#4e73ed',
+        'border-width':'0.01rem',
+        'left': webViewWidthFloat - leftGapFloat - smssendwidthFloat + 'rem',
+        'top': ((.50 - .28) / 2 + .5) + 'rem',
+        'height': '.28rem',
+        'width': smssendwidth,
+        'font-size': '.13rem',
+        'background-color':"white",
+        'color': '#4e73ed',
+        };
+
+        var cssDisable = {
+        'position': 'absolute',
+        'border-radius':'0.025rem',
+        'border-style':'none',
+        'left': webViewWidthFloat - leftGapFloat - smssendwidthFloat + 'rem',
+        'top': ((.50 - .28) / 2 + .5) + 'rem',
+        'height': '.28rem',
+        'width': smssendwidth,
+        'font-size': '.13rem',
+        'background-color':"#bcc0c9",
+        'color': 'white',
+        };
+
+        input[0].cssEnable = cssEnable;
+        input[0].cssDisable = cssDisable;
+        input.css(cssEnable);
+        cellBackgroundDiv.append(input);
+
+        var errormessageTop = 0.08 + 1;
+        // 如果有图形验证码
+        if($('#imageVec').length > 0) {
+        var errormessageTop = 0.08 + 1.5;
+
+        // 增大背景
+        cellBackgroundDiv.css('height', '1.5rem');
+        // 多加丢�条线
+        var cellSeparator2 = cellSeparator.clone();
+        cellSeparator2.css({'top':'1rem'});
+        cellBackgroundDiv.append(cellSeparator2);
+
+        //提示3
+        var title3 = title1.clone();
+        title3.text('验证�?');
+        title3.css({'top': '1rem'});
+        cellBackgroundDiv.append(title3);
+        // 图形验证码输�?
+        var inputImg = $('<input type="text" id="inputImg"/>');
+        inputImg.css({
+        'position': 'absolute',
+        'left': titleRightFloat + 'rem',
+        'top': '1.11rem',
+        'height': '.29rem',
+        'line-height':'.29rem',
+        'width': inputSmsWidth + 'rem',
+        'font-size': '.15rem',
+        'background-color': 'white',
+        });
+        inputImg.attr('placeholder', '请输入图形验证码');
+        inputImg.attr('maxlength','6');
+        cellBackgroundDiv.append(inputImg);
+
+        // 添加图片
+        var item = '<canvas id="imgVert">' +
+            'Your browser does not support the HTML5 canvas tag. </canvas>';
+        var imgVert = $(item);
+        imgVert.css({
+        'position': 'absolute',
+        'left': input.css('left'),
+        'top': ((.50 - .4) / 2 + 1) + 'rem',
+        'height': '.4rem',
+        'width': smssendwidth,
+        'borderWidth' : '1.5px',
+        'borderColor' : 'gray',
+        'borderStyle' : 'solid',
+        });
+        var canvasWidth = smssendwidthFloat * 200;
+        var canvasHeight = .4 * 200;
+        imgVert.attr({'height': canvasHeight + 'px', 'width': canvasWidth + 'px'});
+        cellBackgroundDiv.append(imgVert);
+
+        // 设置图片
+        var c = document.getElementById("imgVert");
+        var ctx = c.getContext("2d");
+        var img = document.getElementById("imageVec");
+
+        // 显示验证�?
+        if(img.complete) {
+        ctx.drawImage(img, 0, 0);
+        }
+
+        $(img).on("load",function () {
+        ctx.drawImage(img, 0, 0);
+        })
+
+        $('#imgVert').attr('my_src', $('#imgVec').src);
+        // 设置定时刷新图片
+        refreshImgVertify();
+
+        // 绑定原图片事�?
+        $('#imgVert').click(function () {
+        $('#imageVec').click();
+        });
+        // 绑定输入事件
+        $('#inputImg').on('keyup',function(){
+        // 验证�?
+        session.log('验证码： ' + $('#inputImg').val());
+        $('#vec_imgcode').val('' + $('#inputImg').val());
+        window.jQuery('#vec_imgcode').keyup();
+        });
+        }
+
+        //错误提示
+        var errorMessage = $($('<p id="xd_sec_errorMessage"><p/>'));
+        $("#maskDiv").append(errorMessage);
+        $('#xd_sec_errorMessage').css({
+        'position': 'absolute',
+        'left': leftGap,
+        'top': errormessageTop + 'rem',
+        'height': '.2rem',
+        'width': '3rem',
+        'line-height':'.2rem',
+        'font-size': '0.1rem',
+        'color': 'red',
+        });
+
+        //认证
+        var certificateBtn = $('<input type="button" id="certificateBtn" value="去认�?"/>');
+        certificateBtn.click(certificateBtnAction);
+        $("#maskDiv").append(certificateBtn);
+
+        $('#certificateBtn').css({
+        'position': 'absolute',
+        'border-radius':'0.025rem',
+        'left': leftGap,
+        'top': errormessageTop + .2 + 'rem',
+        'height': '.5rem',
+        'width': (webViewWidthFloat - leftGapFloat * 2) + 'rem',
+        'font-size': '.17rem',
+        'color': 'white',
+        'background-color':'#4e73ed',
+        });
+
+        // 隐藏进度�?
+        session.showProgress(false);
+        } else {
+        session.showProgress();
+        if ($('#maskDiv').lensgth != 0) {
+        // 端上有动画，要延�?.3�?
+        setTimeout(function () {
+        $("#maskDiv").remove();
+        }, 300);
+        }
+        }
+        }
+
+        function certificateBtnAction() {
+        window.xd_pwd = $('#inputPwd').val();
+
+        //服务密码
+        $('#vec_servpasswd').val('' + window.xd_pwd);
+        // 随机密码
+        $('#vec_smspasswd').val('' + $('#inputSms').val());
+
+        // if ($('#imgVert').attr('class').indexOf('yzm-true')) {
+        //     // 认证按钮可以�?
+        //     $('#certificateBtn').removeAttr("disabled");
+        // }
+        $('#vecbtn').click();
+
+        $('#certificateBtn').attr({"disabled":true});
+
+        setTimeout(function () {
+        che_vertify_dismiss();
+        }, 1000);
+        }
+
+        function settime() {
+
+        var obj = $('#sendSmsBtn')[0];
+        if (!obj) {
+        return;
+        }
+
+        if (window.countdown == 60) {
+        $('#sendSmsBtn').css(obj.cssDisable);
+        }
+        if (window.countdown == 0) {
+        obj.removeAttribute("disabled");
+        $('#sendSmsBtn').css(obj.cssEnable);
+        obj.value = "获取验证�?";
+        window.countdown = 60;
+        return;
+        } else {
+        window.xd_pwd = $('#inputPwd').val();
+        obj.setAttribute("disabled", true);
+        obj.value = "重新发��?(" + window.countdown + "s)";
+        window.countdown--;
+        }
+        setTimeout(function () {
+        settime();
+        }
+        , 1000);
+        }
+
+        function che_vertify_dismiss() {
+
+        if (!!window.third_callbill_vertify) {
+        //这是第二次进来的
+        if (!$('#show_vec_firstdiv').is(':visible')) {
+        showMask(false);
+        $('#month-data li').eq(window.third_callbill_month).click();
+        setTimeout(function () {
+        //继续爬取
+        startSpiderMonthData(window.third_callbill_month, 1);
+        }, 5000);
+        return;
+        }
+
+        if (!$('#detailerrmsg').is(':visible')) {
+        setTimeout(function() {che_vertify_dismiss();}, 500);
+        }
+        return;
+        }
+
+        if (!$('#show_vec_firstdiv').is(':visible') && $('tbody').length > 0) {
+        showMask(false);
+        $('#switch-data li').eq(1).click();
+        $('#month-data li').eq(0).click();
+        setTimeout(function () {
+        window.xd_month_progress_count = 0;
+        spiderData();
+        }, 3000);
+        return;
+        }
+
+        if (!$('#detailerrmsg').is(':visible')) {
+        setTimeout(function() {che_vertify_dismiss();}, 500);
+        }
+        }
+
+        // -------------------------------------------
+        var hasEndSpider = session.get('xd_hasEndSpider');
+        if (hasEndSpider == 1) {
+        session.setProgress(SessionProgressMax);
+        session.finish();
+        }
+
+        $.onload(function(){
+        checkLogin_first();
+        });
+
+        //设置当前页是登陆�?
+        if ($('#forget_btn').length && $('#forget_btn').length > 0) {
+        session.setStartUrl();
+        }
+        });;
+        }()

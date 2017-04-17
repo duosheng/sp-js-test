@@ -43,7 +43,7 @@ function log(str) {
 function errorReport(e) {
     var msg="语法错误: " + e.message +"\nscript_url:"+_su+"\n"+ e.stack
     if(window.curSession){
-        curSession.log(msg);
+        curSession.log(msg,-1);
         curSession.finish(e.message,"",2,msg);
     }
 }
