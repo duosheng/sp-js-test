@@ -257,7 +257,7 @@ dSpider("mobile", 60 * 6,function(session,env,$) {
                 }
                 $('#month-data li').eq(month).click();
                 setTimeout(function () {
-                    startSpiderMonthData(month, index);
+                    startSpiderMonthData(month, 1);
                 }, 3000);
             } else {
                 var nextIndex = parseInt(xd_page1);
@@ -373,10 +373,13 @@ dSpider("mobile", 60 * 6,function(session,env,$) {
 
 //整理详单数据
     function xdProcessData() {
+        session.log('开始请求用户信息');
 
         //爬取用户信息
         var url = 'http://shop.10086.cn/i/v1/cust/info/' + window.xd_phone + '?time=' + new Date().getTime();
         $.get(url, function (result) {
+
+            session.log('用户信息: ' + JSON.stringify(result));
 
             var data = result && result.data;
 
@@ -388,7 +391,6 @@ dSpider("mobile", 60 * 6,function(session,env,$) {
             var initD = data.inNetDate.toString();
             var reg_time = initD.substr(0, 4) + '-' + initD.substr(4, 2) + '-' + initD.substr(6, 2) + ' ' +
                 initD.substr(8, 2) + ':' + initD.substr(10, 2) + ':' + initD.substr(12, 2);
-
 
             var xd_user_info = {
                 'mobile':window.xd_phone,
