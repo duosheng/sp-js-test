@@ -1,114 +1,152 @@
-var t = {
-    "shareData": {
-        "picUrl": "https://dn-xiaoying-static.qbox.me/hongbao-1473820916955.png",
-        "qrUrl": "https://cardloan.xiaoying.com/1.1/user/shareLink ",
-        "smsContent": "邀请您一起使用小赢卡贷.新用户注册送100元红包,5万额度,5秒极速放款, 直接戳",
-        "shareUrl": "https://cardloan.xiaoying.com/1.1/user/shareLink ",
-        "title": "拆开就有100元！快来体验信用卡还款神器！",
-        "content": "您的好友向您推荐小赢卡贷，并送您一个100元红包。"
-    },
-    "useData": {
-        "inviteCouponMoney": "20元~80元",
-        "inviteCouponContent": "邀请好友注册，可随机获得20～80元红包，还款时可抵扣还款金额。"
-    },
-    "balance_type": [
-        {
-            "balanceType": "ALL",
-            "balanceTypeName": "全部"
-        },
-        {
-            "balanceType": "RECHARGE",
-            "balanceTypeName": "充值"
-        },
-        {
-            "balanceType": "WITHDRAW",
-            "balanceTypeName": "提现"
-        },
-        {
-            "balanceType": "INVEST",
-            "balanceTypeName": "投资"
-        },
-        {
-            "balanceType": "REPAY_IN",
-            "balanceTypeName": "回款"
-        },
-        {
-            "balanceType": "REALIZE",
-            "balanceTypeName": "转让"
-        },
-        {
-            "balanceType": "USER_COMMISSION_IN",
-            "balanceTypeName": "邀请有奖"
-        },
-        {
-            "balanceType": "LOAN_IN",
-            "balanceTypeName": "借款"
-        },
-        {
-            "balanceType": "REPAY_OUT",
-            "balanceTypeName": "还款"
-        },
-        {
-            "balanceType": "PLATFORM_SERVICE_FEE_OUT",
-            "balanceTypeName": "平台服务费"
-        },
-        {
-            "balanceType": "INSURANCE_OUT",
-            "balanceTypeName": "保费"
-        },
-        {
-            "balanceType": "BUY_CURRENT",
-            "balanceTypeName": "活期转入"
-        },
-        {
-            "balanceType": "SELL_CURRENT",
-            "balanceTypeName": "活期卖出"
-        }
-    ],
-    "eq": {
-        "1": "$amount/0.98 + $amount/0.98*(0.055+0.008+0.06+0.08)/12",
-        "2": "$amount/0.98 + $amount/0.98*(0.058+0.008+0.06+0.08)*2/12",
-        "3": "$amount/0.98*((0.062/12)*FUNCTION(1+0.062/12, 'pow:', 3))/(FUNCTION(1+0.062/12,'pow:' , 3)-1)+(0.003+0.04+0.09)*$amount/0.98/12",
-        "6": "$amount/0.98*((0.072/12)*FUNCTION(1+0.072/12, 'pow:', 6))/(FUNCTION(1+0.072/12,'pow:' , 6)-1)+(0.003+0.04+0.09)*$amount/0.98/12",
-        "9": "$amount/0.98*((0.075/12)*FUNCTION(1+0.075/12, 'pow:', 9))/(FUNCTION(1+0.075/12,'pow:' , 9)-1)+(0.003+0.04+0.09)*$amount/0.98/12",
-        "12": "$amount/0.98*((0.08/12)*FUNCTION(1+0.08/12, 'pow:', 12))/(FUNCTION(1+0.08/12,'pow:' , 12)-1)+(0.003+0.04+0.09)*$amount/0.98/12"
-    },
-    "cash_eq": {
-        "3": "$amount/0.95*((0.062/12)*FUNCTION(1+0.062/12, 'pow:', 3))/(FUNCTION(1+0.062/12,'pow:' , 3)-1)+(0.003+0.25)*$amount/0.95/12",
-        "6": "$amount/0.95*((0.072/12)*FUNCTION(1+0.072/12, 'pow:', 6))/(FUNCTION(1+0.072/12,'pow:' , 6)-1)+(0.003+0.25)*$amount/0.95/12",
-        "9": "$amount/0.91*((0.075/12)*FUNCTION(1+0.075/12, 'pow:', 9))/(FUNCTION(1+0.075/12,'pow:' , 9)-1)+(0.003+0.25)*$amount/0.91/12",
-        "12": "$amount/0.91*((0.08/12)*FUNCTION(1+0.08/12, 'pow:', 12))/(FUNCTION(1+0.08/12,'pow:' , 12)-1)+(0.003+0.25)*$amount/0.91/12"
-    },
-    "loan_rate": {
-        "1": "0.055",
-        "2": "0.058",
-        "3": "0.062",
-        "6": "0.072",
-        "9": "0.075",
-        "12": "0.08"
-    },
-    "loan_amount_range": {
-        "min_cent": 200000,
-        "max_cent": 5000000
-    },
-    "cash_loan_amount_range": {
-        "max_cent": 500000,
-        "min_cent": 100000
-    },
-    "youdai_eq": {
-        "12": "$amount*((0.08/12)*FUNCTION(1+0.08/12, 'pow:', 12))/(FUNCTION(1+0.08/12,'pow:' , 12)-1)+(0.006)*$amount",
-        "24": "$amount*((0.08/12)*FUNCTION(1+0.08/12, 'pow:', 24))/(FUNCTION(1+0.08/12,'pow:' , 24)-1)+(0.006)*$amount",
-        "36": "$amount*((0.08/12)*FUNCTION(1+0.08/12, 'pow:', 36))/(FUNCTION(1+0.08/12,'pow:' , 36)-1)+(0.006)*$amount",
-    },
-    "youdai_loan_rate": {
-        "12": "0.08",
-        "24": "0.08",
-        "36": "0.08"
-    },
-    "youdai_loan_amount_range": {
-        "min": 30000,
-        "max": 800000,
-        "min_cent": 3000000,
-        "max_cent": 80000000
-    }
+var gData={month_status:[],user_info:{}}
+var data = {
+    "data": {
+        "remark": null,
+        "name": "王*",
+        "brand": "01",
+        "level": "100",
+        "status": "00",
+        "inNetDate": "20120718183107",
+        "netAge": "4年9个月",
+        "email": null,
+        "address": "内蒙古乌兰察布市兴和县鄂尔栋镇四十号村委会４０号自然村",
+        "zipCode": "012000",
+        "contactNum": "15754883274",
+        "starLevel": "2",
+        "starScore": null,
+        "starTime": null,
+        "realNameInfo": "3",
+        "vipInfo": null
+    }, "retCode": "000000", "retMsg": "success", "sOperTime": "20170419135635"
+}
+
+function formatTime(t){
+   return  t.substr(0,4)+"-" +t.substr(4,2)+"-"+t.substr(6,2)+" "+ t.substr(8,2)+":"+ t.substr(10,2)+":"+ t.substr(12)
+}
+
+gData.user_info.mobile=PHONE;
+
+
+var info={
+    mobile:PHONE,
+    name:data.name,
+    registration_time:formatTime(data.inNetDate),
+    household_address:data.address,
+    contactNum: data.contactNum
+
 };
+
+
+
+var detail = {
+    "data": [{
+        "remark": null,
+        "startTime": "2017-03-14 15:12:06",
+        "commPlac": "[10]北京",
+        "commMode": "[2]被叫",
+        "anotherNm": "01062891282",
+        "commTime": "00:03:11",
+        "commType": "[4]省际漫出",
+        "mealFavorable": "[40009204]8元话音资费",
+        "commFee": "0.00"
+    }, {
+        "remark": null,
+        "startTime": "2017-03-16 11:59:26",
+        "commPlac": "[10]北京",
+        "commMode": "[2]被叫",
+        "anotherNm": "04712570357",
+        "commTime": "00:00:22",
+        "commType": "[4]省际漫出",
+        "mealFavorable": "[40009204]8元话音资费[40000519]4G自选套餐",
+        "commFee": "0.00"
+    }, {
+        "remark": null,
+        "startTime": "2017-03-17 15:27:29",
+        "commPlac": "[10]北京",
+        "commMode": "[2]被叫",
+        "anotherNm": "075595511",
+        "commTime": "00:00:52",
+        "commType": "[4]省际漫出",
+        "mealFavorable": "[40009204]8元话音资费[40000519]4G自选套餐",
+        "commFee": "0.00"
+    }, {
+        "remark": null,
+        "startTime": "2017-03-18 12:22:10",
+        "commPlac": "[10]北京",
+        "commMode": "[2]被叫",
+        "anotherNm": "18513056719",
+        "commTime": "00:00:18",
+        "commType": "[4]省际漫出",
+        "mealFavorable": "[40009204]8元话音资费",
+        "commFee": "0.00"
+    }, {
+        "remark": null,
+        "startTime": "2017-03-23 17:49:42",
+        "commPlac": "[10]北京",
+        "commMode": "[2]被叫",
+        "anotherNm": "075595511",
+        "commTime": "00:02:01",
+        "commType": "[4]省际漫出",
+        "mealFavorable": "[40009204]8元话音资费[40000519]4G自选套餐",
+        "commFee": "0.00"
+    }, {
+        "remark": null,
+        "startTime": "2017-03-29 17:53:39",
+        "commPlac": "[10]北京",
+        "commMode": "[2]被叫",
+        "anotherNm": "075595511",
+        "commTime": "00:00:06",
+        "commType": "[4]省际漫出",
+        "mealFavorable": "[40009204]8元话音资费[40000519]4G自选套餐",
+        "commFee": "0.00"
+    }],
+    "totalNum": 6,
+    "startDate": "20170301",
+    "endDate": "20170331",
+    "curCuror": 1,
+    "retCode": "000000",
+    "retMsg": "get data from cache success",
+    "sOperTime": "20170420142842"
+}
+
+//strip []
+function strip(s){
+    s=s||"";
+    return s.substr(s.indexOf("]")+1);
+}
+// convert time to second
+function second(t){
+    var sum=0;
+    $.each(t.split(":"),function(i,e){sum+=parseInt(e)*Math.pow(60,2-i)})
+    return sum;
+}
+
+var gData={month_status:[],user_info:{}}
+function parseDetail(data) {
+    var md = {};
+    md.calldate = "";
+    md.status = 0;
+    md.mobile = PHONE;
+    if (data.retCode == "xxx") {
+        md.totalCount = 0;
+        md.status = 4;
+        md.data = null;
+    } else {
+        md.totalCount = data.totalNum;
+        md.data = [];
+        $.each(data.data, function (_, e) {
+            md.data.push({
+                otherNo: e.anotherNm,
+                callTime: "65",
+                callFee: e.callFee,
+                callBeginTime: e.startTime,
+                callType: strip(e.commMode),
+                callAddress: strip(e.commPlac),
+                taocan: e.mealFavorable,
+                remoteType: strip(e.commType),
+            })
+        })
+    }
+    gData.month_status.push(md);
+}
+
