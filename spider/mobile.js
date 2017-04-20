@@ -57,44 +57,7 @@ dSpider("mobile", 60 * 6,function(session,env,$) {
         xd_check();
     }
 
-    function getMyUserInfo(phone) {
-
-        var url = 'http://shop.10086.cn/i/v1/cust/info/' + phone + '?time=' + new Date().getTime();
-        $.get(url, function (result) {
-
-            var data = result && result.data;
-
-            if(!data || !data.inNetDate){
-                session.finish("获取用户数据为空", JSON.stringify({result:result,phone:session.getLocal("xd_phone")}), 3);
-                return ;
-            }
-
-            var initD = data.inNetDate.toString();
-            var reg_time = initD.substr(0, 4) + '-' + initD.substr(4, 2) + '-' + initD.substr(6, 2) + ' ' +
-                initD.substr(8, 2) + ':' + initD.substr(10, 2) + ':' + initD.substr(12, 2);
-
-
-            var xd_user_info = {
-                'mobile':window.xd_phone,
-                'name': data.name,
-                'household_address': data.address,
-                'contactNum': data.contactNum,
-                'registration_time': reg_time,
-                'rawRegistrationTime': initD, // 原数据
-            };
-
-            window.xd_data['user_info'] = xd_user_info;
-            window.xd_progressMax++;
-            session.setProgress(window.xd_progressMax);
-            window.xd_month_progress_count++;
-            xdProcessData();
-        });
-    }
-
     function spiderData() {
-
-        //爬取用户信息
-        getMyUserInfo(window.xd_phone);
 
         //爬取用户通话详单
         spiderData2();
@@ -294,7 +257,7 @@ dSpider("mobile", 60 * 6,function(session,env,$) {
                 }
                 $('#month-data li').eq(month).click();
                 setTimeout(function () {
-                    startSpiderMonthData(month, index);
+                    startSpiderMonthData(month, 1);
                 }, 3000);
             } else {
                 var nextIndex = parseInt(xd_page1);
@@ -410,7 +373,39 @@ dSpider("mobile", 60 * 6,function(session,env,$) {
 
 //整理详单数据
     function xdProcessData() {
-        if (window.xd_month_progress_count == 2) {
+        session.log('开始请求用户信息');
+
+        //爬取用户信息
+        var url = 'http://shop.10086.cn/i/v1/cust/info/' + window.xd_phone + '?time=' + new Date().getTime();
+        $.get(url, function (result) {
+
+            session.log('用户信息: ' + JSON.stringify(result));
+
+            var data = result && result.data;
+
+            if(!data || !data.inNetDate){
+                session.finish("获取用户数据为空", JSON.stringify({result:result,phone:session.getLocal("xd_phone")}), 3);
+                return ;
+            }
+
+            var initD = data.inNetDate.toString();
+            var reg_time = initD.substr(0, 4) + '-' + initD.substr(4, 2) + '-' + initD.substr(6, 2) + ' ' +
+                initD.substr(8, 2) + ':' + initD.substr(10, 2) + ':' + initD.substr(12, 2);
+
+            var xd_user_info = {
+                'mobile':window.xd_phone,
+                'name': data.name,
+                'household_address': data.address,
+                'contactNum': data.contactNum,
+                'registration_time': reg_time,
+                'rawRegistrationTime': initD, // 原数据
+            };
+
+            window.xd_data['user_info'] = xd_user_info;
+            window.xd_progressMax++;
+            session.setProgress(window.xd_progressMax);
+
+
             window.xd_data['month_status'] = window.xd_callBill;
             session.upload(window.xd_data);
             session.set('xd_hasEndSpider', 1);
@@ -423,7 +418,7 @@ dSpider("mobile", 60 * 6,function(session,env,$) {
                     session.finish();
                 }, 5000);
             }, 1000);
-        }
+        });
     }
 
 //存储详单数据
@@ -879,11 +874,14 @@ dSpider("mobile", 60 * 6,function(session,env,$) {
             // 隐藏进度条
             session.showProgress(false);
         } else {
+
             session.showProgress();
             if ($('#maskDiv').lensgth != 0) {
                 // 端上有动画，要延迟.3秒
                 setTimeout(function () {
                     $("#maskDiv").remove();
+                    // 将定时器的时间调回60
+                    window.countdown = 60;
                 }, 300);
             }
         }
