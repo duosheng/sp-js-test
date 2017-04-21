@@ -156,7 +156,12 @@ dSpider("mobile", 60 * 5, function (session, env, $) {
                 } else if (data.retCode == "520001" || data.retCode == "3018") {
                     log(data.retMsg)
                     showVc(getRecords)
-                } else {
+                } else if(data.retCode=="3035"){
+                    log("超出查询范围"+date);
+                    --offset;
+                    getRecords();
+                }
+                else {
                     session.finish(date + "爬取失败", JSON.stringify(data), 3)
                 }
             })
