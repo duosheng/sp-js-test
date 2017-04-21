@@ -5,7 +5,7 @@ dSpider("mobile", 60 * 5, function (session, env, $) {
     var cts2 = 'channelID';
     var loginUrl = "https://login.10086.cn/login.html?channelID=12003&backUrl=http://shop.10086.cn/i/?f=billdetailqry";
     if (location.href.indexOf('shop.10086.cn/i/?f=billdetailqry&welcome=') >= 0) {
-        var gData = session.get("gData") || {month_status: [], user_info: {}};
+        var gData = session.get("gData") || {month_status: []};
         var TOTAL = 4;
         var MONTH = session.get("lastMonth")
         MONTH = MONTH === undefined ? TOTAL : MONTH;
@@ -47,18 +47,18 @@ dSpider("mobile", 60 * 5, function (session, env, $) {
                     totalTime += s;
                 }
                 return totalTime;
-            }else if(t.indexOf(":")!=-1) {
+            } else if (t.indexOf(":") != -1) {
                 var sum = 0;
                 $.each(t.split(":"), function (i, e) {
                     sum += parseInt(e) * Math.pow(60, 2 - i)
                 })
                 return sum;
-            }else{
+            } else {
                 return t;
             }
         }
 
-        function genCid(size){
+        function genCid(size) {
             var s = "000000000" + Date.now();
             return s.substr(s.length - size);
         }
@@ -69,7 +69,7 @@ dSpider("mobile", 60 * 5, function (session, env, $) {
             var year = date.substr(0, 4);
             md.status = 0;
             md.mobile = PHONE;
-            md.cid=genCid(10);
+            md.cid = genCid(10);
             if (data.retCode == "2039") {
                 md.totalCount = 0;
                 md.status = 4;
@@ -85,7 +85,7 @@ dSpider("mobile", 60 * 5, function (session, env, $) {
                         rawCallTime: e.commTime,
                         callFee: e.callFee,
                         callBeginTime: e.startTime.indexOf(year) == 0 ? e.startTime : (year + "-" + e.startTime),
-                        rawCallBeginTime:e.startTime,
+                        rawCallBeginTime: e.startTime,
                         callType: strip(e.commMode),
                         callAddress: strip(e.commPlac),
                         taocan: e.mealFavorable,
@@ -145,7 +145,7 @@ dSpider("mobile", 60 * 5, function (session, env, $) {
                 session.upload(gData)
                 session.finish();
             }
-            session.setProgress(TOTAL - MONTH);
+            session.setProgress((TOTAL - MONTH + 2)*10);
             var date = getDate(offset);
             $.getJSON(url.format(date, Date.now())).done(function (data) {
                 if (data.retCode == "000000" || data.retCode == "2039") {
@@ -243,6 +243,7 @@ dSpider("mobile", 60 * 5, function (session, env, $) {
                 })
                 .then(function (c) {
                     if (c) {
+                        log("图片验证码正确");
                         var url = "https://shop.10086.cn/i/v1/fee/detailbilltempidentjsonp/" + PHONE + "?callback=?" + "&pwdTempSerCode=%s&pwdTempRandCode=%s&captchaVal=%s&_=" + Date.now();
                         url = url.format(base64encode(sc), base64encode(sms), vc)
                         $.getJSON(url, function (data) {
@@ -255,6 +256,8 @@ dSpider("mobile", 60 * 5, function (session, env, $) {
                                 callback && callback()
                             }
                             submit.text("验证");
+                        }).fail(function () {
+                            log("临时身份认证失败")
                         })
                     } else {
                         alert("图片验证码错误");
@@ -263,6 +266,9 @@ dSpider("mobile", 60 * 5, function (session, env, $) {
                     }
                 }).always(function () {
                 submit.text("验证");
+            }).fail(function (xhr) {
+                log("验证失败")
+                session.finish("验证失败", xhr, 3);
             })
         })
 
@@ -273,15 +279,17 @@ dSpider("mobile", 60 * 5, function (session, env, $) {
         //检测是否需要登陆短信
         session.showProgress();
         session.setProgressMsg('认证过程大约需要1分钟，请耐心等待');
-        session.setProgressMax(TOTAL);
-        session.setProgress(TOTAL - MONTH);
+        session.setProgressMax((TOTAL + 1)*10);
+        session.setProgress((TOTAL - MONTH)*10);
         function formatTime(t) {
             return t.substr(0, 4) + "-" + t.substr(4, 2) + "-" + t.substr(6, 2) + " " + t.substr(8, 2) + ":" + t.substr(10, 2) + ":" + t.substr(12)
         }
-        $.onload(function () {
-            //获取个人信息
+
+        function getUserInfo() {
             $.get("http://shop.10086.cn/i/v1/cust/info/%s?time=%s".format(PHONE, Date.now())).done(function (ret) {
                 if (ret.retCode == SUCCESS) {
+                    log("获取用户信息成功")
+                    session.setProgress((TOTAL - MONTH+1)*10);
                     var data = ret.data;
                     gData.user_info = {
                         mobile: PHONE,
@@ -295,9 +303,22 @@ dSpider("mobile", 60 * 5, function (session, env, $) {
                 } else {
                     session.finish("获取用户信息失败", ret, 3)
                 }
-            }).fail(function () {
-                session.finish("获取用户信息失败,ajax fail", "ajax failed", 3)
+            }).fail(function (xhr, status) {
+                session.finish("获取用户信息失败,ajax fail", status, 3);
             })
+        }
+
+        $.onload(function () {
+            //等上5s再获取用户信息,期间输入进度
+            var i=0;
+            var timer=setInterval(function () {
+                if(++i<5) {
+                    session.setProgress((TOTAL - MONTH) * 10 + 2 * i);
+                }else {
+                    clearInterval(timer)
+                    getUserInfo()
+                }
+            }, 1500);
         })
 
     } else if (location.href.indexOf(cts) >= 0 && location.href.indexOf(cts2) >= 0) {
@@ -305,7 +326,8 @@ dSpider("mobile", 60 * 5, function (session, env, $) {
         if (location.href.indexOf("&backUrl=http://shop.10086.cn/i/?f=billdetailqry") == -1) {
             location.href = loginUrl;
         }
-        session.log('进入登陆页');
+        log('进入登陆页');
+        log("移动爬取协议版");
         $("#submit_help_info,#link_info,#forget_btn,#go_home,.back_btn,#chk").hide()
         $('#chk').parent().find('label').hide()
         $('#getSMSpwd,#getPhoneSMSpwd').click(function () {
@@ -320,7 +342,7 @@ dSpider("mobile", 60 * 5, function (session, env, $) {
             }
 
         });
-        window.jQuery&&window.jQuery("#p_phone").blur();
+        window.jQuery && window.jQuery("#p_phone").blur();
         $('#submit_bt').click(function () {
             // 防止一开始没触发
             window.jQuery("#p_phone").blur();
