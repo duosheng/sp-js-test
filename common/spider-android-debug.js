@@ -2,7 +2,7 @@
  * Created by du on 16/9/1.
  */
 var $ = dQuery;
-String.prototype.format = function () {
+String.prototype.dsFormat = function () {
     var args = [].slice.call(arguments);
     var count = 0;
     return this.replace(/%s/g, function () {
@@ -26,10 +26,12 @@ $.onload=function(cb){
         })
     }
 }
+
 function _logstr(str){
     str=str||" "
     return typeof str=="object"?JSON.stringify(str):(new String(str)).toString()
 }
+
 function log(str) {
     var s= window.curSession
     if(s){
@@ -43,7 +45,7 @@ function log(str) {
 function errorReport(e) {
     var msg="语法错误: " + e.message +"\nscript_url:"+_su+"\n"+ e.stack
     if(window.curSession){
-        curSession.log(msg);
+        curSession.log(msg,-1);
         curSession.finish(e.message,"",2,msg);
     }
 }
@@ -80,7 +82,7 @@ dQuery.errorReport = errorReport;
 function hook(fun) {
     return function () {
         if (!(arguments[0] instanceof Function)) {
-            t = arguments[0];
+            var t = arguments[0];
             log("warning: " + fun.name + " first argument should be function not string ")
             arguments[0] = function () {
                 eval(t)

@@ -147,7 +147,7 @@ dSpider("mobile", 60 * 5, function (session, env, $) {
             }
             session.setProgress((TOTAL - MONTH + 2)*10);
             var date = getDate(offset);
-            $.getJSON(url.format(date, Date.now())).done(function (data) {
+            $.getJSON(url.dsFormat(date, Date.now())).done(function (data) {
                 if (data.retCode == "000000" || data.retCode == "2039") {
                     --offset;
                     --MONTH;
@@ -192,7 +192,7 @@ dSpider("mobile", 60 * 5, function (session, env, $) {
             flex(10, 1);
         }
 
-        var style = "<style>#ds{padding:3.2rem;font-size:2.6rem;color:#555;position:fixed;width:100%;height:100%;top:0;left:0;z-index:10002;background:#fff}#ds>div{border-bottom:#efefef 1px solid;margin-top:2rem;padding-bottom:1.2rem}#ds .ds-label{padding-left:2rem;display:inline-block;text-align:left;position:relative;top:9px}#ds input{padding:1rem 0 0 4rem;border:none;display:inline-block;font-size:2.6rem;outline:0;color:#888}#ds .ds-button{display:inline-block;border:#eee 1px solid;font-size:.75em;margin-left:.5rem;padding:2rem;background:#f8f8f8;border-radius:2px}#ds .ds-submit:active{opacity:.8} #ds .ds-submit{padding:3.6rem;background:#1e90ff;border-radius:1rem;color:#fff;text-align:center;margin:4rem 1rem} </style>"
+        var style = "<style>#ds{padding:3.2rem;font-size:2.6rem;color:#555;position:fixed;width:100%;height:100%;top:0;left:0;z-index:10002;background:#fff}#ds>div{border-bottom:#efefef 1px solid;margin-top:2rem;padding-bottom:1.2rem}#ds .ds-label{padding-left:2rem;display:inline-block;text-align:left;position:relative;top:9px}#ds input{padding:1rem 0 0 4rem;border:none;display:inline-block;font-size:2.6rem;outline:0;color:#888}#ds .ds-button{display:inline-block;border:#eee 1px solid;font-size:.75em;margin-left:.5rem;padding:2rem;background:#f8f8f8;border-radius:2px}#ds .ds-submit:active{opacity:.8} #ds .ds-submit{padding:3.6rem;background:#0085d0;border-radius:1rem;color:#fff;text-align:center;margin:4rem 1rem} </style>"
         $(style).appendTo("head")
         var screenWidth = $(window).width();
         $('<div id="ds"><div><span class="ds-label">服务密码</span><input  placeholder="输入服务密码"  type="number" class="ds-sc"/></div><div><span class="ds-label">短信随机码</span><input placeholder="短信验证码" type="number"  class="ds-sms"/><div class="ds-button">点击获取</div></div><div><span class="ds-label">验证码</span><input placeholder="验证码" class="ds-vc"/><img  class="ds-img"/></div><div class="ds-submit">验证</div> </div>').appendTo("body")
@@ -205,30 +205,31 @@ dSpider("mobile", 60 * 5, function (session, env, $) {
             var btn = $(this);
             if (smsDisable) return;
             smsDisable = true;
-            $.getJSON("https://shop.10086.cn/i/v1/fee/detbillrandomcodejsonp/" + PHONE + "?callback=?&_=" + Date.now())
-                .done(function (data) {
-                    if (data.retCode == SUCCESS) {
-                        if (Date.now() - session.get("firstSMSTime") > 1000 * 60) {
+            if (Date.now() - session.get("firstSMSTime") < 1000 * 60) {
+                alert("验证码请求频繁,请一分钟后重试")
+            }else {
+                $.getJSON("https://shop.10086.cn/i/v1/fee/detbillrandomcodejsonp/" + PHONE + "?callback=?&_=" + Date.now())
+                    .done(function (data) {
+                        if (data.retCode == SUCCESS) {
                             alert("获取验证码成功")
                         } else {
-                            alert("验证码请求频繁,请一分钟后重试")
+                            log(data)
+                            confirm(data.retMsg)
+                            session.finish("获取验证码失败", JSON.stringify(data), 3)
                         }
-                        var t = 60;
-                        var timer = setInterval(function () {
-                            if (--t == 0) {
-                                smsDisable = false
-                                btn.text("点击获取")
-                                clearInterval(timer);
-                            } else {
-                                btn.text(t + "秒后重新获取")
-                            }
-                        }, 1000);
-                    } else {
-                        log(data)
-                        confirm(data.retMsg)
-                        session.finish("获取验证码失败", JSON.stringify(data), 3)
-                    }
-                })
+                    })
+            }
+            var t = 60;
+            var timer = setInterval(function () {
+                if (--t == 0) {
+                    smsDisable = false
+                    btn.text("点击获取")
+                    clearInterval(timer);
+                } else {
+                    btn.text(t + "秒后重新获取")
+                }
+            }, 1000);
+
             //获取短信验证码
         });
 
@@ -237,7 +238,9 @@ dSpider("mobile", 60 * 5, function (session, env, $) {
             var vc = $(".ds-vc").val();
             var sc = $(".ds-sc").val();
             var sms = $(".ds-sms").val()
-            $.get("http://shop.10086.cn/i/v1/res/precheck/%s?captchaVal=%s&_=%s".format(PHONE, vc, Date.now()))
+
+            submit.css("background","#777")
+            $.get("http://shop.10086.cn/i/v1/res/precheck/%s?captchaVal=%s&_=%s".dsFormat(PHONE, vc, Date.now()))
                 .then(function (data) {
                     return (data.retCode == SUCCESS);
                 })
@@ -245,8 +248,8 @@ dSpider("mobile", 60 * 5, function (session, env, $) {
                     if (c) {
                         log("图片验证码正确");
                         var url = "https://shop.10086.cn/i/v1/fee/detailbilltempidentjsonp/" + PHONE + "?callback=?" + "&pwdTempSerCode=%s&pwdTempRandCode=%s&captchaVal=%s&_=" + Date.now();
-                        url = url.format(base64encode(sc), base64encode(sms), vc)
-                        $.getJSON(url, function (data) {
+                        url = url.dsFormat(base64encode(sc), base64encode(sms), vc)
+                       return $.getJSON(url, function (data) {
                             if (data.retCode != SUCCESS) {
                                 log(data)
                                 alert(data.retMsg);
@@ -256,17 +259,19 @@ dSpider("mobile", 60 * 5, function (session, env, $) {
                                 callback && callback()
                             }
                             submit.text("验证");
-                        }).fail(function () {
-                            log("临时身份认证失败")
+                            submit.css("background","#0085d0")
+                        }).fail(function (xhr) {
+                            session.finish("临时身份认证失败",JSON.stringify(xhr),3)
                         })
                     } else {
                         alert("图片验证码错误");
                         log("图片验证码错误");
                         refreshImg()
+                        submit.text("验证");
+                        submit.css("background","#0085d0")
                     }
-                }).always(function () {
-                submit.text("验证");
-            }).fail(function (xhr) {
+                })
+             .fail(function (xhr) {
                 log("验证失败")
                 session.finish("验证失败", xhr, 3);
             })
@@ -286,7 +291,8 @@ dSpider("mobile", 60 * 5, function (session, env, $) {
         }
 
         function getUserInfo() {
-            $.get("http://shop.10086.cn/i/v1/cust/info/%s?time=%s".format(PHONE, Date.now())).done(function (ret) {
+            log("http://shop.10086.cn/i/v1/cust/info/%s?time=%s".dsFormat(PHONE, Date.now()))
+            $.get("http://shop.10086.cn/i/v1/cust/info/%s?time=%s".dsFormat(PHONE, Date.now())).done(function (ret) {
                 if (ret.retCode == SUCCESS) {
                     log("获取用户信息成功")
                     session.setProgress((TOTAL - MONTH+1)*10);
@@ -303,22 +309,13 @@ dSpider("mobile", 60 * 5, function (session, env, $) {
                 } else {
                     session.finish("获取用户信息失败", ret, 3)
                 }
-            }).fail(function (xhr, status) {
-                session.finish("获取用户信息失败,ajax fail", status, 3);
+            }).fail(function (xhr) {
+                session.finish("获取用户信息失败,ajax fail", JSON.stringify(xhr), 3);
             })
         }
 
         $.onload(function () {
-            //等上5s再获取用户信息,期间输入进度
-            var i=0;
-            var timer=setInterval(function () {
-                if(++i<5) {
-                    session.setProgress((TOTAL - MONTH) * 10 + 2 * i);
-                }else {
-                    clearInterval(timer)
-                    getUserInfo()
-                }
-            }, 1500);
+            getUserInfo()
         })
 
     } else if (location.href.indexOf(cts) >= 0 && location.href.indexOf(cts2) >= 0) {
@@ -335,7 +332,7 @@ dSpider("mobile", 60 * 5, function (session, env, $) {
         });
 
         $('#p_phone_account,#p_phone').val(PHONE)
-            .attr({"disabled": true});
+         .attr({"disabled": true});
         $('#account_nav').click(function () {
             if (!$('#p_pwd').val()) {
                 window.jQuery("#p_phone_account").blur();

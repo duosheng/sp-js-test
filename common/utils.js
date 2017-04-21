@@ -2,7 +2,7 @@
  * Created by du on 16/9/1.
  */
 var $ = dQuery;
-String.prototype.format = function () {
+String.prototype.dsFormat = function () {
     var args = [].slice.call(arguments);
     var count = 0;
     return this.replace(/%s/g, function () {
@@ -26,10 +26,12 @@ $.onload=function(cb){
         })
     }
 }
+
 function _logstr(str){
     str=str||" "
     return typeof str=="object"?JSON.stringify(str):(new String(str)).toString()
 }
+
 function log(str) {
     var s= window.curSession
     if(s){
