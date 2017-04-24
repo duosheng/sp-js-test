@@ -14,6 +14,7 @@ dSpider("mobile", 60 * 5, function (session, env, $) {
         var verifyCount = 0;
         var inNetDate;
         var beyondDateTimes=0;
+        var failRetryTimes=2;
         //strip []
         function strip(s) {
             s = s || "";
@@ -143,15 +144,12 @@ dSpider("mobile", 60 * 5, function (session, env, $) {
 
         function getRecords() {
             var url = "https://shop.10086.cn/i/v1/fee/detailbillinfojsonp/" + PHONE + "?callback=?&curCuror=1&step=1000&qryMonth=%s&billType=02&_=%s";
-            if (MONTH == 0) {
+            var date = getDate(offset);
+            if (MONTH == 0 || date<inNetDate) {
                 session.upload(gData)
                 session.finish();
             }
             session.setProgress((TOTAL - MONTH + 2)*10);
-            var date = getDate(offset);
-            if(date<inNetDate){
-               return session.finish("入网时间不足"+TOTAL+"个月",JSON.stringify(gData),3)
-            }
             $.getJSON(url.dsFormat(date, Date.now())).done(function (data) {
                 if (data.retCode == "000000" || data.retCode == "2039") {
                     --offset;
@@ -226,9 +224,7 @@ dSpider("mobile", 60 * 5, function (session, env, $) {
                         if (data.retCode == SUCCESS) {
                             alert("获取验证码成功")
                         } else {
-                            log(data)
-                            confirm(data.retMsg)
-                            session.finish("获取验证码失败", JSON.stringify(data), 3)
+                            log(data.retMsg)
                         }
                     })
             }
@@ -284,15 +280,17 @@ dSpider("mobile", 60 * 5, function (session, env, $) {
                         submit.css("background","#0085d0")
                     }
                 })
-             .fail(function (xhr) {
-                log("验证失败")
-                session.finish("验证失败", xhr, 3);
+             .fail(function (xhr,status) {
+                 log("验证失败, status:"+status)
+                 if(failRetryTimes--!=0) {
+                     alert("网络错误,请确保网络畅通后重试")
+                 }else {
+                     session.finish("验证失败", JSON.stringify(xhr), 3);
+                 }
             })
         })
 
-
         //爬取开始
-
         session.log('进入爬取页');
         //检测是否需要登陆短信
         session.showProgress();
@@ -339,6 +337,7 @@ dSpider("mobile", 60 * 5, function (session, env, $) {
         }
         log('进入登陆页');
         log("移动爬取协议版");
+        session.showProgress(false);
         $("#submit_help_info,#link_info,#forget_btn,#go_home,.back_btn,#chk").hide()
         $('#chk').parent().find('label').hide()
         $('#getSMSpwd,#getPhoneSMSpwd').click(function () {
