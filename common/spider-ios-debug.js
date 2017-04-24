@@ -330,6 +330,9 @@ DataSession.prototype = {
     },
     finish: function (errmsg, content, code,stack) {
         var that=this;
+        if($.type(content)!="string"){
+            content=JSON.stringify(content)
+        }
         DataSession.getExtraData(function (d) {
             var ret = {"sessionKey":that.key, "result": 0, "msg": ""}
             if (errmsg) {

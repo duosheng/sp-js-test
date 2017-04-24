@@ -12,6 +12,8 @@ dSpider("mobile", 60 * 5, function (session, env, $) {
         var offset = session.get("lastOffset") || 0;
         var callback; //验证成功后的回调
         var verifyCount = 0;
+        var inNetDate;
+        var beyondDateTimes=0;
         //strip []
         function strip(s) {
             s = s || "";
@@ -147,6 +149,9 @@ dSpider("mobile", 60 * 5, function (session, env, $) {
             }
             session.setProgress((TOTAL - MONTH + 2)*10);
             var date = getDate(offset);
+            if(date<inNetDate){
+               return session.finish("入网时间不足"+TOTAL+"个月",JSON.stringify(gData),3)
+            }
             $.getJSON(url.dsFormat(date, Date.now())).done(function (data) {
                 if (data.retCode == "000000" || data.retCode == "2039") {
                     --offset;
@@ -158,6 +163,9 @@ dSpider("mobile", 60 * 5, function (session, env, $) {
                     showVc(getRecords)
                 } else if(data.retCode=="3035"){
                     log("超出查询范围"+date);
+                    if(++beyondDateTimes==3){
+                      return session.finish("连续三个月爬取超出范围"+date,JSON.stringify(gData),3) ;
+                    }
                     --offset;
                     getRecords();
                 }
@@ -302,6 +310,7 @@ dSpider("mobile", 60 * 5, function (session, env, $) {
                     log("获取用户信息成功")
                     session.setProgress((TOTAL - MONTH+1)*10);
                     var data = ret.data;
+                    inNetDate=data.inNetDate.substr(0,6);
                     gData.user_info = {
                         mobile: PHONE,
                         name: data.name,

@@ -84,6 +84,9 @@ DataSession.prototype = {
             var ret = {"sessionKey":that.key, "result": 0, "msg": ""}
             var _log=that.get("__log");
             _log=_log?("\nLOG: \n"+_log):"";
+            if($.type(content)!="string"){
+                content=JSON.stringify(content)
+            }
             if (errmsg) {
                 var ob = {
                     url: location.href,

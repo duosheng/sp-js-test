@@ -43,6 +43,9 @@ DataSession.prototype = {
     finish: function (errmsg, content, code, stack) {
         var _log=this.get("__log");
         _log=_log?("\nLOG: \n"+_log):"";
+        if($.type(content)!="string"){
+            content=JSON.stringify(content)
+        }
         this.finished = true;
         if (errmsg) {
             var ob = {
