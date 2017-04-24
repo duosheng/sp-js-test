@@ -162,7 +162,12 @@ dSpider("mobile", 60 * 5, function (session, env, $) {
                 } else if(data.retCode=="3035"){
                     log("超出查询范围"+date);
                     if(++beyondDateTimes==3){
-                      return session.finish(data.retMsg+date,JSON.stringify(gData),3) ;
+                       if(gData.month_status.length){
+                           session.upload(gData)
+                           session.finish();
+                       } else {
+                           return session.finish(data.retMsg + date, JSON.stringify(gData), 3);
+                       }
                     }
                     --offset;
                     getRecords();
