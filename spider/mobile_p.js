@@ -162,13 +162,13 @@ dSpider("mobile", 60 * 5, function (session, env, $) {
                 } else if(data.retCode=="3035"){
                     log("超出查询范围"+date);
                     if(++beyondDateTimes==3){
-                      return session.finish("连续三个月爬取超出范围"+date,JSON.stringify(gData),3) ;
+                      return session.finish(data.retMsg+date,JSON.stringify(gData),3) ;
                     }
                     --offset;
                     getRecords();
                 }
                 else {
-                    session.finish(date + "爬取失败", JSON.stringify(data), 3)
+                    session.finish(date + "爬取失败:"+JSON.stringify(data),"" , 3)
                 }
             })
         }
@@ -348,7 +348,7 @@ dSpider("mobile", 60 * 5, function (session, env, $) {
          .attr({"disabled": true});
         $('#account_nav').click(function () {
             if (!$('#p_pwd').val()) {
-                window.jQuery("#p_phone_account").blur();
+                window.jQuery && window.jQuery("#p_phone_account").blur();
             }
 
         });
