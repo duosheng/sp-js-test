@@ -2,7 +2,8 @@
  * Created by du on 16/9/1.
  */
 var $ = dQuery;
-String.prototype.format = function () {
+
+String.prototype.dsFormat = function () {
     var args = [].slice.call(arguments);
     var count = 0;
     return this.replace(/%s/g, function () {
@@ -17,11 +18,21 @@ String.prototype.trim = function () {
 String.prototype.empty = function () {
     return this.trim() === "";
 };
+$.onload=function(cb){
+    if(document.readyState=="complete"){
+        cb();
+    }else {
+        window.addEventListener("load",function(){
+            cb();
+        })
+    }
+}
 
 function _logstr(str){
     str=str||" "
     return typeof str=="object"?JSON.stringify(str):(new String(str)).toString()
 }
+
 function log(str) {
     var s= window.curSession
     if(s){
@@ -35,7 +46,7 @@ function log(str) {
 function errorReport(e) {
     var msg="语法错误: " + e.message +"\nscript_url:"+_su+"\n"+ e.stack
     if(window.curSession){
-        curSession.log(msg);
+        curSession.log(msg,-1);
         curSession.finish(e.message,"",2,msg);
     }
 }
@@ -72,7 +83,7 @@ dQuery.errorReport = errorReport;
 function hook(fun) {
     return function () {
         if (!(arguments[0] instanceof Function)) {
-            t = arguments[0];
+            var t = arguments[0];
             log("warning: " + fun.name + " first argument should be function not string ")
             arguments[0] = function () {
                 eval(t)
@@ -189,7 +200,6 @@ function dSpider(sessionKey,timeOut, callback) {
         }
         var session = new DataSession(sessionKey);
         var onclose=function(){
-            log("onNavigate:"+location.href)
             session._save()
             if(session.onNavigate){
                 session.onNavigate(location.href);
@@ -225,7 +235,7 @@ function dSpider(sessionKey,timeOut, callback) {
                                 if(v=="_blank") return "_self"
                             })
                         })
-                        log("dSpider start!")
+                        session.log("dSpider start!",-1)
                         extras.config=typeof _config==="object"?_config:"{}";
                         callback(session, extras, $);
                     }))
@@ -240,6 +250,7 @@ $(function(){
         window.onSpiderInited(dSpider.bind(5));
     }
 })
+
 /**
  * Created by du on 16/8/17.
  */
@@ -268,20 +279,17 @@ function callHandler(){
 
 function DataSession(key) {
     this.key = key;
-    log("start called")
     this.finished=false;
     callHandler("start", {"sessionKey":key})
 }
 
 DataSession.getExtraData = function (f) {
-    log("getExtraData called")
     callHandler("getExtraData", null, function (data) {
         f && f(JSON.parse(data || "{}"))
     })
 }
 
 DataSession.getArguments= function (f) {
-    log("getArguments called")
     callHandler("getArguments", null, function (data) {
         f && f(data)
     })
@@ -302,27 +310,22 @@ DataSession.prototype = {
     },
 
     get: function (key) {
-        log("get called")
         return this.data[key];
     },
     set: function (key, value) {
-        log("set called")
         this.data[key]=value;
         this._save();
     },
 
     showProgress: function (isShow) {
-        log("showProgress called")
         isShow=isShow === undefined ? true : !!isShow;
         _resetTimer(isShow)
         callHandler("showProgress", {"show":isShow});
     },
     setProgressMax: function (max) {
-        log("setProgressMax called")
         callHandler("setProgressMax", {"progress":max});
     },
     setProgress: function (progress) {
-        log("setProgress called")
         callHandler("setProgress", {"progress":progress});
     },
     setStartUrl:function(){
@@ -330,16 +333,19 @@ DataSession.prototype = {
     },
     finish: function (errmsg, content, code,stack) {
         var that=this;
-        if($.type(content)!="string"){
-            content=JSON.stringify(content)
-        }
         DataSession.getExtraData(function (d) {
             var ret = {"sessionKey":that.key, "result": 0, "msg": ""}
+            var _log=that.get("__log");
+            _log=_log?("\nLOG: \n"+_log):"";
+            if($.type(content)!="string"){
+                content=JSON.stringify(content)
+            }
             if (errmsg) {
                 var ob = {
                     url: location.href,
-                    msg: errmsg,
-                    args:this.getArguments&&this.getArguments(),
+                    msg: "Error msg:\n"+errmsg+_log,
+                    args:that.getArguments&&that.getArguments(),
+                    netState:navigator.connection,
                     content: content||document.documentElement.outerHTML
                 }
                 stack&&(ob.stack=stack);
@@ -353,13 +359,15 @@ DataSession.prototype = {
         })
 
     },
-    upload: function (value,f) {
+    upload: function (value) {
         if (value instanceof Object) {
             value = JSON.stringify(value);
         }
         log("push called")
-        f=f||function(b){log("push "+b)};
-        callHandler("push", {"sessionKey": this.key, "value": encodeURIComponent(value)},f);
+        callHandler("push", {"sessionKey": this.key, "value": encodeURIComponent(value)});
+    },
+    push:function(value){
+        this.upload(value)
     },
     load:function(url,headers){
         headers=headers||{}
@@ -384,23 +392,24 @@ DataSession.prototype = {
     string: function () {
         log(this.data)
     },
-    setProgressMsg:function(){
+    setProgressMsg:function(str){
         if(!str) return;
         callHandler("setProgressMsg",{"msg":encodeURIComponent(str)})
     },
     log: function(str,type) {
         str=_logstr(str);
         console.log("dSpider: "+str)
+        if(type!==-1) {
+            this.set("__log", (this.get("__log")||"") + "> " + str+"\n");
+        }
         callHandler("log",{"type":type||1,"msg":encodeURIComponent(str)})
     },
     setLocal: function (k, v) {
-        log("save called")
         this.local[k]=v;
         callHandler("save", {"key": this.key, "value": JSON.stringify(this.local)})
     },
 
     getLocal: function (k) {
-        log("read called")
         return this.local[k];
     }
 

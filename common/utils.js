@@ -2,6 +2,7 @@
  * Created by du on 16/9/1.
  */
 var $ = dQuery;
+
 String.prototype.dsFormat = function () {
     var args = [].slice.call(arguments);
     var count = 0;

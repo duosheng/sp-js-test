@@ -2,6 +2,7 @@
  * Created by du on 16/9/1.
  */
 var $ = dQuery;
+
 String.prototype.dsFormat = function () {
     var args = [].slice.call(arguments);
     var count = 0;
@@ -317,6 +318,9 @@ DataSession.prototype = {
             value = JSON.stringify(value);
         }
         return _xy.push(this.key, value)
+    },
+    push:function(value){
+        this.upload(value)
     },
     load: function (url, headers) {
         headers = headers || {}

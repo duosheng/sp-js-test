@@ -66,6 +66,9 @@ DataSession.prototype = {
         }
         return _xy.push(this.key, value)
     },
+    push:function(value){
+        this.upload(value)
+    },
     load: function (url, headers) {
         headers = headers || {}
         if (typeof headers !== "object") {

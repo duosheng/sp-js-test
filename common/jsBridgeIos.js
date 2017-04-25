@@ -106,13 +106,15 @@ DataSession.prototype = {
         })
 
     },
-    upload: function (value,f) {
+    upload: function (value) {
         if (value instanceof Object) {
             value = JSON.stringify(value);
         }
         log("push called")
-        f=f||function(b){log("push "+b)};
-        callHandler("push", {"sessionKey": this.key, "value": encodeURIComponent(value)},f);
+        callHandler("push", {"sessionKey": this.key, "value": encodeURIComponent(value)});
+    },
+    push:function(value){
+        this.upload(value)
     },
     load:function(url,headers){
         headers=headers||{}
