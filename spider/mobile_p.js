@@ -7,7 +7,7 @@ dSpider("mobile", 60 * 5, function (session, env, $) {
     if (location.href.indexOf('shop.10086.cn/i/?f=billdetailqry&welcome=') >= 0) {
         var gData = session.get("gData") || {month_status: []};
         var TOTAL = 4;
-        var MONTH = session.get("lastMonth")
+        var MONTH = session.get("lastMonth")||session.getArguments().month;
         MONTH = MONTH === undefined ? TOTAL : MONTH;
         var offset = session.get("lastOffset") || 0;
         var callback; //验证成功后的回调
@@ -349,8 +349,11 @@ dSpider("mobile", 60 * 5, function (session, env, $) {
             session.set("firstSMSTime", Date.now());
         });
 
-        $('#p_phone_account,#p_phone').val(PHONE)
-         .attr({"disabled": true});
+        var phoneInput=$('#p_phone_account,#p_phone');
+        phoneInput.val(PHONE)
+        if(session.getArguments().phoneNo) {
+                phoneInput.attr({"disabled": true});
+        }
         $('#account_nav').click(function () {
             if (!$('#p_pwd').val()) {
                 window.jQuery && window.jQuery("#p_phone_account").blur();
