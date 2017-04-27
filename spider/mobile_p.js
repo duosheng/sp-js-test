@@ -173,7 +173,6 @@ dSpider("mobile", 60 * 5, function (session, env, $) {
                     getRecords();
                 }
                 else {
-                    confirm(data.retMsg);
                     session.finish(date + "爬取失败:"+JSON.stringify(data),"" , 3)
                 }
             })
@@ -324,7 +323,6 @@ dSpider("mobile", 60 * 5, function (session, env, $) {
                     showVc(getRecords)
 
                 } else {
-                    confirm(ret.retMsg);
                     session.finish("获取用户信息失败", ret, 3)
                 }
             }).fail(function (xhr) {
