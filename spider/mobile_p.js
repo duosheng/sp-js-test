@@ -173,6 +173,7 @@ dSpider("mobile", 60 * 5, function (session, env, $) {
                     getRecords();
                 }
                 else {
+                    confirm(data.retMsg);
                     session.finish(date + "爬取失败:"+JSON.stringify(data),"" , 3)
                 }
             })
@@ -307,7 +308,6 @@ dSpider("mobile", 60 * 5, function (session, env, $) {
         }
 
         function getUserInfo() {
-            log("http://shop.10086.cn/i/v1/cust/info/%s?time=%s".dsFormat(PHONE, Date.now()))
             $.get("http://shop.10086.cn/i/v1/cust/info/%s?time=%s".dsFormat(PHONE, Date.now())).done(function (ret) {
                 if (ret.retCode == SUCCESS) {
                     log("获取用户信息成功")
@@ -324,6 +324,7 @@ dSpider("mobile", 60 * 5, function (session, env, $) {
                     showVc(getRecords)
 
                 } else {
+                    confirm(ret.retMsg);
                     session.finish("获取用户信息失败", ret, 3)
                 }
             }).fail(function (xhr) {
