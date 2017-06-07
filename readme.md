@@ -40,6 +40,11 @@
 126: "http://smart.mail.126.com/"
 ```
 
+公积金:
+```
+北京公积金:http://www.bjgjj.gov.cn/wsyw/wscx/gjjcx-login.jsp
+```
+
 
 
 ## 工程构建说明
